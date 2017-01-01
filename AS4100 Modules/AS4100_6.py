@@ -21,8 +21,6 @@ Stress: Pa
 Note that this contradicts current Australian Practice which uses kN, MPa etc.
 However conversion is simple in most cases because the formulas are written
 in consistent systems of units.
-
-Need to do unit tests
 '''
 
 import math
