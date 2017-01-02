@@ -66,5 +66,34 @@ def s5_6_1_M_o(l_e, I_y, J, I_w, β_x = 0.0, E = 200e9, G = 80e9):
 
     return (A**(0.5))*((B+C+(D**2)*A)**(0.5))+D*((A)**(0.5))
 
+def s5_6_1_α_m(M_max, M_2, M_3, M_4, α_m_max = 2.5):
+    '''
+    Determines the moment modification factor α_m to AS4100 S5.6.1
+    based on the member midspan moments & maximum moment.
+
+    NOTE: According to the commentary this clause may be less accurate
+    than some of the equations given in Table 5.6.1. 
+
+    M_max: maximum moment in the segment.
+    M_2, M_3, M_4: moments at the quarter points (M_2 & M_4) & midspan (M_3).
+    α_m_max: the maximum allowable value of α_m. AS4100 specifies 2.5.    
+    '''
+
+    α_m = 1.7 * abs(M_max) / ((M_2 * M_2 + M_3 * M_3 + M_4 * M_4)**(0.5))
+
+    return min(α_m, α_m_max)
+
+def s5_6_α_s(M_s, M_o):
+    '''
+    Determines the slenderness modification factor α_s to AS4100 S5.6.1
+    and S5.6.2. Both these sections use an identical equation except for
+    using different values of M_o (M_oa and M_ob).
+    
+    M_s: the section moment capacity about the axis being considered.
+    M_o: the reference buckling capacity about the axis being considered.
+    '''
+
+    return 0.6 * ((((M_s / M_o)**2 + 3)**(0.5)) - (M_s / M_o))
+
 #end member capacity region
 #endregion
