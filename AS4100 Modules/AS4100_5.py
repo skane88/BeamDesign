@@ -95,5 +95,62 @@ def s5_6_α_s(M_s, M_o):
 
     return 0.6 * ((((M_s / M_o)**2 + 3)**(0.5)) - (M_s / M_o))
 
+def s5_6_3_k_t(d_1, l, t_f, t_w, n_w, restraint_code = "FF"):
+    '''
+    Calculates the twist restraint factor to AS4100 S5.6.3.
+
+    d_1: the web depth as per AS4100 (ignoring fillets & welds).
+    l: the member segment length.
+    t_f: flange thickness
+    t_w: web thickness
+    n_w: no. of webs.
+    restraint_code: the restraint code based on AS4100 S5. acceptable values
+                    are: FF, FL, LL, FU, FP, PL, PU, PP
+    '''
+
+    if restraint_code in ['FF', 'FL', 'LL', 'FU']:
+        kt = 1.0
+    elif restraint_code in ['FP', 'PL', 'PU']:
+        kt = 1 + ((d_1 / l) * (t_f / (2 * t_w))**3) / n_w
+    elif restraint_code in ['PP']:
+        kt = 1 + (2 * (d_1 / l) * (t_f / (2 * t_w))**3) / n_w
+    else:
+        raise ValueError("Inappropriate restraint code provided. " + 
+                         "expected FF, FL, LL, FU, FP, PL, PU or PP. " +
+                         "Value provided was " + restraint_code + ".")
+
+    return kt
+
+def s5_6_3_l_e(k_t, k_l, k_r, l):
+    '''
+    Determine the effective length for bending to AS4100 S5.6.3.
+
+    k_t: twist restraint factor
+    k_l: load height factor
+    k_r: lateral rotation restraint factor
+    l: member segment length between restraints
+    '''
+
+    return k_t * k_l * k_r * l
+
+def s5_6_1_Mb(α_m, α_s, M_s):
+    '''
+    Determines the member buckling capacity according to AS4100 S5.6.1.
+
+    α_m: moment modification factor.
+    α_s: slenderness modification factor.
+    M_s: section moment capacity.
+    '''
+
+    return α_m * α_s * M_s
+
 #end member capacity region
+#endregion
+
+#bending capacity methods
+#region
+
+
+
+#end bending capacity method region
 #endregion

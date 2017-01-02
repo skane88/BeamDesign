@@ -111,8 +111,8 @@ def r_ol(r_x, r_y, x_o, y_o):
         Is wrapped in an lru_cache to speed use of this function.
         '''
 
-        return ((r_x*r_x) + (r_y*r_y) + (x_o*x_o) + (y_o*y_o))**0.5
         #using r_x*r_x rather than r_x**2 to avoid overhead of a power function. 
+        return ((r_x*r_x) + (r_y*r_y) + (x_o*x_o) + (y_o*y_o))**0.5
 
 @functools.lru_cache()
 def f_euler_torsion(A, l_ez, r_x, r_y, x_o, y_o, J, I_w, E, G):
@@ -225,7 +225,7 @@ def s6_3_3_N_c(A_n, k_f, l_e, r, f_y, f_ref = 250e6, α_b = 1.0):
 #end member flexural buckling capacity methods
 #endregion
 
-#member torsion capacity methods - AS4600
+#member torsional buckling capacity methods - AS4600
 #region
 
 @functools.lru_cache()
