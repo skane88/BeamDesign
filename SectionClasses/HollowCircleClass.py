@@ -45,3 +45,17 @@ class HollowCircleClass(SectionClass):
         i = CircleClass(x,y,radius_i)
         o = CircleClass(x,y,radius_o)
         return o.area() - i.area()
+
+    def is_circle(self):
+        '''
+        Is the section circular or not?
+        '''
+
+        return True
+
+    def is_hollow(self):
+        '''
+        Is the section hollow or not?
+        '''
+
+        return True
