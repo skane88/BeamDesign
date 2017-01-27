@@ -280,7 +280,7 @@ def s5_11_3_Non_uniform_shear_factor(f_vm, f_va):
 
 def s5_11_5_V_b():
 
-    return 1.0
+    return 1.0 * 1.0
 
 #end shear capacity methods
 #endregion
