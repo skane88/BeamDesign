@@ -25,6 +25,7 @@ in consistent systems of units.
 import math
 
 #section capacity methods
+
 #region
 
 def s5_2_M_s(f_y, Z_e):
