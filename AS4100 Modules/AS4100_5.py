@@ -39,9 +39,11 @@ def s5_2_M_s(f_y, Z_e):
     return f_y * Z_e
 
 #end section capacity methods
+
 #endregion
 
 #member capacity methods
+
 #region
 
 def s5_6_1_M_o(l_e, I_y, J, I_w, β_x = 0.0, E = 200e9, G = 80e9):
@@ -146,9 +148,11 @@ def s5_6_1_Mb(α_m, α_s, M_s):
     return α_m * α_s * M_s
 
 #end member capacity region
+
 #endregion
 
 #shear capacity methods
+
 #region
 
 def s5_11_4_V_w_Generic(A_w, f_y):
