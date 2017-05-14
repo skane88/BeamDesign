@@ -1,6 +1,5 @@
 import unittest
 import AS4100_6
-import sympy
 from SymmetryClass import Symmetry
 
 class Test_UT_AS4100_6(unittest.TestCase):

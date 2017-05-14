@@ -24,7 +24,6 @@ in consistent systems of units.
 '''
 
 import math
-import sympy
 import numpy
 import functools
 from SymmetryClass import Symmetry

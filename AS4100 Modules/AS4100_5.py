@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 '''
 This module calculates the capacity of a member in bending
 to AS4100 Section 5.
