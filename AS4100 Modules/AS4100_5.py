@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 '''
 This module calculates the capacity of a member in bending
 to AS4100 Section 5.
@@ -25,6 +27,7 @@ in consistent systems of units.
 import math
 
 #section capacity methods
+
 #region
 
 def s5_2_M_s(f_y, Z_e):
@@ -38,9 +41,11 @@ def s5_2_M_s(f_y, Z_e):
     return f_y * Z_e
 
 #end section capacity methods
+
 #endregion
 
 #member capacity methods
+
 #region
 
 def s5_6_1_M_o(l_e, I_y, J, I_w, β_x = 0.0, E = 200e9, G = 80e9):
@@ -145,9 +150,11 @@ def s5_6_1_Mb(α_m, α_s, M_s):
     return α_m * α_s * M_s
 
 #end member capacity region
+
 #endregion
 
 #shear capacity methods
+
 #region
 
 def s5_11_4_V_w_Generic(A_w, f_y):
@@ -233,54 +240,85 @@ def s5_11_4_V_w(A, f_y, is_CHS = False, is_welded = False,
     The check for shear capacity reduced by weld strength is NOT performed
     for CHS sections.
 
-    A: the shear area of the section, either A_w or A_e, depending on whether
+    :param A: the shear area of the section, either A_w or A_e, depending on whether
        the section is a generic section or a CHS.
+       
         A_w: the gross sectional area of the component carrying shear.
-             For hot rolled I & C sections it is acceptable to use the full
-             depth of the section. For welded sections it is necessary to use
-             only the web panel depth due to the discontinuity at the flange
-             welds.
+        For hot rolled I & C sections it is acceptable to use the full
+        depth of the section. For welded sections it is necessary to use
+        only the web panel depth due to the discontinuity at the flange
+        welds.
+        
         A_e: the effective area of the section, allowing for holes in the
-             section as per AS4100 S5.11.4. Normally the gross area of the
-             section will be acceptable as holes are not often made into
-             standard sized circular members.
-    f_y: the yield strength of the component in shear
-    is_CHS: is the section a CHS? Default is False.
-    is_welded: will welds affect the shear capacity? Default is False.
-    no_welds: the number of welds to the web panel/s. Default is 0.0.
-    v_w: the weld capacity. Default is 0.0.
-    Q_max: the moment of area of the largest flange connected to the section.
+        section as per AS4100 S5.11.4. Normally the gross area of the
+        section will be acceptable as holes are not often made into
+        standard sized circular members.
+    :param f_y: the yield strength of the component in shear
+    :param is_CHS: is the section a CHS? Default is False.
+    :param is_welded: will welds affect the shear capacity? Default is False.
+    :param no_welds: the number of welds to the web panel/s. Default is 0.0.
+    :param v_w: the weld capacity. Default is 0.0.
+    :param Q_max: the moment of area of the largest flange connected to the section.
            Default is 0.0.
-    I: the section moment of inertia about the axis perpendicular to the axis
+    :param I: the section moment of inertia about the axis perpendicular to the axis
        in which the shear is being applied. Default is 0.0.
+    :return: Returns the shear yield capacity.   
     '''
 
-    if section.is_circle & section.is_hollow:
+    if is_CHS:
         V = s5_11_4_V_w_CHS(A, f_y)
     else:
         V = s5_11_4_V_w_Generic(A, f_y)
 
-        if weld_limited:
+        if is_welded:
             V_w = s5_11_4_V_w_Weldlimited(no_welds, v_w, Q_max, I)
             V = min(V, V_w)
 
     return V
+
+def s5_11_5_α_v(d_p, t_w, f_y, slenderness_limit = 82.0, f_y_ref = 250.):
+    '''
+    Determines the shear buckling coefficient α_v, which reduces the shear
+    yielding load as per AS4100 section 11.5
+    
+    :param d_p: The web panel depth
+    :param t_w: The web thickness
+    :param f_y: The yield strength
+    :param slenderness_limit: The slenderness limit. By default this is 82.0, 
+        which is only valid for a web pin supported top and bottom. 
+        In some circumstances this value may be very unconservative (i.e.
+        shear buckling of an angle leg supported on one side only) Refer to
+        "The Behaviour and Design of Steel Structures to AS4100" by Trahair
+        et al. for more information.
+    :param f_y_ref: The reference yield stress used in the slenderness limit
+        equations. By default this is 250.0 in line with AS4100.
+    :return: Returns the shear bucklign coefficient α_v.
+    '''
+
+    α_v = 1.0
+
+    if d_p / t_w > ((slenderness_limit) / ((f_y / f_y_ref)**0.5)):
+        α_v = ((slenderness_limit) / ((d_p / t_w)*((f_y / f_y_ref)**0.5)))**2
+
+    return min(α_v, 1.0)
 
 def s5_11_3_Non_uniform_shear_factor(f_vm, f_va):
     '''
     Determines the non-uniform shear modification factor as per
     AS4100 S5.11.3. This applies for sections such as PFCs, Mono-symmetric
     I sections, angle sections etc.
-    
-    f_vm: the maximum shear stress in the section from an elastic analysis.
-    f_va: the average shear stress in the section from an elastic analysis.
+
+    :param f_vm: The maximum shear stress in the section from an elastic analysis.
+    :param f_va: The average shear stress in the section from an elastic analysis.
+    :return: Returns the non-uniform shear factor used to reduce the shear capacity
+        for non-uniform members.
     '''
 
     return 2 / (0.9 + (f_vm / f_va))
 
-def s5_11_5_V_b():
+def s5_11_2_V_u():
 
-    return 1.0
+    return 1.0 * 1.0
 
 #end shear capacity methods
 #endregion
