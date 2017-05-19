@@ -368,7 +368,7 @@ def s5_11_2_V_u(A, f_y, is_CHS = False, d_p = 1.0, t_w = 1.0,
     V_w = s5_11_4_V_w(A, f_y, is_CHS, is_welded, no_welds, v_w, Q_max, I)
     α_v = 1.0 #by default
 
-    if is_CHS = False:
+    if is_CHS == False:
         V_y = s5_11_4_V_w_Generic(A, f_y) #buckling only applies to yield strength
                                           #not to the weld limited capacity
         α_v = s5_11_5_α_v(d_p, t_w, f_y, slenderness_limit, f_y_ref)
@@ -377,7 +377,7 @@ def s5_11_2_V_u(A, f_y, is_CHS = False, d_p = 1.0, t_w = 1.0,
 
     uniform_shear_factor = 1.0 #by default
 
-    if is_uniform = False:
+    if is_uniform == False:
         uniform_shear_factor = s5_11_3_Non_uniform_shear_factor(f_vm, f_va)
 
     V_u = α_v * V_w * uniform_shear_factor
