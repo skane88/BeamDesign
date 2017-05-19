@@ -8,6 +8,10 @@ This does NOT include sections calculating the section capacities
 considering local buckling etc. It is assumed that all section properties
 are calculated separately at this stage.
 
+This section only calculates properties that are independent of loads - 
+properties dependent on other loads (i.e. shear capacities in S5.12)
+will be calculated in a dedicated combined actions module.
+
 Units are assumed to be based on SI units:
 
 Length: m,
