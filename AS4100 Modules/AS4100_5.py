@@ -349,6 +349,11 @@ def s5_11_2_V_u(A: Union(List[float], float), f_y: Union(List[float], float),
     :return: Returns the shear capacity of the section.
     """
 
+    #Input check region
+    #region
+
+    #region
+
     #check if A, f_y, is_CHS, d, t and slenderness_limit are lists.
     #if not, convert to lists.
     if type(A) != list:
@@ -373,6 +378,35 @@ def s5_11_2_V_u(A: Union(List[float], float), f_y: Union(List[float], float),
         #if the list length is <0 there are no items to check
         raise ValueError("Expected a list of shear elements to check. Input" +
                          "does not contain any shear elements")
+
+    #endregion
+
+    #region
+
+    #need to do the same checks for the no_welds, v_w and Q lists.
+    #convert values to lists if not a list.
+    if type[no_welds] != list:
+        no_welds = [no_welds]
+    if type[v_w] != list:
+        v_w = [v_w]
+    if type [Q] != list:
+        Q = [Q]
+
+    #build a list of lengths to check min & max lengths
+
+    list_lens = [len(no_welds), len(v_w), len(Q)]
+
+    if min(list_lens) != max(list_lens):
+        # if the minimum list length <> maximum list length there is an error
+        raise IndexError("Expected all entry lists to be of the same size")
+    if list_lens[0] <= 0:
+        # if the list length is <0 there are no items to check
+        raise ValueError("Expected a list of shear weld elements to check. " +
+                         "Input does not contain any shear weld elements")
+
+    #endregion
+
+    #endregion
 
     #determine the minimum shear yield strength.
     f_y_min = min(f_y)
