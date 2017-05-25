@@ -186,7 +186,8 @@ def s5_11_4_V_w_Generic(A_w: float, f_y: float):
     
     return 0.6 * f_y, A_w
 
-def s5_11_4_V_w_Weldlimited(no_welds: int, v_w: float, Q_max: float, I: float):
+def s5_11_4_V_w_Weldlimited(v_w: Union(List[float], float), Q: float,
+                            I: float):
     """
     Calculates the capacity of section in shear according to AS4100 S5.11.4
     where the capacity is limited by a weld, as is the case with some welded
@@ -201,14 +202,24 @@ def s5_11_4_V_w_Weldlimited(no_welds: int, v_w: float, Q_max: float, I: float):
     of φ for the welds in question. Typically this is not the same as the
     value of φ for structural steel.
 
-    no_welds: the number of welds to the web panel/s.
-    v_w: the weld capacity
-    Q_max: the moment of area of the largest flange connected to the section.
-    I: the section moment of inertia about the axis perpendicular to the axis
-       in which the shear is being applied.
+    :param v_w: The weld capacity connecting the element being considered
+        (in N/m). This can be either a float, or if more than one weld is
+        used, a list of floats. I.e. for a welded I-beam with a weld either
+        side of the web, you could supply either a single float:
+        (v_w_LHS + v_w_RHS), or a list: [v_w_LHS, v_w_RHS].
+    :param Q: The first or area moment of element that is being connected to
+        the main section.
+    :param I: the section moment of inertia about the axis perpendicular to
+        the axis in which the shear is being applied.
     """
 
-    return (no_welds * v_w) * I / Q_max
+    #first check if v_w is a list or not
+    if type(v_w) != list:
+        #if not, convert it to a list so that the return equation does not
+        #need to be different for lists & floats.
+        v_w = [v_w]
+
+    return sum(v_w) * I / Q
 
 def s5_11_4_V_w_CHS(A_e: float, f_y: float):
     """
@@ -411,6 +422,10 @@ def s5_11_2_V_u(A: Union(List[float], float), f_y: Union(List[float], float),
     #determine the minimum shear yield strength.
     f_y_min = min(f_y)
 
+    #calculate the yield strength
+
+    #region
+
     #set the shear capacity to 0 by default
     V_y = 0.0
     A_current = 0.0
@@ -447,6 +462,8 @@ def s5_11_2_V_u(A: Union(List[float], float), f_y: Union(List[float], float),
     #NOTE: by default yield strength is set equal to V_w. In reality this
     #could be limited by the welds, but to guard against this the yield
     #strength is re-calculated below
+
+    #endregion
 
     α_v = 1.0 #by default
 
