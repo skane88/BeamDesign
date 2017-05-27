@@ -186,7 +186,8 @@ def s5_11_4_V_w_Generic(A_w: float, f_y: float):
     
     return 0.6 * f_y, A_w
 
-def s5_11_4_V_w_Weldlimited(v_w: Union(List[float], float), Q: float,
+def s5_11_4_V_w_Weldlimited(v_w: Union(List[float], float),
+                            t: List(List[float]), f_y_min: float, Q: float,
                             I: float):
     """
     Calculates the capacity of section in shear according to AS4100 S5.11.4
@@ -207,6 +208,13 @@ def s5_11_4_V_w_Weldlimited(v_w: Union(List[float], float), Q: float,
         used, a list of floats. I.e. for a welded I-beam with a weld either
         side of the web, you could supply either a single float:
         (v_w_LHS + v_w_RHS), or a list: [v_w_LHS, v_w_RHS].
+    :param t: The minimum total thickness of parts on either side of the
+        interface. Yielding can occur either in the welds or the connected
+        parts. This must be a list of 2x Lists of floats, where each list
+        contains the thickness of components on either side of the joint.
+        I.e. for a Box Girder with a 50mm thick plate flange and 2x 12mm webs:
+        [[0.050], [0.012, 0.012]]
+    :param f_y_min: The minimum yield strength of any connected part.
     :param Q: The first or area moment of element that is being connected to
         the main section.
     :param I: the section moment of inertia about the axis perpendicular to
@@ -219,7 +227,27 @@ def s5_11_4_V_w_Weldlimited(v_w: Union(List[float], float), Q: float,
         #need to be different for lists & floats.
         v_w = [v_w]
 
-    return sum(v_w) * I / Q
+    #next check that t is a lest, is 2x elements long and contains lists
+    if type(t) != list:
+        raise ValueError("Expected t to be List[List[float]] and it is not" +
+                         " a list")
+    if len(t) != 2:
+        raise ValueError("t should be a list with 2x elements, each a "
+                         + "List(float)")
+    if (type(t[0]) != list) or (type(t[1]) != list):
+        raise ValueError("t should be a list with 2x elements, each a "
+                         + "List(float)")
+
+    #add up all the weld capacities
+    v_w = sum(v_w)
+    v_v_w = v_w * I / Q
+
+    #determine the minimum thickness for yielding check
+    t = min([sum(t[0]), sum(t[1])])
+    v_y = (t * f_y) * I / Q
+
+    return min(v_v_w, v_y) #return is minimum of the weld failure load
+                           #or the yield capacity of the interfaces.
 
 def s5_11_4_V_w_CHS(A_e: float, f_y: float):
     """
@@ -281,10 +309,9 @@ def s5_11_2_V_u(A: Union(List[float], float), f_y: Union(List[float], float),
                 t: Union(List[float], float),
                 slenderness_limit: Union(List[float], float),
                 no_welds: Union(List[int], int),
-                v_w: Union(List[float], float), Q: Union(List[float],float),
-                f_y_ref = 250e6,
-                is_welded = False, v_w: float = 0.0,
-                I: float = 0.0, is_uniform: bool = True,
+                v_w: Union(List[Union(float, List[float])], float),
+                Q: Union(List[float],float), f_y_ref = 250e6,
+                is_welded = False, I: float = 0.0, is_uniform: bool = True,
                 f_vm: float = 1.0, f_va: float = 1.0) -> float:
     """
     Determines the shear capacity of a member according to AS4100 S5.11.2.
@@ -322,7 +349,14 @@ def s5_11_2_V_u(A: Union(List[float], float), f_y: Union(List[float], float),
     :param f_y: The yield strength of the component in shear. This parameter
         is either a float, or if multiple units are present, a list of floats
         can be used to enable multiple shear components to be considered.
-        Only the minimum yield strength is used.
+        Only the minimum yield strength is used to determine the yield
+        strength of the section. FEA models determining the capacity of
+        sections with different yield strengths in their components typically
+        show that there is very little additional capacity to be gained, as
+        load shedding in the post yield plateau and buckling are much more
+        important factors in realistic structures. f_y IS considered on an
+        element by element basis to determine the buckling factor of each
+        element though as this is a pre-yield phenomenon.
     :param is_CHS: Is the section a CHS?
     :param d: The web panel depth or CHS outside diameter.
     :param t: The web or CHS thickness.
@@ -343,7 +377,10 @@ def s5_11_2_V_u(A: Union(List[float], float), f_y: Union(List[float], float),
     :param v_w: The weld capacity. Default is 0.0.
         A list of weld capacities can be provided. Each item in the list
         should correspond to the weld capacity of the welds that connect
-        an element of a given Q value below to the rest of the element.
+        an element of a given Q value below to the rest of the element. For
+        each weld group, either a float should be provided (if there is 1x
+        weld) or a list of floats. I.e. either: 1.0 or [1.0, 2.0, 3.0] or
+        [1.0, [1.0, 1.0], 3.0] or [[1.0], [1.0, 2.0], [3.0]] are valid.
     :param Q: The moment of area of the element connected to the rest of the
         structure (i.e. a flange, or a web element). A list can be provided
         to allow consideration of multiple elements that make up a section.
@@ -459,31 +496,87 @@ def s5_11_2_V_u(A: Union(List[float], float), f_y: Union(List[float], float),
         #the total shear strength in yield is the sum of all element types:
         V_y = V_y + V_current
 
-    #NOTE: by default yield strength is set equal to V_w. In reality this
-    #could be limited by the welds, but to guard against this the yield
-    #strength is re-calculated below
+    #NOTE: this yield capacity could be limited by welds or buckling.
+    #these effects are calculated below.
 
     #endregion
+
+    #check buckling capacity.
+
+    #region
 
     α_v = 1.0 #by default
 
     #next need to calculate the buckling capacity of every element.
 
-    if not is_CHS:
-        V_y = s5_11_4_V_w_Generic(A, f_y) #buckling only applies to yield
-                                          #strength not to the weld limited
-                                          #capacity
-        α_v = s5_11_5_α_v(d, t, f_y, slenderness_limit, f_y_ref)
+    for i in range(len(A)):
+        #go through all elements.
+        if not is_CHS[i]:
+            #Assumed that CHS cannot buckle in shear. This is probably
+            #not correct but AS4100 provides no guidance on shear buckling
+            #of CHS sections.
 
-    V_u = min(α_v * V_y, V_w) #shear capacity is lower of yield or weld
-                              #limited capacity.
+            #if not a CHS then check for buckling and return the minimum
+            #of the current buckling parameter and the calculated one for
+            #the item in question. The assumption is that when buckling of
+            #the first panel occurs all remaining panels buckle in a
+            #progressive collapse mechanism. This may be too conservative
+            #in sections with very thin elements.
+            α_v = min(s5_11_5_α_v(d[i], t[i], f_y[i], slenderness_limit,
+                                  f_y_ref), α_v)
+
+    #endregion
+
+    #non-uniform shear check
+
+    #region
 
     uniform_shear_factor = 1.0 #by default
 
     if not is_uniform:
         uniform_shear_factor = s5_11_3_Non_uniform_shear_factor(f_vm, f_va)
 
-    V_u = α_v * V_w * uniform_shear_factor
+    #endregion
+
+    #using the uniform shear factor and the buckling factor a panel capacity
+    #is determined. This is the sum of all the individual panel capacities
+    #as reduced by the buckling and non-uniform shear factors.
+    V_p = α_v * V_y * uniform_shear_factor
+
+    #check weld capacity.
+
+    #region
+
+    V_w = 0.0  # default value set to 0.0
+
+    if is_welded:
+        #first check if welded, otherwise there is no point reducing capacity.
+        #otherwise check capacity with welds.
+
+        for i in range(Q):
+
+            V_w_current = s5_11_4_V_w_Weldlimited(v_w[i], Q[i], I)
+
+            if i == 1:
+                #initialise the value of V_w to a non 0.0 value.
+                V_w = V_w_current
+            else:
+                V_w = min(V_w, V_w_current)
+
+    #note that V_w is not reduced by the buckling or non-uniform shear factors
+    #as this is not a buckling mechanism and the use of Q for any individual
+    #component directly accounts for the uniformity of the shear.
+
+    #endregion
+
+    #finally, determine V_u
+
+    if is_welded:
+        V_u = min(V_p, V_w) #shear capacity is lower of the panel capacity or
+                            #the welds that connect it together
+    else:
+        #if not welded, shear capacity is just V_p
+        V_u = V_p
 
     return V_u
 
