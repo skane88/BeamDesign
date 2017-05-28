@@ -40,8 +40,9 @@ def s5_2_M_s(f_y, Z_e):
     """
     Calculates the member section capacity according to AS4100 S5.2
     
-    f_y: the section yield stress.
-    Z_e: the effective section modulus calculated according to S5.2.
+    :param f_y: the section yield stress.
+    :param Z_e: the effective section modulus calculated according to S5.2.
+    :return: Returns the member section capacity.
     """
     
     return f_y * Z_e
