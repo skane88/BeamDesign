@@ -374,33 +374,44 @@ def f_oc_single_symmetric(A_n: float, l_ex: float, l_ey: float, l_ez: float,
                           J: float, I_w: float, E: float, G: float,
                           sym: object = Symmetry()):
     """
-    Calcluates the flexural-torsional buckling stress for a singly symmetric
+    Calculates the flexural-torsional buckling stress for a singly symmetric
     section as per AS4600, as required by AS4100 S6.3.3.
-    Calculated as per AS4600 S3.4.3
-    Note that the "x" axis for singly symmetric sections is actually the axis
-    of symmetry according to AS4600. For most practical monosymmetric sections
-    such as I sections with unequal flanges it is expected that this will be
-    conservative as this will be the weaker axis anyway. For some sections
-    such as PFCs, angles and shallow Is with a very wide flanges
-    the stronger axis is actually the axis of symmetry (x axis is the symmetry
-    axis) - in this case it is presumed that minor axis flexural buckling is
-    more likely to govern and will be covered by other clauses in AS4100 S6.3.
-    Ignores the flexural-buckling stress as this is calculated from direct
-    AS4100 formulas.
 
-    A_n: net area of the section. NOTE: AS4600 uses the full area -
-        using net area should be slightly conservative in some cases.
-    l_ex, l_ey, l_ez: effective lengths of the member.
-    r_x, r_y: radius of gyration.
-    x_o, y_o: distance from shear centre to centroid.
-    J: St Venant's torsion constant.
-    I_w: the warping constant of the shape.
-    E: the elastic modulus.
-    G: the shear modulus.
-    sym: a Symmetry type object describing the section's axes of symmetry.
+    Calculated as per AS4600 S3.4.3, although it ignores the
+    flexural-buckling stress as this is calculated from direct AS4100 formulas.
 
-    returns a dictionary with intermediate calculation values included.
-    For the value of f_oc only call returnvals["f_oc"].
+    Note that according to AS4600, the "x" axis for singly symmetric sections
+    is actually the axis of symmetry. For most practical monosymmetric
+    sections such as I sections with unequal flanges it is expected that this
+    will be conservative as this will be the weaker axis anyway.
+
+    For some sections such as PFCs, angles and shallow monosymmetric Is with
+    very wide flanges the stronger axis is actually the axis of symmetry
+    (x axis is the symmetry axis) - in this case it is presumed that minor
+    axis flexural buckling is more likely to govern and will be covered by
+    other clauses in AS4100 S6.3, although this has not been tested yet.
+
+    :param A_n: The net area of the section. In m².
+        NOTE: AS4600 uses the full area for this calculation, but AS4100 uses
+        the net area generally in torsional calculations.
+        Using net area should be slightly conservative in some cases.
+    :param l_ex: The effective length of the member in m.
+    :param l_ey: The effective length of the member in m.
+    :param l_ez: The effective length of the member in m.
+    :param r_x: The radius of gyration in m.
+    :param r_y: The radius of gyration in m.
+    :param x_o: The distance from shear centre to centroid in m.
+    :param y_o: The distance from shear centre to centroid in m.
+    :param J: St Venant's torsion constant in m⁴.
+    :param I_w: The warping constant of the shape in m⁶.
+    :param E: the elastic modulus in Pa.
+    :param G: the shear modulus in Pa.
+    :param sym: a Symmetry class object describing the section's axes of
+        symmetry.
+    :return: Returns the flexural-torsional buckling stress for a singly
+        symmetric shape in Pa. Also returns a dictionary with intermediate
+        calculation values included for future reference.
+        For the value of f_oc only call returnvals["f_oc"].
     """
 
     if sym.symcount != 1:
@@ -436,53 +447,69 @@ def f_oc_single_symmetric(A_n: float, l_ex: float, l_ey: float, l_ez: float,
 
     return results
 
-def f_oc_point_symmetric(A_n, l_ez, r_x, r_y, x_o, y_o, J, I_w, E, G):
-    '''
-    Calcluates the flexural-torsional buckling stress for a single
-    or doubly symmetric section as per AS4600, as required by
-    AS4100 S6.3.3. Calculated as per AS4600 S3.4.4
-    Ignores the flexural buckling stresses as these are calculated
-    directly using AS4100 equations.
-    
-    A_n: net area of the section. NOTE: AS4600 uses the full area
-        - using net area should be slightly conservative in some cases.
-    l_ez: effective lengths of the member.
-    r_x, r_y: radii of gyration.
-    x_o, y_o: distance from shear centre to section centre.
-    J: St Venant's torsion constant.
-    I_w: the warping constant of the shape.
-    E: the elastic modulus.
-    G: the shear modulus.
+def f_oc_point_symmetric(A_n: float, l_ez: float, r_x: float, r_y: float,
+                         x_o: float, y_o: float, J: float, I_w: float,
+                         E: float, G: float):
+    """
+    Calculates the flexural-torsional buckling stress for a point
+    symmetric section as per AS4600, as required by AS4100 S6.3.3.
 
-    For consistency with other f_oc calculations, returns as a dictionary.
-    There are no intermediate results. To get f_oc, call results["f_oc"]
-    '''
+    Calculated as per AS4600 S3.4.4, but ignores the flexural buckling
+    stresses as these are calculated directly using AS4100 equations.
+
+    :param A_n: The net area of the section. In m².
+        NOTE: AS4600 uses the full area for this calculation, but AS4100 uses
+        the net area generally in torsional calculations.
+        Using net area should be slightly conservative in some cases.
+    :param l_ez: The effective length of the member in m.
+    :param r_x: The radii of gyration in m.
+    :param r_y: The radii of gyration in m.
+    :param x_o: The distance from shear centre to section centre in m.
+    :param y_o: The distance from shear centre to section centre in m.
+    :param J: St Venant's torsion constant in m⁴.
+    :param I_w: The warping constant of the shape in m⁶.
+    :param E: the elastic modulus in Pa.
+    :param G: the shear modulus in Pa.
+    :return: Returns the flexural-torsional buckling stress for a point
+        symmetric section as per AS4600, in Pa.
+        For consistency with other f_oc calculations, returns as a dictionary.
+        There are no intermediate results.
+        To get f_oc, call results["f_oc"]
+    """
 
     return {"f_oc": f_euler_torsion(A_n, l_ez, r_x, r_y, x_o, y_o, J, I_w, E, G),
             "Intermediate": {"AS4600 Clause": "AS4600 S3.4.4"}}
 
-def f_oc_unsymmetric(A_n, l_ex, l_ey, l_ez,
-                        r_x, r_y, x_o, y_o, J, I_w, E, G):
-    '''
+def f_oc_unsymmetric(A_n: float, l_ex: float, l_ey: float, l_ez: float,
+                     r_x: float, r_y: float, x_o: float, y_o: float,
+                     J: float, I_w: float, E: float, G: float):
+    """
     Calculate the buckling stress for a non-symmetric section using AS4600
     as required by AS4100 S6.3.3.
     Calculated according to AS4600 S3.4.5.
     Uses Sympy to solve the cubic equation.
     
-    A_n: net area of the section. NOTE: AS4600 uses the full area. Using net
-        area should be slightly conservative in some cases.
-    l_ex, l_ey, l_ez: effective lengths of the member.
-    r_x, r_y: radii of gyration.
-    x_o, y_o: location of shear centre relative to the centroid.
-    J: St Venant's torsion constant.
-    I_w: the warping constant of the shape.
-    E: the elastic modulus.
-    G: the shear modulus.
-
-    Returns a dictionary with the value of f_oc and also 
-    the intermediate results for future reference.
-    To simply use f_oc call resultvals["f_oc"].
-    '''
+    :param A_n: The net area of the section. In m².
+        NOTE: AS4600 uses the full area for this calculation, but AS4100 uses
+        the net area generally in torsional calculations.
+        Using net area should be slightly conservative in some cases.
+    :param l_ex: The effective length of the member in m.
+    :param l_ey: The effective length of the member in m.
+    :param l_ez: The effective length of the member in m.
+    :param r_x: The radii of gyration in m.
+    :param r_y: The radii of gyration in m.
+    :param x_o: The distance from shear centre to section centre in m.
+    :param y_o: The distance from shear centre to section centre in m.
+    :param J: St Venant's torsion constant in m⁴.
+    :param I_w: The warping constant of the shape in m⁶.
+    :param E: the elastic modulus in Pa.
+    :param G: the shear modulus in Pa.
+    :return Returns the buckling stress for non-symmetric sections using
+        AS4600 in Pa.
+        Returns a dictionary with the value of f_oc and also the
+        intermediate results for future reference.
+        To get just f_oc call resultvals["f_oc"].
+    """
 
     f_ox = f_euler(E, l_ex, r_x)
     f_oy = f_euler(E, l_ey, r_y)
@@ -532,37 +559,49 @@ def f_oc_unsymmetric(A_n, l_ex, l_ey, l_ez,
                                 "f_oy": f_oy, "f_oz": f_oz, "a": a, "b": b,
                                 "c": c, "d": d}}
 
-def s6_3_3_N_c_torsion(A_n, k_f, l_ex, l_ey, l_ez, r_x, r_y, x_o, y_o, J, I_w,
-                       f_y, E, G, sym = Symmetry(), uncertainty_factor = 0.85):
-    '''This calculates the torsional buckling capacity to AS4600
+def s6_3_3_N_c_torsion(A_n: float, k_f: float, l_ex: float, l_ey: float,
+                       l_ez: float, r_x: float, r_y: float, x_o: float,
+                       y_o: float, J: float, I_w: float, f_y: float,
+                       E: float, G: float, sym: object = Symmetry(),
+                       uncertainty_factor: float = 0.85):
+    """
+    This calculates the torsional buckling capacity to AS4600
     as required by AS4100 S6.3.3 for singly, point and non-symmetric
     shapes.
-    Currently ignoes flexural buckling checks and simply checks torsional
-    buckling as required by AS4100.
-    It also does not reduce the capacity to the section capacity and as
-    such could report a larger buckling capcacity than the section
-    capacity for short members.
-    
-    A_n: net area of the section. NOTE: AS4600 uses the full area - using
-        net area should be slightly conservative in some cases.
-    A_e: effective area of the section.
-    l_ex, l_ey, l_ez: effective lengths of the member.
-    r_x, r_y: radii of gyration.
-    x_o, y_o: location of shear centre relative to the centroid.
-    J: St Venant's torsion constant.
-    I_w: the warping constant of the shape.
-    f_y: the yield stress of the section.
-    E: the elastic modulus.
-    G: the shear modulus.
-    sym: An object whose str method returns one of the following:
-        'Double', 'Single', 'Point' or 'None'
-        Ideally an object of the 'Symmetry' class or its subclasses.
-    uncertainty_factor: an additional uncertainty factor as required
-        by AS4100 S6.3.3. Default is 0.85.
+    Currently ignores flexural buckling checks and simply checks torsional
+    buckling as required by AS4100. Flexural buckling is checked as per
+    AS4100 equations.
 
-    Returns a dictionary with N_cz and a number of intermediate results.
-    To return only N_cz use result_vals["N_cz"].
-    '''
+    This method also does not reduce the capacity to the section capacity. As
+    such it could report a larger buckling capacity than the section capacity
+    for short members. The user should check for this possibility.
+
+    :param A_n: The net area of the section. In m².
+        NOTE: AS4600 uses the full area for this calculation, but AS4100 uses
+        the net area generally in torsional calculations.
+        Using net area should be slightly conservative in some cases.
+    :param k_f: The section form factor as per AS4100.
+    :param l_ex: The effective length of the member in m.
+    :param l_ey: The effective length of the member in m.
+    :param l_ez: The effective length of the member in m.
+    :param r_x: The radii of gyration in m.
+    :param r_y: The radii of gyration in m.
+    :param x_o: The distance from shear centre to section centre in m.
+    :param y_o: The distance from shear centre to section centre in m.
+    :param J: St Venant's torsion constant in m⁴.
+    :param I_w: The warping constant of the shape in m⁶.
+    :param f_y: The yield stress of the section in Pa.
+    :param E: the elastic modulus in Pa.
+    :param G: the shear modulus in Pa.
+    :param sym: a Symmetry class object describing the section's axes of
+        symmetry.
+    :param uncertainty_factor: an additional uncertainty factor as required
+        by AS4100 S6.3.3. Default is 0.85.
+    :return: Returns the torsional buckling capacity N_cz in N.
+        Also returns a dictionary with a number of intermediate results for
+        future reference.
+        To return only N_cz use result_vals["N_cz"].
+    """
 
     #first calculate some required section properties
     A_e = s6_2_A_e(A_n, k_f)
@@ -613,47 +652,55 @@ def s6_3_3_N_c_torsion(A_n, k_f, l_ex, l_ey, l_ez, r_x, r_y, x_o, y_o, J, I_w,
 
     return final_results
 
-#end member torsion capacity methods - AS4600
 #endregion
 
 #member capacity methods
-#region
 
-def s6_1_1_Nc(A_n, k_f, l, k_ex, k_ey, k_ez, r_x, r_y, x_o, y_o, J, I_w, f_y,
-              E, G, sym = Symmetry(), f_ref=250e6, α_b=1.0,
-              uncertainty_factor = 0.85, φ = 0.9, calc_buckling = True,
-              calc_torsion = True):
-    '''
+def s6_1_1_Nc(A_n: float, k_f: float, l: float, k_ex: float, k_ey: float,
+              k_ez: float, r_x: float, r_y: float, x_o: float, y_o: float,
+              J: float, I_w: float, f_y: float, E: float, G: float,
+              sym: object = Symmetry(), f_ref: float = 250e6,
+              α_b: float = 1.0, uncertainty_factor: float = 0.85,
+              φ: float = 0.9, calc_buckling: bool = True,
+              calc_torsion: bool = True):
+    """
     This method is intended to provide a "one stop shop" method for the
-    AS4100 S6 checks. All calculations within the scope of AS4100 S6 are
-    intended to be included, with the exception of those that relate to section
-    properties (including k_f, which is considered to be a section property,
-    not a compression property) or member properties (i.e. length, effective
-    length factors).
+    AS4100 S6 checks.
 
-    A_n: net area of the section.
-    k_f: the form factor of the section.
-    l, k_ex, k_ey, k_ez: length & effective length factors of the member about
-        the major axes (x,y) and the torsional axis (z).
-    r_x, r_y: radii of gyration.
-    x_o, y_o: location of shear centre relative to the centroid of the shape.
-    J: St Venant's torsion constant.
-    I_w: the warping constant of the shape.
-    f_y: the yield stress of the section.
-    E: the elastic modulus.
-    G: the shear modulus.
-    sym: An object whose str method returns one of the following: 'Double',
-        'Single', 'Point' or 'None'.
-    f_ref: the reference yield stress. Default is 250.
-    α_b: the residual stress factor. Default is 1.0.
-    uncertainty_factor: an additional uncertainty factor as required by
-        AS4100 S6.3.3 for torsional buckling. Default is 0.85.
-    φ: the capacity reduction factor. Default is 0.9.
-    calc_buckling: if False buckling results are not calculated.
-    calc_torsion: if False torsional values are not calculated.
-    
-    Returns a dictionary of results and intermediate values.
-    '''
+    All calculations within the scope of AS4100 S6 are
+    intended to be included, with the exception of those that relate to
+    section properties (including k_f, which is considered to be a section
+    property, not a compression property) or member properties (i.e. length,
+    effective length factors).
+
+    :param A_n: The net area of the section. In m².
+    :param k_f: The section form factor as per AS4100.
+    :param l: The length of the member in m.
+    :param k_ex: The effective length factor.
+    :param k_ey: The effective length factor.
+    :param k_ez: The effective length factor.
+    :param r_x: The radii of gyration in m.
+    :param r_y: The radii of gyration in m.
+    :param x_o: The distance from shear centre to section centre in m.
+    :param y_o: The distance from shear centre to section centre in m.
+    :param J: St Venant's torsion constant in m⁴.
+    :param I_w: The warping constant of the shape in m⁶.
+    :param f_y: The yield stress of the section in Pa.
+    :param E: the elastic modulus in Pa.
+    :param G: the shear modulus in Pa.
+    :param sym: a Symmetry class object describing the section's axes of
+        symmetry.
+    :param f_ref: The reference yield stress in Pa. Default is 250e6 Pa.
+    :param α_b: The residual stress factor. Default is 1.0.
+    :param uncertainty_factor: an additional uncertainty factor as required
+        by AS4100 S6.3.3 for torsional buckling. Default is 0.85.
+    :param φ: The capacity reduction factor. Default is 0.9.
+    :param calc_buckling: if False buckling results are not calculated.
+    :param calc_torsion: if False torsional values are not calculated.
+    :return: Returns the member compression capacity N_c in N.
+        It also returns a dictionary of results and intermediate values
+        for future reference.
+    """
 
     A_e = s6_2_A_e(A_n, k_f) #calculate effective area, as required for calculations below
 
@@ -724,5 +771,3 @@ def s6_1_1_Nc(A_n, k_f, l, k_ex, k_ey, k_ez, r_x, r_y, x_o, y_o, J, I_w, f_y,
 
     return results
 
-#end member capacity methods
-#endregion
