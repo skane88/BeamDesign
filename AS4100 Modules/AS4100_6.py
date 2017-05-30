@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 '''
 This module calculates the compression capacity of a steel member to AS4100.
 
@@ -27,6 +29,7 @@ import math
 import numpy
 import functools
 from SymmetryClass import Symmetry
+from typing import Dict, Union
 
 #section capacity methods
 
@@ -52,7 +55,7 @@ def s6_2_N_s(A_e: float, f_y: float) -> float:
     :param f_y: The yield strength in Pa
     :return: The section capacity in N.
     '''
-    
+
     return A_e * f_y
 
 #endregion
@@ -87,7 +90,7 @@ def N_euler(E: float, I: float, l_e: float) -> float:
     :param l_e: the effective length of the column in m.
     :return: The euler buckling load in N.
     '''
-    
+
     return (math.pi * math.pi) * E * I / (l_e * l_e)
 
 def f_euler(E: float, l_e: float, r: float) -> float:
@@ -98,7 +101,7 @@ def f_euler(E: float, l_e: float, r: float) -> float:
     :param l_e: the effective length of the column in m.
     :param r: the radius of gyration of the column in m.
     '''
-    
+
     return (math.pi * math.pi) * E / ((l_e / r)*(l_e / r))
 
 @functools.lru_cache()
@@ -119,7 +122,7 @@ def r_ol(r_x: float, r_y: float, x_o: float, y_o: float) -> float:
         :return: The polar radius of gyration in m.
         '''
 
-        #using r_x*r_x rather than r_x**2 to avoid overhead of a power function. 
+        #using r_x*r_x rather than r_x**2 to avoid overhead of a power function.
         return ((r_x*r_x) + (r_y*r_y) + (x_o*x_o) + (y_o*y_o))**0.5
 
 @functools.lru_cache()
@@ -155,115 +158,135 @@ def f_euler_torsion(A: float, l_ez: float, r_x: float, r_y: float,
 #endregion
 
 #member flexural buckling capacity methods
+
 #region
 
-def s6_3_3_λ_n(k_f, l_e, r, f_y, f_ref = 250e6):
-    '''
-    Calculate the member modified effective slenderness according
+def s6_3_3_λ_n(k_f: float, l_e: float, r: float, f_y: float,
+               f_ref: float = 250e6) -> float:
+    """
+    Calculate the member modified effective slenderness (λ_n) according
     to AS4100 S6.3.3.
     
-    k_f: the form factor as per AS4100 S6.2
-    l_e: the effective length of the section about the axis under consideration.
-    r: the radius of gyration about the axis under consideration.
-    f_y: the yield stress of the section under consideration.
-    f_ref: the reference yield stress, by default 250.
-    '''
+    :param k_f: The form factor as per AS4100 S6.2
+    :param l_e: The effective length of the section about the axis under
+        consideration, in m.
+    :param r: The radius of gyration about the axis under consideration in m.
+    :param f_y: The yield stress of the section under consideration, in Pa.
+    :param f_ref: The reference yield stress in Pa. By default 250e6 Pa.
+    :return: Returns the member modified effective slenderness λ_n.
+    """
 
     return (l_e / r) * (k_f ** 0.5) * ((f_y / f_ref) ** 0.5)
 
-def s6_3_3_α_c(λ_n, α_b = 1.0):
-    '''
-    Calculate the buckling coefficient α_c according
-    to AS4100 S6.3.3.
-    
-    k_f: the form factor as per AS4100 S6.2
-    l_e: the effective length of the section about the axis under consideration.
-    r: the radius of gyration about the axis under consideration.
-    f_y: the yield stress of the section under consideration.
-    f_ref: the reference yield stress, by default 250.
-    α_b: the member section constant for the given value of k_f (see AS4100 T6.3.3(1) & (2)).
-    Conservatively can be taken to be 1.0. Default argument of 1.0
-    
-    Returns all intermediate values from AS4100 S6.3.3. as a dictionary to allow querying of
-    intermediate results. for only the slenderness factor call results['α_c'].
+def s6_3_3_α_c(λ_n: float, α_b: float = 1.0)\
+        -> Dict[str, Union[Dict[str, float], float]]:
+    """
+    Calculate the buckling coefficient α_c according to AS4100 S6.3.3.
 
-    Intermediate results: α_a, λ, η, ξ
-    '''
-    
-    α_a = (2100 * (λ_n - 13.5)) / (λ_n**2 - 15.3*λ_n + 2050)  #modification for member geometric imperfections
-    λ = λ_n + α_a * α_b #modified effective slenderness  modified by residual stress and geometric imperfection factors.
+    :param k_f: The form factor as per AS4100 S6.2
+    :param l_e: The effective length of the section about the axis under
+        consideration, in m.
+    :param r: The radius of gyration about the axis under consideration, in m.
+    :param f_y: The yield stress of the section under consideration, in Pa.
+    :param f_ref: The reference yield stress in Pa. By default 250e6 Pa.
+    :param α_b: the member section constant for the given value of k_f
+        (see AS4100 T6.3.3(1) & (2)). Conservatively can be taken to be 1.0.
+        By default this is 1.0
+    :return: Returns the member buckling coefficient α_c.
+        Also, this method returns all intermediate values from AS4100 S6.3.3.
+        as a dictionary to allow querying of intermediate results. for only
+        the slenderness factor call results['α_c'].
+        Intermediate results reported are: α_a, λ, η, ξ
+    """
+
+    α_a = (2100 * (λ_n - 13.5)) / (λ_n*λ_n - 15.3*λ_n + 2050)
+        #Modification for member geometric imperfections
+
+    λ = λ_n + α_a * α_b
+        #Modified effective slenderness  modified by residual stress and
+        #geometric imperfection factors.
+
     η = max(0.00326 * (λ - 13.5), 0.)
     ξ = ((λ / 90)**2 + 1 + η) / (2 * (λ / 90)**2)
-    α_c = ξ * (1 - (1 - (90 / (ξ * λ))**2)**0.5) #Return α_c
-    
-    return {"Intermediate": {"α_a": α_a, "λ": λ, "η": η, "ξ": ξ}, "α_c": α_c} 
+    α_c = ξ * (1 - (1 - (90 / (ξ * λ))**2)**0.5)
 
-def s6_3_3_N_c(A_n, k_f, l_e, r, f_y, f_ref = 250e6, α_b = 1.0):
-    '''
+    return {"Intermediate": {"α_a": α_a, "λ": λ, "η": η, "ξ": ξ}, "α_c": α_c}
+
+def s6_3_3_N_c(A_n: float, k_f: float, l_e: float, r: float, f_y: float,
+               f_ref: float = 250e6, α_b: float = 1.0) -> Dict[str, float]:
+    """
     Calculates the member buckling capacity according to AS4100 S6.3.3
     Note that this is not reduced down to the section capacity, so if
     the member is short the buckling capacity reported could be larger than
     the section capacity.
     
-    A_n: the net area of the section
-    k_f: the form factor as per AS4100 S6.2
-    l_e: the effective length of the section about the axis considered
-    r: the radius of gyration about the axis considered.
-    f_y: the yield stress of the section.
-    f_ref: the reference yield stress, by default 250e6.
-    α_b: the member section constant for the given value of k_f (see AS4100
-        T6.3.3(1) & (2)). Conservatively can be taken to be 1.0. By default 1.
-
-    Returns a dictionary of results containing intermediate values. Returned
-    intermediate values are: l_e, r, λ_n, α_a, λ, η, ξ.
-    To get only N_c, use: results_dict['N_c'].
-    '''
+    :param A_n: The net area of the section in m².
+    :param k_f: The form factor as per AS4100 S6.2.
+    :param l_e: The effective length of the section about the axis considered.
+        Value in m.
+    :param r: The radius of gyration about the axis considered, in m.
+    :param f_y: The yield stress of the section in Pa.
+    :param f_ref: The reference yield stress in Pa. By default 250e6 Pa.
+    :param α_b: The member section constant for the given value of k_f (see
+        AS4100 T6.3.3(1) & (2)). Conservatively can be taken to be 1.0.
+        By default 1.0.
+    :return: Returns a dictionary of results containing the capacity N_c in N
+        and intermediate values. Returned intermediate values are:
+        l_e, r, λ_n, α_a, λ, η, ξ.
+        To get only N_c, use: results_dict['N_c'].
+    """
 
     N_s = s6_2_N_s(s6_2_A_e(A_n, k_f),f_y)
 
-    λ_n = s6_3_3_λ_n(k_f, l_e, r, f_y)
+    λ_n = s6_3_3_λ_n(k_f, l_e, r, f_y, f_ref)
     α_c = s6_3_3_α_c(λ_n, α_b)
 
     N_c = N_s * α_c['α_c']
-    
+
     results = {'N_c': N_c}
 
-    results['Intermediate'] = {'λ_n': λ_n, 'λ_n': λ_n}
+    results['Intermediate'] = {'λ_n': λ_n}
     results['Intermediate'].update({'α_c': α_c['α_c']})
     results['Intermediate'].update(α_c['Intermediate'])
     results['Intermediate'].update({'l_e': l_e, 'r': r})
 
     return results
 
-#end member flexural buckling capacity methods
 #endregion
 
 #member torsional buckling capacity methods - AS4600
+
 #region
 
 @functools.lru_cache()
-def f_oxz(A_n, l_ex, l_ez, r_x, r_y, x_o, y_o, J, I_w, E, G):
-    '''
+def f_oxz(A_n: float, l_ex: float, l_ez: float, r_x: float,
+          r_y: float, x_o: float, y_o: float, J: float, I_w: float,
+          E: float, G: float):
+    """
     Calculates the flexural-torsional buckling stress as per AS4600
     Section 3.4.3. Only valid for doubly or singly symmetric sections.
-        
-    A_n: net area of the section. NOTE: AS4600 uses the full area - using
-        net area should be slightly conservative in some cases.
-    l_ex, l_ez: effective lengths of the member.
-    r_x: radius of gyration.
-    x_o: distance from shear centre to section centre.
-    r_ol: radius of gyration about the shear centre.
-    J: St Venant's torsion constant.
-    I_w: the warping constant of the shape.
-    E: the elastic modulus.
-    G: the shear modulus.
-        
-    Returns results as a dictionary with intermediate results for
-    future reference. Intermediate values returned are f_ox, f_oz, 
-    r_x, r_y, x_o, y_o, r_ol and β.
-    For only the compressive buckling stress use returnval["f_oxz"].
-    '''
-    
+
+    Wrapped in an lru_cache to speed calculation if regularly called.
+
+    :param A_n: net area of the section. NOTE: AS4600 uses the full area
+        - using net area should be slightly conservative in some cases.
+        Input in m².
+    :param l_ex: Effective length of the member in m.
+    :param l_ez: Effective length of the member in m.
+    :param r_x: Radius of gyration in m.
+    :param x_o: distance from shear centre to section centre in m.
+    :param r_ol: radius of gyration about the shear centre in m.
+    :param J: St Venant's torsion constant in m⁴.
+    :param I_w: the warping constant of the shape in m⁶.
+    :param E: the elastic modulus in Pa.
+    :param G: the shear modulus in Pa.
+    :return: Returns the compressive flexural-torsional buckling stress
+        in Pa. Also returns results as a dictionary with intermediate results
+        for future reference. Intermediate values returned are
+        f_ox, f_oz, r_x, r_y, x_o, y_o, r_ol and β.
+        For only the compressive buckling stress use returnval["f_oxz"].
+    """
+
     r_o = r_ol(r_x, r_y, x_o, y_o)
     β = 1 - (x_o / r_o)**2
     f_ox = f_euler(E, l_ex, r_x)
@@ -276,35 +299,49 @@ def f_oxz(A_n, l_ex, l_ez, r_x, r_y, x_o, y_o, J, I_w, E, G):
                              'r_y': r_y, 'x_o': x_o, 'y_o': y_o, 'r_ol': r_o},
             "f_oxz": f_}
 
-def f_oc_double_symmetric(A_n, l_ex, l_ez, r_x, r_y, x_o, y_o, J, I_w, E, G,
-                          sym = Symmetry(['x', 'y'])):
-    '''
-    Calcluates the flexural-torsional buckling stress for a doubly symmetric
+def f_oc_double_symmetric(A_n: float, l_ex: float, l_ez: float, r_x: float,
+                          r_y: float, x_o: float, y_o: float, J: float,
+                          I_w: float, E: float, G: float,
+                          sym: object = Symmetry(['x', 'y'])):
+    """
+    Calculates the flexural-torsional buckling stress for a doubly symmetric
     section as per AS4600, as required by AS4100 S6.3.3.
+
     Calculated as per AS4600 S3.4.3
+
     Ignores the flexural-buckling stress as this is calculated from direct
     AS4100 formulas.
-    
-    A_n: net area of the section. NOTE: AS4600 uses the full area - 
-        using net area should be slightly conservative in some cases.
-    l_ex, l_ez: effective lengths of the member.
-    r_x, r_y: radius of gyration.
-    x_o, y_o: the distance from the shear centre to the centroid of the shape.
-    J: St Venant's torsion constant.
-    I_w: the warping constant of the shape.
-    E: the elastic modulus.
-    G: the shear modulus.
 
-    returns a dictionary with intermediate calculation values included.
-    Intermediate values returned are f_ox, f_oz, r_x, r_y, x_o, y_o, r_ol, β,
-        f_oxz and the 'AS4600 Clause'.
-    For the value of f_oc only call returnvals["f_oc"].
-    '''
+    :param A_n: The net area of the section. In m².
+        NOTE: AS4600 uses the full area for this calculation, but AS4100 uses
+        the net area generally in torsional calculations.
+        Using net area should be slightly conservative in some cases.
+    :param l_ex: The effective length of the member in m.
+    :param l_ez: The effective length of the member in m.
+    :param r_x: The radius of gyration in m.
+    :param r_y: The radius of gyration in m.
+    :param x_o: The distance from the shear centre to the centroid of the
+        shape in m.
+    :param y_o: The distance from the shear centre to the centroid of the
+        shape in m.
+    :param J: St Venant's torsion constant in m⁴.
+    :param I_w: The warping constant of the shape in m⁶.
+    :param E: The elastic modulus in Pa.
+    :param G: The shear modulus in Pa.
+    :param sym: A 'Symmetry' class object describing the symmetry of the
+        section being analysed.
+    :return: Returns the flexural-torsional buckling stress in Pa.
+        Returned as a dictionary with intermediate calculation values
+        included for future reference.
+        Intermediate values returned are f_ox, f_oz, r_x, r_y, x_o, y_o, r_ol,
+        β, f_oxz and the 'AS4600 Clause' which applied to the calculations.
+        For the value of f_oc only call returnvals["f_oc"].
+    """
 
     foxz = f_oxz(A_n, l_ex, l_ez, r_x, r_y, x_o, y_o, J, I_w, E, G)
     foz = f_euler_torsion(A_n, l_ez, r_x, r_y, x_o, y_o, J, I_w, E, G)
 
-    '''
+    """
     AS4600 S3.4.3 states that for doubly symmetric sections subject
     to flexural-torsional buckling the critical stress f_oc is either
     the smaller of the euler buckling stress in the y-axis,
@@ -314,15 +351,17 @@ def f_oc_double_symmetric(A_n, l_ex, l_ez, r_x, r_y, x_o, y_o, J, I_w, E, G,
     The euler buckling stress in the y-axis is assumed to be taken care
     of by the AS4100 member capacity checks for the y-axis and is ignored.
     Therefore, only checks of f_oz and f_oxz are done here.
-    '''
-    
+    """
+
     #Determine if f_oxz or f_oz are the governing torsional modes:
     results = {'f_oc': min(foxz['f_oxz'],foz)}
+
     #add intermediate results
     results['Intermediate'] = foxz['Intermediate']
+
     #add a f_oxz & f_oz to intermediate
     results['Intermediate'].update({'f_oxz': foxz['f_oxz']})
-    results['Intermediate'].update({'f_oz': foz}) 
+    results['Intermediate'].update({'f_oz': foz})
 
     #add the AS4600 clause to the intermediate results
     results["Intermediate"].update({"AS4600 Clause": "AS4600 S3.4.3"})
@@ -330,9 +369,11 @@ def f_oc_double_symmetric(A_n, l_ex, l_ez, r_x, r_y, x_o, y_o, J, I_w, E, G,
 
     return results
 
-def f_oc_single_symmetric(A_n, l_ex, l_ey, l_ez, r_x, r_y, x_o, y_o, J, I_w,
-                          E, G, sym = Symmetry()):
-    '''
+def f_oc_single_symmetric(A_n: float, l_ex: float, l_ey: float, l_ez: float,
+                          r_x: float, r_y: float, x_o: float, y_o: float,
+                          J: float, I_w: float, E: float, G: float,
+                          sym: object = Symmetry()):
+    """
     Calcluates the flexural-torsional buckling stress for a singly symmetric
     section as per AS4600, as required by AS4100 S6.3.3.
     Calculated as per AS4600 S3.4.3
@@ -346,8 +387,8 @@ def f_oc_single_symmetric(A_n, l_ex, l_ey, l_ez, r_x, r_y, x_o, y_o, J, I_w,
     more likely to govern and will be covered by other clauses in AS4100 S6.3.
     Ignores the flexural-buckling stress as this is calculated from direct
     AS4100 formulas.
-    
-    A_n: net area of the section. NOTE: AS4600 uses the full area - 
+
+    A_n: net area of the section. NOTE: AS4600 uses the full area -
         using net area should be slightly conservative in some cases.
     l_ex, l_ey, l_ez: effective lengths of the member.
     r_x, r_y: radius of gyration.
@@ -360,7 +401,7 @@ def f_oc_single_symmetric(A_n, l_ex, l_ey, l_ez, r_x, r_y, x_o, y_o, J, I_w,
 
     returns a dictionary with intermediate calculation values included.
     For the value of f_oc only call returnvals["f_oc"].
-    '''
+    """
 
     if sym.symcount != 1:
         raise ValueError('Expected a single-symmetric section but received a'+
@@ -381,10 +422,10 @@ def f_oc_single_symmetric(A_n, l_ex, l_ey, l_ez, r_x, r_y, x_o, y_o, J, I_w,
         #note that have switched l_ey for l_ex, and positions of r_x & r_y,
         #x_o & y_o
         f_oc['Intermediate'].update({'Axis of Symmetry': 'y'})
-    
-    
+
+
     results = {'f_oc': f_oc['f_oxz']}
-    
+
     #store intermediate results for later
     results['Intermediate'] = f_oc['Intermediate']
     results['Intermediate'].update({'f_oxz': f_oc['f_oxz']})
@@ -447,12 +488,12 @@ def f_oc_unsymmetric(A_n, l_ex, l_ey, l_ez,
     f_oy = f_euler(E, l_ey, r_y)
     r_o = r_ol(r_x, r_y, x_o, y_o)
     f_oz = f_euler_torsion(A_n, l_ez, r_x, r_y, x_o, y_o, J, I_w, E, G)
-    
+
     a = (r_o**2) - (x_o**2) * (y_o**2)
     b = (r_o**2) * (f_ox + f_oy + f_oz) - (f_oy * (x_o**2) + f_ox * (y_o**2))
     c = (r_o**2) * (f_ox * f_oy + f_oy * f_oz + f_ox * f_oz)
     d = (r_o**2) * f_ox * f_oy * f_oz
-    
+
     #get the coefficients of the polynomial to solve with numpy.
     eqn = [a, -b, c, -d]
     results = numpy.roots(eqn)
@@ -461,7 +502,7 @@ def f_oc_unsymmetric(A_n, l_ex, l_ey, l_ez,
 
     for i in results:
         #next check if the result is a real answer
-        
+
         if type(i) is complex:
             #do nothing if i is complex
             pass
@@ -533,7 +574,7 @@ def s6_3_3_N_c_torsion(A_n, k_f, l_ex, l_ey, l_ez, r_x, r_y, x_o, y_o, J, I_w,
         that in most cases torsional buckling does not govern for doubly
         symmetric sections.
         '''
-        
+
         results = f_oc_double_symmetric(A_n, l_ex, l_ez, r_x, r_y, x_o, y_o,
                                         J, I_w, E, G, sym)
     elif sym.symmetry == 'Single':
@@ -546,7 +587,7 @@ def s6_3_3_N_c_torsion(A_n, k_f, l_ex, l_ey, l_ez, r_x, r_y, x_o, y_o, J, I_w,
         results = f_oc_unsymmetric(A_n,l_ex, l_ey, l_ez, r_x, r_y, x_o, y_o,
                                    J, I_w, E, G)
     else:
-        raise ValueError("Error in AS4600 buckling stress check. " + 
+        raise ValueError("Error in AS4600 buckling stress check. " +
                             "Expected a symmetry type")
 
     f_oc = results["f_oc"]
@@ -620,7 +661,7 @@ def s6_1_1_Nc(A_n, k_f, l, k_ex, k_ey, k_ez, r_x, r_y, x_o, y_o, J, I_w, f_y,
     φN_s = φ * N_s
 
     results = {'N_s': N_s, 'φN_s': φN_s}
-    
+
     results["N_s Intermediate"] = {"A_e": A_e, "A_n": A_n, "k_f": k_f,
                                    "f_y": f_y}
 
@@ -628,7 +669,7 @@ def s6_1_1_Nc(A_n, k_f, l, k_ex, k_ey, k_ez, r_x, r_y, x_o, y_o, J, I_w, f_y,
     φN_c = φN_s
 
     #if buckling calculations required, do them.
-    if calc_buckling == True: 
+    if calc_buckling == True:
         l_ex = s6_3_2_l_e(l, k_ex)
         l_ey = s6_3_2_l_e(l, k_ey)
 
@@ -649,11 +690,11 @@ def s6_1_1_Nc(A_n, k_f, l, k_ex, k_ey, k_ez, r_x, r_y, x_o, y_o, J, I_w, f_y,
         results["N_cy Intermediate"] = N_cy_buckling["Intermediate"]
 
         #need to update the overall member capacity.
-        N_c = min(N_c, N_cx, N_cy) 
+        N_c = min(N_c, N_cx, N_cy)
         φN_c = min(φN_c, φN_cx, φN_cy)
-    
+
     #calculate torsional capacity if required.
-    if calc_buckling == True and calc_torsion == True: 
+    if calc_buckling == True and calc_torsion == True:
         l_ez = s6_3_2_l_e(l, k_ez)
 
         N_cz_results = s6_3_3_N_c_torsion(A_n, k_f, l_ex, l_ey, l_ez, r_x,
@@ -661,7 +702,7 @@ def s6_1_1_Nc(A_n, k_f, l, k_ex, k_ey, k_ez, r_x, r_y, x_o, y_o, J, I_w, f_y,
                                            sym, uncertainty_factor)
 
         results["N_cz Intermediate"] = N_cz_results["Intermediate"]
-        
+
         N_cz_buckling = N_cz_results["N_cz"]
 
         results["N_cz Intermediate"].update({"N_cz_buckling": N_cz_buckling})
@@ -669,13 +710,13 @@ def s6_1_1_Nc(A_n, k_f, l, k_ex, k_ey, k_ez, r_x, r_y, x_o, y_o, J, I_w, f_y,
         #finally calculate the torsional buckling capacity
         N_cz = min(N_s, N_cz_buckling)
         φN_cz = φ * N_cz
-        
+
         #append to the results dictionary
         results['N_cz'] = N_cz
         results['φN_cz'] = φN_cz
 
         #update N_c for the lowest capacity.
-        N_c = min(N_c, N_cz) 
+        N_c = min(N_c, N_cz)
         φN_c = φ * N_c
 
     results['N_c'] = N_c
