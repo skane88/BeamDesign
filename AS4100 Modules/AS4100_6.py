@@ -29,106 +29,121 @@ import functools
 from SymmetryClass import Symmetry
 
 #section capacity methods
+
 #region
 
-def s6_2_A_e(A_n, k_f):
+def s6_2_A_e(A_n: float, k_f: float) -> float:
     '''
     Calculates the generic effective compression area to AS4100 S6.2.
     Relies on k_f having already been calculated.
     
-    A_n: the net area of the section.
-    k_f: the compression effective area factor.
+    :param A_n: The net area of the section in m².
+    :param k_f: The compression effective area factor.
+    :return: The effective area in m².
     '''
 
     return A_n * k_f
 
-def s6_2_N_s(A_e, f_y):
+def s6_2_N_s(A_e: float, f_y: float) -> float:
     '''
     Calculate the section capacity to AS4100 S6.2
 
-    A_e: effective area, reduced for holes & local buckling.
-    f_y: yield strength
+    :param A_e: The effective area, reduced for holes & local buckling. In m².
+    :param f_y: The yield strength in Pa
+    :return: The section capacity in N.
     '''
     
     return A_e * f_y
 
-#end section capacity methods
 #endregion
 
 #member property methods
+
 #region
 
-def s6_3_2_l_e(l, k_e = 1.):
+def s6_3_2_l_e(l: float, k_e: float = 1.0) -> float:
     '''
     Calculate the effective length according to AS4100 S6.3.2
     
-    l: actual member length.
-    k_e: effective length factor, by default 1.0.
+    :param l: The actual member length in m.
+    :param k_e: The effective length factor, by default 1.0.
+    :return: The effective length in m.
     '''
 
     return l * k_e
 
-#end member property methods
 #endregion
 
 #Euler buckling methods
+
 #region
 
-def N_euler(E, I, l_e):
+def N_euler(E: float, I: float, l_e: float) -> float:
     '''
     Calculates the Euler buckling load of a column.
     
-    E: the elastic modulus of the section.
-    I: the second moment of area of the section.
-    l_e: the effective length of the column.
+    :param E: The elastic modulus of the section in Pa.
+    :param I: the second moment of area of the section in m⁴.
+    :param l_e: the effective length of the column in m.
+    :return: The euler buckling load in N.
     '''
     
     return (math.pi * math.pi) * E * I / (l_e * l_e)
 
-def f_euler(E, l_e, r):
+def f_euler(E: float, l_e: float, r: float) -> float:
     '''
-    Calculates the Euler buckling load of a column.
+    Calculates the Euler buckling stress of a column.
     
-    E: the elastic modulus of the section.
-    l_e: the effective length of the column.
-    r: the radius of gyration of the column.
+    :param E: the elastic modulus of the section in Pa.
+    :param l_e: the effective length of the column in m.
+    :param r: the radius of gyration of the column in m.
     '''
     
     return (math.pi * math.pi) * E / ((l_e / r)*(l_e / r))
 
 @functools.lru_cache()
-def r_ol(r_x, r_y, x_o, y_o):
+def r_ol(r_x: float, r_y: float, x_o: float, y_o: float) -> float:
         '''
         Returns the polar radius of gyration required by AS4600 for a check
         of the torsional buckling capacity.
-    
-        r_x: radius of gyration about the x-axis at the section centroid.
-        r_y: radius of gyration about the y-axis at the section centroid.
-        x_o: x co-ordinate of the shear centre.
-        y_o: y co-ordinate of the shear centre.
-        
-        Is wrapped in an lru_cache to speed use of this function.
+
+        Is wrapped in an lru_cache to speed use of this function as it is
+        called fairly regularly by code below.
+
+        :param r_x: Radius of gyration about the x-axis at the section
+            centroid in m.
+        :param r_y: Radius of gyration about the y-axis at the section
+            centroid in m.
+        :param x_o: x co-ordinate of the shear centre in m.
+        :param y_o: y co-ordinate of the shear centre in m.
+        :return: The polar radius of gyration in m.
         '''
 
         #using r_x*r_x rather than r_x**2 to avoid overhead of a power function. 
         return ((r_x*r_x) + (r_y*r_y) + (x_o*x_o) + (y_o*y_o))**0.5
 
 @functools.lru_cache()
-def f_euler_torsion(A, l_ez, r_x, r_y, x_o, y_o, J, I_w, E, G):
+def f_euler_torsion(A: float, l_ez: float, r_x: float, r_y: float,
+                    x_o: float, y_o: float, J: float, I_w: float,
+                    E: float, G: float) -> float:
     '''
     Returns the Euler buckling stress for a torsional buckling mode.
-    
-    A: gross or net area of the cross section.
-        Net area is conservative.
-    l_ez: effective length for torsional buckling.
-    r_x, r_y: radii of gyration.
-    x_o, y_o: distance between shear centre and section centre.
-    J: St Venant's torsion constant.
-    I_w: Section warping torsion constant.
-    E: Elastic modulus of the section.
-    G: Shear modulus of the section.
-    
-    Wrapped in an lru_cache to speed access.
+
+    Wrapped in an lru_cache to speed access as it is called fairly regularly
+    by code below.
+
+    :param A: Gross or net area of the cross section. Net area is
+        conservative. In m².
+    :param l_ez: Effective length for torsional buckling in m.
+    :param r_x: Radii of gyration in m.
+    :param r_y: Radii of gyration in m.
+    :param x_o: Distance between shear centre and section centre in m.
+    :param y_o: Distance between shear centre and section centre in m.
+    :param J: St Venant's torsion constant in m⁴.
+    :param I_w: Section warping torsion constant in m⁶.
+    :param E: Elastic modulus of the section in Pa.
+    :param G: Shear modulus of the section in Pa.
+    :return: The euler buckling stress for torsion in Pa.
     '''
 
     r_o = r_ol(r_x, r_y, x_o, y_o)
@@ -137,7 +152,6 @@ def f_euler_torsion(A, l_ez, r_x, r_y, x_o, y_o, J, I_w, E, G):
 
     return a * (1 + b)
 
-#end of Euler buckling methods
 #endregion
 
 #member flexural buckling capacity methods
