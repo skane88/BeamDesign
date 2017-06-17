@@ -24,7 +24,7 @@ in consistent systems of units.
 """
 
 import math
-from typing import List, Union, Dict
+from typing import List, Union, Dict, Any
 
 from HollowCircleClass import HollowCircleClass
 
@@ -205,11 +205,15 @@ def s5_11_2_V_u(A: Union(List[float], float), f_y: Union(List[float], float),
                 is_CHS: Union(List[bool], bool), d: Union(List[float], float),
                 t: Union(List[float], float),
                 slenderness_limit: Union(List[float], float),
-                no_welds: Union(List[int], int),
+                Q: Union(List[float] ,float),
                 v_w: Union(List[Union(float, List[float])], float),
-                Q: Union(List[float] ,float), f_y_ref = 250e6,
-                is_welded = False, I: float = 0.0, is_uniform: bool = True,
-                f_vm: float = 1.0, f_va: float = 1.0) -> float:
+                t_i1: Union(Union(List[float], float), float),
+                t_i2: Union(Union(List[float], float), float),
+                f_y_ref = 250e6,
+                I: float = 0.0, is_uniform: bool = True,
+                f_vm: float = 1.0, f_va: float = 1.0,
+                is_welded: bool = False,
+                check_interface: bool = False) -> Dict[str, Any]:
     """
     Determines the shear capacity of a member according to AS4100 S5.11.2.
     Considers all clauses of S5.11 except 5.11.5.2 - it is assumed that
@@ -225,73 +229,105 @@ def s5_11_2_V_u(A: Union(List[float], float), f_y: Union(List[float], float),
     an element in the section which is very slender compared to the other
     elements.
 
-    :param A: the shear area of the section, either A_w or A_e, depending on whether
-    the section is a generic section or a CHS.
+    This method can also determine if the shear capacity is limited by weld
+    capacity, as is the case in some WC sections, and potentially the case
+    in custom fabricated girders.
+
+    :param A: the shear area of the section in m², either A_w or A_e,
+        depending on whether the section is a generic section or a CHS.
+
         A_w: the gross sectional area of the component carrying shear.
         For hot rolled I & C sections it is acceptable to use the full
         depth of the section. For welded sections it is necessary to use
         only the web panel depth due to the discontinuity at the flange
         welds.
+
         A_e: the effective area of the section, allowing for holes in the
         section as per AS4100 S5.11.4. Normally the gross area of the
         section will be acceptable as holes are not often made into
         standard sized circular members.
+
         This parameter is a single float or a List of floats
-        [1.0, 2.0, 3.0, ..., n] to enable multiple elements to be entered.
+        [1.0, 2.0, 3.0, ..., n] to enable multiple elements to be entered,
+        i.e. for the 2x webs in a box girder.
+
         This is entered separately from the panel depths & thicknesses to
         allow overriding the area (if say holes are present in the web)
-        without overriding the buckling calculations. To calculate the area
-        directly from the entered values, use 0.0 for an elements area in A
-        and the area will be directly calculated.
+        without overriding the buckling calculations.
+
+        To calculate the area directly from the entered values, use -1.0
+        for an elements area in A and the area will be directly calculated
+        from the provided depth/diameter & thickness.
     :param f_y: The yield strength of the component in shear. This parameter
-        is either a float, or if multiple units are present, a list of floats
-        can be used to enable multiple shear components to be considered.
+        is either a single float or a list of floats matching A in length.
+
         Only the minimum yield strength is used to determine the yield
-        strength of the section. FEA models determining the capacity of
+        strength of the section.
+
+        FEA models determining the capacity of
         sections with different yield strengths in their components typically
         show that there is very little additional capacity to be gained, as
         load shedding in the post yield plateau and buckling are much more
         important factors in realistic structures. f_y IS considered on an
         element by element basis to determine the buckling factor of each
         element though as this is a pre-yield phenomenon.
-    :param is_CHS: Is the section a CHS?
-    :param d: The web panel depth or CHS outside diameter.
-    :param t: The web or CHS thickness.
+    :param is_CHS: Is the section a CHS? This should be a single bool, or
+        a list of bools matching A in length.
+    :param d: The web panel depth or CHS outside diameter, in m. This should
+        be a single float or a list of floats, matching A in length.
+    :param t: The web or CHS thickness in m. This should be a single float
+        or a list of floats, matching A & d in length.
     :param slenderness_limit: The slenderness limit. Typically this would be
-        82, but this is only valid for a web pin supported top and bottom.
+        82.0, but this is only valid for a web pin supported top and bottom.
         In some circumstances this value may be very unconservative (i.e.
         shear buckling of an angle leg supported on one side only) Refer to
         "The Behaviour and Design of Steel Structures to AS4100" by Trahair
         et al. for more information.
-    :param no_welds: The number of welds between the web panel/s and the rest
-        of the section at the critical interface (i.e. between web and top
-        flange, or between web and bottom flange).
-        A list of nos of welds can be provided, to allow for checks of
-        multiple welded parts. Each element should be the no. of welds that
-        connect the part with a corresponding Q value below to the rest of
-        the element.
-        Only used if is_welded = True.
-    :param v_w: The weld capacity. Default is 0.0.
+        This should be a float or a list of floats, matching the no. of
+        elements in A, d & t.
+    :param Q: The moment of area of the element connected to the rest of the
+        structure (i.e. a flange, or a web element), in m³. A list can be
+        provided to allow consideration of multiple elements that make up a
+        section.
+    :param v_w: The weld capacity in N/m. Default is 0.0.
         A list of weld capacities can be provided. Each item in the list
         should correspond to the weld capacity of the welds that connect
         an element of a given Q value below to the rest of the element. For
         each weld group, either a float should be provided (if there is 1x
         weld) or a list of floats. I.e. either: 1.0 or [1.0, 2.0, 3.0] or
         [1.0, [1.0, 1.0], 3.0] or [[1.0], [1.0, 2.0], [3.0]] are valid.
-    :param Q: The moment of area of the element connected to the rest of the
-        structure (i.e. a flange, or a web element). A list can be provided
-        to allow consideration of multiple elements that make up a section.
+    :param t_i1: The interface thickness on one side of the interfaces in m,
+        corresponding with the welded connections. This should either be a
+        float (i.e. in a T section with a single welded connection), a list
+        of floats (i.e. an I girder with 2x welded connections this list might
+        be [t_web_top, t_web_btm]) or a list of a list of floats where each
+        list contains the multiple thicknesses meeting at an interface (i.e.
+        in a box girder, which might have 2x webs [[t_web_1_btm, t_web_2_btm],
+        [t_web_1_top, t_web_2_top]].
+    :param t_i2: The interface thickness on the other side of the interfaces
+        in m, corresponding with the welded connections.
+
+        If t_i1 were the web thicknesses, t_i2 would be the thickness of the
+        flange that they are connected to for example.
+
+        This should either be a float (i.e. in a T section with a single
+        welded connection), a list of floats (i.e. an I girder with 2x welded
+        connections this list might be [t_web_top, t_web_btm]) or a list of a
+        list of floats where each list contains the multiple thicknesses
+        meeting at an interface (i.e. in a box girder, which might have 2x webs
+        [[t_web_1_btm, t_web_2_btm], [t_web_1_top, t_web_2_top]].
     :param f_y_ref: The reference yield stress used in the slenderness limit
-        equations. By default this is 250.0 in line with AS4100.
-    :param is_welded: Will welds affect the shear capacity? Default is False.
-    :param I: The section moment of inertia about the axis perpendicular to the
-        axis in which the shear is being applied. Default is 0.0.
+        equations. By default this is 250e6 Pa in line with AS4100.
+    :param I: The section moment of inertia in m⁴ about the axis perpendicular
+        to the axis in which the shear is being applied. Default is 0.0.
     :param is_uniform: Is the shear on the section uniform? Default is True.
     :param f_vm: The maximum shear stress in the section from an elastic
-        analysis.
+        analysis, in Pa.
     :param f_va: The average shear stress in the section from an elastic
-        analysis.
-    :return: Returns the shear capacity of the section.
+        analysis, in Pa.
+    :param is_welded: Will welds affect the shear capacity? Default is False.
+    :param check_interface: Does interface shear need to be checked?
+    :return: Returns the shear capacity of the section in N.
     """
 
     # Input check region
@@ -311,6 +347,8 @@ def s5_11_2_V_u(A: Union(List[float], float), f_y: Union(List[float], float),
         d = [d]
     if type(t) != list:
         t = [t]
+    if type(slenderness_limit) != list:
+        slenderness_limit = [slenderness_limit]
 
     # build a list of the List lengths to check that min & max are OK.
     list_lens = [len(A), len(f_y), len(is_CHS), len(d), len(t),
@@ -318,36 +356,43 @@ def s5_11_2_V_u(A: Union(List[float], float), f_y: Union(List[float], float),
 
     if min(list_lens) != max(list_lens):
         # if the minimum list length <> maximum list length there is an error
-        raise IndexError("Expected all entry lists to be of the same size")
+        raise IndexError("Expected lists A, f_y, is_CHS, d, t & "+
+                         "slenderness_limit to be of the same size.")
     if list_lens[0] <= 0:
         # if the list length is <0 there are no items to check
         raise ValueError("Expected a list of shear elements to check. Input" +
-                         "does not contain any shear elements")
+                         "does not contain any shear elements. " +
+                         "Check parameters A, f_y, is_CHS, d, t & " +
+                         "slenderness_limit.")
 
     # endregion
 
     # region
 
-    # need to do the same checks for the no_welds, v_w and Q lists.
+    # need to do the same checks for the v_w, t_1, t_2 and Q lists.
     # convert values to lists if not a list.
-    if type[no_welds] != list:
-        no_welds = [no_welds]
     if type[v_w] != list:
         v_w = [v_w]
     if type [Q] != list:
         Q = [Q]
+    if type [t_i1] != list:
+        t_i1 = [t_i1]
+    if type [t_i2] != list:
+        t_i2 = [t_i2]
 
     # build a list of lengths to check min & max lengths
 
-    list_lens = [len(no_welds), len(v_w), len(Q)]
+    list_lens = [len(v_w), len(Q), len(t_i1), len(t_i2)]
 
     if min(list_lens) != max(list_lens):
         # if the minimum list length <> maximum list length there is an error
-        raise IndexError("Expected all entry lists to be of the same size")
+        raise IndexError("Expected lists v_w, Q, t_i1 & t_i2 to be of the same"
+                         +"size")
     if list_lens[0] <= 0:
         # if the list length is <0 there are no items to check
         raise ValueError("Expected a list of shear weld elements to check. " +
-                         "Input does not contain any shear weld elements")
+                         "Input does not contain any shear weld elements. " +
+                         'Check parameters v_w, Q, t_i1, t_i2.')
 
     # endregion
 
@@ -368,8 +413,8 @@ def s5_11_2_V_u(A: Union(List[float], float), f_y: Union(List[float], float),
     for i in range(len(A)):
         # here we iterate through the list of areas & calculate the yield
         # capacity of the section.
-        if A[i] !=0:
-            # if area <> 0, then area is simply A.
+        if A[i] != -1.0:
+            # if area <> -1.0, then area is simply A.
             A_current = A[i]
         else:
             # need to calculate the area
@@ -393,6 +438,9 @@ def s5_11_2_V_u(A: Union(List[float], float), f_y: Union(List[float], float),
         # the total shear strength in yield is the sum of all element types:
         V_y = V_y + V_current
 
+    # create results dictionary with intermediate results
+    results = {'Intermediate': {'V_y': V_y, 'f_y_min': f_y_min}}
+
     # NOTE: this yield capacity could be limited by welds or buckling.
     # these effects are calculated below.
 
@@ -402,25 +450,47 @@ def s5_11_2_V_u(A: Union(List[float], float), f_y: Union(List[float], float),
 
     # region
 
-    α_v = 1.0  # by default
+    α_v = 1.0 # by default
+    crit_element = [] #a list to store the critical element in.
 
     # next need to calculate the buckling capacity of every element.
 
-    for i in range(len(A)):
+    for i in range(len(d)):
         # go through all elements.
         if not is_CHS[i]:
             # Assumed that CHS cannot buckle in shear. This is probably
             # not correct but AS4100 provides no guidance on shear buckling
-            # of CHS sections.
+            # of CHS sections. It is expected that CHS members are generally
+            # very robust against shear buckling, especially normal sized
+            # members.
 
-            # if not a CHS then check for buckling and return the minimum
+            # If not a CHS then check for buckling and return the minimum
             # of the current buckling parameter and the calculated one for
             # the item in question. The assumption is that when buckling of
             # the first panel occurs all remaining panels buckle in a
             # progressive collapse mechanism. This may be too conservative
             # in sections with very thin elements.
-            α_v = min(s5_11_5_α_v(d[i], t[i], f_y[i], slenderness_limit,
-                                  f_y_ref), α_v)
+
+            α_v_current = s5_11_5_α_v(d[i], t[i], f_y[i],
+                                      slenderness_limit[i], f_y_ref)
+
+            #get smallest α_v and also generate a list of critical elements
+
+            if α_v_current < α_v:
+                crit_element = [i]
+                α_v = α_v_current #need to update α_v
+            elif α_v_current == α_v:
+                crit_element.append(i)
+                #in this case there is no need to update α_v
+
+    #add the buckling parameter to intermediate results
+    results['Intermediate'].update({'α_v': α_v})
+
+    #next add the critical elements list into the return dictionary
+    if all(is_CHS):
+        results['Intermediate'].update({'Critical Elements': 'All CHS'})
+    else:
+        results['Intermediate'].update({'Critical Elements': crit_element})
 
     # endregion
 
@@ -428,10 +498,13 @@ def s5_11_2_V_u(A: Union(List[float], float), f_y: Union(List[float], float),
 
     # region
 
-    uniform_shear_factor = 1.0  # by default
+    uniform_shear_factor = 1.0 # by default
 
     if not is_uniform:
         uniform_shear_factor = s5_11_3_Non_uniform_shear_factor(f_vm, f_va)
+
+    #update results
+    results['Intermediate'].update({'Uniform Shear Factor': uniform_shear_factor})
 
     # endregion
 
@@ -440,25 +513,46 @@ def s5_11_2_V_u(A: Union(List[float], float), f_y: Union(List[float], float),
     # as reduced by the buckling and non-uniform shear factors.
     V_p = α_v * V_y * uniform_shear_factor
 
+    #update results dictionary
+    results['Intermediate'].update({'V_panel': V_p})
+
     # check weld capacity.
 
     # region
 
     V_w = 0.0  # default value set to 0.0
+    crit_weld = []
 
     if is_welded:
         # first check if welded, otherwise there is no point reducing capacity.
         # otherwise check capacity with welds.
 
-        for i in range(Q):
+        for i in range(len(Q)):
 
-            V_w_current = s5_11_4_V_w_Weldlimited(v_w[i], Q[i], I)
+            V_w_current = s5_11_4_V_w_WeldLimited(v_w[i], Q[i], I)
 
-            if i == 1:
+            # for each value, check if the current weld capacity is less
+            # than the minimum already calculated, also add to the critical
+            #element list.
+
+            if i == 0:
                 # initialise the value of V_w to a non 0.0 value.
                 V_w = V_w_current
+                crit_weld = [i]
             else:
-                V_w = min(V_w, V_w_current)
+                if V_w_current < V_w:
+                    V_w = V_w_current #update V_w
+                    crit_weld = [i]
+                elif V_w_current == V_w:
+                    crit_weld.append(i)
+                    #in this case no need to update V_w
+
+        #finally, update the results dictionary
+        results['Intermediate'].update({'Critical Weld': crit_weld})
+    else:
+        results['Intermediate'].update({'Critical Weld': 'Not Welded'})
+
+    results['Intermediate'].update({'V_w': V_w})
 
     # note that V_w is not reduced by the buckling or non-uniform shear factors
     # as this is not a buckling mechanism and the use of Q for any individual
@@ -466,16 +560,57 @@ def s5_11_2_V_u(A: Union(List[float], float), f_y: Union(List[float], float),
 
     # endregion
 
+    #check interface shear capacity
+
+    # region
+
+    V_i = 0.0 #default value
+    crit_interface = []
+
+    if check_interface:
+
+        for i in len(Q):
+            #go through each interface
+
+            V_i_current = s5_11_4_V_w_WeldInterfaceLimited(t_i1[i], t_i2[i],
+                                                           f_y_min, Q[i], I)
+
+            if i == 0:
+                V_i = V_i_current
+                crit_interface = [i]
+            else
+                if V_i_current < V_i:
+                    V_i = V_i_current #update V_i
+                    crit_interface = [i] #update the critical interface
+                elif V_i_current == V_i:
+                    crit_interface.append(i) #update the critical interface
+                                             #but no need to update V_i
+
+        results['Intermediate'].update({'Critical Interface': crit_interface})
+    else:
+        results['Intermediate'].update({'Critical Interface': "Not Checked"})
+
+    results['Intermediate'].update({'V_i': V_i})
+
+    # endregion
+
     # finally, determine V_u
 
-    if is_welded:
-        V_u = min(V_p, V_w)  # shear capacity is lower of the panel capacity or
-        # the welds that connect it together
+    if is_welded and check_interface:
+        V_u = min(V_p, V_w, V_i) #shear capacity is limited by weld &
+                                 #interface shear as well as panel strength.
+    elif is_welded:
+        V_u = min(V_p, V_w)  #shear capacity is lower of the panel capacity or
+                             #the welds that connect it together
+    elif check_interface
+        V_u = min(V_p, V_i) #shear capacity is limited by interface shear.
     else:
-        # if not welded, shear capacity is just V_p
+        # if not welded or interface limited, shear capacity is just V_p
         V_u = V_p
 
-    return V_u
+    results.update({'V_u': V_u})
+
+    return results
 
     # end shear capacity methods
 
