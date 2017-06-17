@@ -602,7 +602,7 @@ def s5_11_2_V_u(A: Union(List[float], float), f_y: Union(List[float], float),
     elif is_welded:
         V_u = min(V_p, V_w)  #shear capacity is lower of the panel capacity or
                              #the welds that connect it together
-    elif check_interface
+    elif check_interface:
         V_u = min(V_p, V_i) #shear capacity is limited by interface shear.
     else:
         # if not welded or interface limited, shear capacity is just V_p
