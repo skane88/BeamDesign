@@ -32,7 +32,8 @@ from HollowCircleClass import HollowCircleClass
 
 # region
 
-def s5_11_4_V_w_Generic(A_w: float, f_y: float, shear_to_yield: float = 0.6):
+def s5_11_4_V_w_Generic(A_w: float, f_y: float,
+                        shear_to_yield: float = 0.6) -> float:
     """
     Determines the shear yielding capacity of a flat web section to
     AS4100 S5.11.4.
@@ -61,7 +62,7 @@ def s5_11_4_V_w_Generic(A_w: float, f_y: float, shear_to_yield: float = 0.6):
 def s5_11_4_V_w_WeldInterfaceLimited(t1: Union(List[float], float),
                                      t2: Union(List[float], float),
                                      f_y_min: float, Q: float, I: float,
-                                     shear_to_yield: float = 0.6):
+                                     shear_to_yield: float = 0.6) -> Dict:
     """
     Calculates the capacity of a section in shear based on local shear
     yielding of an interface such as the connection between a flange and a web.
@@ -105,12 +106,12 @@ def s5_11_4_V_w_WeldInterfaceLimited(t1: Union(List[float], float),
 
     V_w = f_y_v * t * I / Q  # shear capacity of interface
 
-    results['V_w_interface'] = V_w  # add the shear capacity into the results.
+    results['V_w_interface'] = V_w # add the shear capacity into the results.
 
     return results
 
 def s5_11_4_V_w_WeldLimited(v_w: Union(List[float], float), Q: float = 0.0,
-                            I: float = 0.0):
+                            I: float = 0.0) -> float:
     """
     Calculates the capacity of section in shear according to AS4100 S5.11.4
     where the capacity is limited by a weld, as is the case with some welded
@@ -141,37 +142,39 @@ def s5_11_4_V_w_WeldLimited(v_w: Union(List[float], float), Q: float = 0.0,
 
     return v_w * I / Q
 
-def s5_11_4_V_w_CHS(A_e: float, f_y: float):
+def s5_11_4_V_w_CHS(A_e: float, f_y: float,
+                    shear_to_yield: float = 0.6) -> float:
     """
-    Determine the shear yielding capacity of a CHS section to
-    AS4100 S5.11.4.
+    Determine the shear yielding capacity of a CHS section to AS4100 S5.11.4.
 
-    A_e: the effective area of the section, allowing for holes in the section
-         as per AS4100 S5.11.4. Normally the gross area of the section will
-         be acceptable as holes are not often made into standard sized
-         circular members.
-    f_y: the yield strength of the CHS section.
+    :param A_e: The effective area of the section in m², allowing for holes
+        in the section as per AS4100 S5.11.4. Normally the gross area of the
+        section will be acceptable as holes are not often made into standard
+        sized circular members.
+    :param f_y: The yield strength of the CHS section in Pa.
+    :return: The shear yield strength of the section in N.
     """
 
-    return 0.36 * f_y * A_e
+    return 0.6 * shear_to_yield * f_y * A_e
 
 def s5_11_5_α_v(d_p: float, t_w: float, f_y: float,
-                slenderness_limit: float = 82.0, f_y_ref: float = 250e6):
+                slenderness_limit: float = 82.0,
+                f_y_ref: float = 250e6) -> float:
     """
     Determines the shear buckling coefficient α_v, which reduces the shear
     yielding load as per AS4100 section 11.5
 
-    :param d_p: The web panel depth
-    :param t_w: The web thickness
-    :param f_y: The yield strength
+    :param d_p: The web panel depth in m.
+    :param t_w: The web thickness in m.
+    :param f_y: The yield strength in Pa.
     :param slenderness_limit: The slenderness limit. By default this is 82.0,
         which is only valid for a web pin supported top and bottom.
         In some circumstances this value may be very unconservative (i.e.
         shear buckling of an angle leg supported on one side only) Refer to
         "The Behaviour and Design of Steel Structures to AS4100" by Trahair
         et al. for more information.
-    :param f_y_ref: The reference yield stress used in the slenderness limit
-        equations. By default this is 250.0 in line with AS4100.
+    :param f_y_ref: The reference yield stress in Pa, used in the slenderness
+        limit equations. By default this is 250e6 Pa in line with AS4100.
     :return: Returns the shear buckling coefficient α_v.
     """
 
@@ -182,16 +185,18 @@ def s5_11_5_α_v(d_p: float, t_w: float, f_y: float,
 
     return min(α_v, 1.0)
 
-def s5_11_3_Non_uniform_shear_factor(f_vm: float, f_va: float):
+def s5_11_3_Non_uniform_shear_factor(f_vm: float, f_va: float) -> float:
     """
     Determines the non-uniform shear modification factor as per
     AS4100 S5.11.3. This applies for sections such as PFCs, Mono-symmetric
     I sections, angle sections etc.
 
-    :param f_vm: The maximum shear stress in the section from an elastic analysis.
-    :param f_va: The average shear stress in the section from an elastic analysis.
-    :return: Returns the non-uniform shear factor used to reduce the shear capacity
-        for non-uniform members.
+    :param f_vm: The maximum shear stress in the section from an elastic
+        analysis. In Pa.
+    :param f_va: The average shear stress in the section from an elastic
+        analysis. In Pa.
+    :return: Returns the non-uniform shear factor used to reduce the shear
+        capacity for non-uniform members.
     """
 
     return min(2 / (0.9 + (f_vm / f_va)), 1.0)
