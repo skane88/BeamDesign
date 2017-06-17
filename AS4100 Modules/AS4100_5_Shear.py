@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 
 """
-This module calculates the capacity of a member in shear
-to AS4100 Section 5.
+This module calculates the capacity of a member in shear to AS4100 Section 5.
 
 This section only calculates properties that are independent of loads -
 properties dependent on other loads (i.e. moment & shear capacities in S5.12)
