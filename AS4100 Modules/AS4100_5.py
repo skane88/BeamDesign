@@ -180,5 +180,4 @@ def s5_6_1_Mb(M_s: float, α_m: float = 1.0, α_s: float = 1.0) -> float:
 #region
 
 
-
 #endregion
