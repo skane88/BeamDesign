@@ -400,10 +400,9 @@ def s5_11_4_V_w_InterfaceMultiple(t1: Union(List[float], List[List[float]]),
 
     #next go through the interfaces and determine the capacity for each one.
     V_i = 0.0 #default value
-    i = 0 #counter
     critical_interface = None #place holder for the critical_interface variable
 
-    for t1i, t2i, Qi in zip(t1, t2, Q):
+    for t1i, t2i, Qi, i in zip(t1, t2, Q, range(0, len(Q))):
         V_i_current = s5_11_4_V_w_Interface(t1i, t2i, f_y_min, Qi, I,
                                             shear_to_axial)
 
@@ -423,7 +422,7 @@ def s5_11_4_V_w_InterfaceMultiple(t1: Union(List[float], List[List[float]]),
                 #critical_interface list.
                 critical_interface.append(i)
 
-        i += 1
+    #now that V_i is calculated, generate return dictionary.
 
     results = {'V_i': V_i,
                'Intermediate':
@@ -533,10 +532,9 @@ def s5_11_4_V_w_WeldMultiple(v_w: Union(List[float], List[List[float]]),
 
     #next go through all the interfaces
     V_w = 0.0
-    i = 0 #counter variable
     critical_weld = None #place holder for critical element list
 
-    for vwi, Qi in zip(v_w, Q):
+    for vwi, Qi, i in zip(v_w, Q, range(0, len(Q))):
 
         V_w_current = s5_11_4_V_w_Weld(vwi, Qi, I)
 
@@ -554,8 +552,6 @@ def s5_11_4_V_w_WeldMultiple(v_w: Union(List[float], List[List[float]]),
                 #if V_w_current is the same as V_w, then update the critical
                 #weld list
                 critical_weld.append(i)
-
-        i += 1
 
     #now that V_w is calculated, create return dictionary
 
@@ -590,7 +586,7 @@ def s5_11_5_α_v(d_p: float, t_w: float, f_y: float,
         final shear capacity is limited to the shear yield capacity.
     """
 
-    α_v = 1.0
+    α_v = 0.0 #place holder for α_v
 
     if d_p / t_w > ((slenderness_limit) / ((f_y / f_y_ref ) **0.5)):
         α_v = ((slenderness_limit) / ((d_p / t_w ) *((f_y / f_y_ref ) **0.5)) ) **2
@@ -600,18 +596,106 @@ def s5_11_5_α_v(d_p: float, t_w: float, f_y: float,
 def s5_11_5_α_vMultiple(d_p: Union(List[float], float),
                         t_w: Union(List[float], float),
                         f_y: Union(List[float], float),
+                        is_CHS: Union(List[bool], bool),
                         slenderness_limit: Union(List[float], float),
                         f_y_ref: float = 250e6):
     """
 
-    :param d_p:
-    :param t_w:
-    :param f_y:
-    :param slenderness_limit:
-    :param f_y_ref:
-    :return:
+    The minimum buckling coefficient from the collection of elements is
+    returned, with the assumption being that buckling failure of one element
+    will cause load to shed to other elements resulting in a progressive
+    buckling failure of the section as a whole. This may not be accurate for
+    a section with a very thin element that buckles first, where the remaining
+    elements may have adequate capacity on their own.
+
+    e.g. if a 500WC440 had a 2mm plate welded across each of its flanges (making
+    a 3x web box section), it is clearly plausible that buckling failure of the
+    2mm closing plates could occur very early (say an α_v << 0), but the central
+    40mm web will have α_v >> 0. The total effect on strength of failure of the
+    outer webs will be <10%, but the reported value of α_v will be much greater.
+
+    If the lists of elements include CHS members the highest value of α_v that
+    will be returned is 1.0. It is assumed that CHS cannot buckle in shear.
+    This is probably not correct but AS4100 provides no guidance on shear
+    buckling of CHS sections, so a value higher than yield (i.e. α_v > 1.0) will
+    not be returned.
+
+    This could be unconservative for thin CHS members,
+    however it is expected that CHS members are generally very robust against
+    shear buckling, especially normal sized members.
+
+    :param d_p: The web panel depth in m.
+    :param t_w: The web thickness in m.
+    :param f_y: The yield strength in Pa.
+    :param is_CHS: Is the section a CHS? if true, the highest value of α_v that
+        will be returned is 1.0.
+    :param slenderness_limit: The slenderness limit. By default this is 82.0,
+        which is only valid for a web pin supported top and bottom.
+        In some circumstances this value may be very unconservative (i.e.
+        shear buckling of an angle leg supported on one side only) Refer to
+        "The Behaviour and Design of Steel Structures to AS4100" by Trahair
+        et al. for more information.
+    :param f_y_ref: The reference yield stress in Pa, used in the slenderness
+        limit equations. By default this is 250e6 Pa in line with AS4100.
+    :return: Returns the shear buckling coefficient α_v. Note that this may be
+        greater than 1.0 - the user of this function should ensure that the
+        final shear capacity is limited to the shear yield capacity.
     """
 
+    #first check the number of items in d_p, t_w, y_y and slenderness_limit are
+    #the same.
+
+    list_lens = [len(d_p), len(t_w), len(f_y), len(is_CHS),
+                 len(slenderness_limit)]
+
+    if max(list_lens) != min(list_lens):
+        raise ValueError("Error calculating the buckling load parameter α_v"
+                         + ", expected that the input lists d_p, t_w, f_y,"
+                         + "is_CHS and slenderness_limit would be the same"
+                         + " length. Lengths are: d_p: " + str(list_lens[0])
+                         + ', t_w: ' +  str(list_lens[1]) + ', f_y: '
+                         + str(list_lens[2]) + ", is_CHS: " + str(list_lens[3])
+                         + ' and slenderness_limit: ' + str(list_lens[4]) + '.')
+
+    α_v = 0.0 #place holder
+    critical_element = None #place holder
+
+    for d_pi, t_wi, f_yi, is_CHSi, slenderness_limit_i, i in zip(d_p, t_w, f_y, is_CHS, slenderness_limit, range(d_p)):
+
+        # go through all the ranges to determine the values of α_v
+
+        if not is_CHS:
+            #if not a CHS, get α_v
+            α_v_current = s5_11_5_α_v(d_pi, t_wi, f_yi, slenderness_limit_i)
+        else:
+            #if a CHS, α_v = 1.0 is the assumption.
+            α_v_current = 1.0
+
+        #next check if α_v_current is the minimum:
+
+        if i == 0:
+            #if the first element in the list, α_v is simply α_v_current
+            α_v = α_v_current
+            critical_element = [i]
+        else:
+            if α_v_current < α_v:
+                #if α_v_current is < α_v, replace α_v and the critical
+                #element list
+                α_v = α_v_current
+                critical_element = [i]
+            elif α_v_current == α_v:
+                #If α_v == α_v_current, add current element to the critical
+                #element list
+                critical_element.append(i)
+
+    results = {
+        'α_v': α_v,
+        'Intermdiate': {
+            'Critical Element (α_v)': critical_element
+            }
+        }
+
+    return results
 
 def s5_11_3_Non_uniform_shear_factor(f_vm: float, f_va: float) -> float:
     """
