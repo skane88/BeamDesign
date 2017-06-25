@@ -8,7 +8,7 @@ connections comply with clause 7.5 as well
 Units are assumed to be based on SI units:
 
 Length: m,
-time: s
+Time: s
 Mass: kg
 Force: N.
 

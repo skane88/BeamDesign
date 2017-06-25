@@ -15,7 +15,7 @@ will be calculated in a dedicated combined actions module.
 Units are assumed to be based on SI units:
 
 Length: m,
-time: s 
+Time: s
 Mass: kg
 Force: N. 
 

@@ -12,7 +12,7 @@ formulas have been moved to their own module.
 Units are assumed to be based on SI units:
 
 Length: m,
-time: s 
+Time: s
 Mass: kg
 Force: N. 
 
