@@ -1,18 +1,35 @@
-'''
-This module calculates tension capacities to AS4100
+# -*- coding: utf-8 -*-
+
+"""
+This module calculates tension capacities of steel members to AS4100
 It includes helper functions for determining if pin
 connections comply with clause 7.5 as well
-'''
+
+Units are assumed to be based on SI units:
+
+Length: m,
+time: s
+Mass: kg
+Force: N.
+
+Important derived units:
+Moment: Nm
+Stress: Pa
+
+Note that this contradicts current Australian Practice which uses kN, MPa etc.
+However conversion is simple in most cases because the formulas are written
+in consistent systems of units.
+"""
 
 def s7_2_Tensile_Yield(A_g: float, f_y: float) -> float:
-    '''
+    """
     Calculates the yield capacity of a member but does not include the capacity
     reduction factor.
-    
+
     :param A_g: Gross area of a section in m².
     :param f_y: Yield strength of a section in Pa.
     :return: Returns the yielding capacity of the member in N.
-    '''
+    """
 
     return A_g * f_y
 

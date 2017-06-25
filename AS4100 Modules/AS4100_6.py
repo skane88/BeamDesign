@@ -3,11 +3,11 @@
 '''
 This module calculates the compression capacity of a steel member to AS4100.
 
-This DOES NOT include section property calculations for effective areas
-based on local buckling of sections. AS4100 uses an effective area method
-which is similar for bending or compression. Also, the section properties
-are conceptually independent of the other compression checks. Therefore
-these formulas have been moved to their own module.
+This DOES NOT include section property calculations for effective areas based on
+local buckling of sections. AS4100 uses an effective area method which is
+similar for bending or compression. Also, the section properties are
+conceptually independent of the other compression checks. Therefore these
+formulas have been moved to their own module.
 
 Units are assumed to be based on SI units:
 
