@@ -21,7 +21,7 @@ However conversion is simple in most cases because the formulas are written
 in consistent systems of units.
 """
 
-def s7_2_Tensile_Yield(A_g: float, f_y: float) -> float:
+def s7_2_N_t_yield(A_g: float, f_y: float) -> float:
     """
     Calculates the yield capacity of a member but does not include the capacity
     reduction factor.
@@ -45,7 +45,7 @@ def s7_2_Area_Reqd_Yield(N_t: float, f_y: float) -> float:
 
     return N_t / f_y
 
-def s7_2_Ultimate_Fracture(A_n: float, f_u: float, k_t: float,
+def s7_2_N_t_ultimate(A_n: float, f_u: float, k_t: float,
                            ultimate_uncertainty: float = 0.85) -> float:
     '''
     Calculates the ultimate fracture capacity of a section and includes the
@@ -152,7 +152,7 @@ def s7_1_Area_Reqd(N_t: float, f_y: float, f_u: float, k_t: float,
     return max(s7_2_Area_Reqd_Ultimate(N_t, f_u, k_t, ultimate_uncertainty),
                s7_2_Area_Reqd_Yield(N_t, f_y)) / φ
 
-def s7_1_Tension_Capacity(A_g: float, A_n: float, f_y: float, f_u: float,
+def s7_1_N_t(A_g: float, A_n: float, f_y: float, f_u: float,
                           k_t: float, φ: float = 0.9,
                           ultimate_uncertainty: float = 0.85) -> float:
     '''
@@ -176,5 +176,5 @@ def s7_1_Tension_Capacity(A_g: float, A_n: float, f_y: float, f_u: float,
     :return: Returns the tensile strength of the section as per AS4100 S7.1.
     '''
 
-    return φ * min(s7_2_Tensile_Yield(A_g, f_y), 
-                   s7_2_Ultimate_Fracture(A_n, f_u, ultimate_uncertainty))
+    return φ * min(s7_2_N_t_yield(A_g, f_y),
+                   s7_2_N_t_ultimate(A_n, f_u, ultimate_uncertainty))
