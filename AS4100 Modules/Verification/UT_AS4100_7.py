@@ -312,9 +312,11 @@ class Test_AS4100_7_Test(unittest.TestCase):
         self.fail("Not implemented")
 
     def test_7_5_b_Area_Beyond_Hole(self):
+
         self.fail("Not implemented")
 
     def test_7_5_c_Area_Perpendicular_Hole(self):
+
         self.fail("Not implemented")
 
     def test_7_1_Tension_Capacity(self):
