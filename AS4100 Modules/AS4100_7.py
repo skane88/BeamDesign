@@ -21,6 +21,8 @@ However conversion is simple in most cases because the formulas are written
 in consistent systems of units.
 """
 
+from typing import Dict
+
 def s7_2_N_t_yield(A_g: float, f_y: float) -> float:
     """
     Calculates the yield capacity of a member but does not include the capacity
@@ -33,7 +35,7 @@ def s7_2_N_t_yield(A_g: float, f_y: float) -> float:
 
     return A_g * f_y
 
-def s7_2_Area_Reqd_Yield(N_t: float, f_y: float) -> float:
+def s7_2_Ag(N_t: float, f_y: float) -> float:
     '''
     Calculates the area required to carry the force applied without yielding.
     
@@ -63,7 +65,7 @@ def s7_2_N_t_ultimate(A_n: float, f_u: float, k_t: float,
     
     return A_n * f_u * k_t * ultimate_uncertainty
 
-def s7_2_Area_Reqd_Ultimate(N_t: float, f_u: float, k_t: float,
+def s7_2_An(N_t: float, f_u: float, k_t: float,
                             ultimate_uncertainty: float = 0.85) -> float:
     '''
     Calculates the area required to carry the force applied without fracture at
@@ -132,8 +134,9 @@ def s7_5_c_Area_Perpendicular_Hole(A_reqd: float, A_sum: float) -> bool:
         return True
     return False
 
-def s7_1_Area_Reqd(N_t: float, f_y: float, f_u: float, k_t: float,
-                   φ: float = 0.9, ultimate_uncertainty: float = 0.85) -> float:
+def s7_1_A_reqd(N_t: float, f_y: float, f_u: float, k_t: float,
+                   φ: float = 0.9, ultimate_uncertainty: float = 0.85) -> Dict[
+    str, float]:
     '''
     Calculates the area required for a member to AS4100 section 7.1
     
@@ -147,17 +150,46 @@ def s7_1_Area_Reqd(N_t: float, f_y: float, f_u: float, k_t: float,
         strength as per AS4100 S7.2. By default 0.85.
     :return: Returns the area required to carry the applied load without yield
         or fracture as per A4100, in m².
+
+        Returned as a dictionary with the following values:
+
+        {
+            'A_g': The gross area required to prevent a yielding failure.
+
+            'A_n': The net area required to prevent an ultimate fracture.
+
+            'φA_g': The gross area required to prevent a yielding failure, with
+            the AS4100 capacity reduction factor included.
+
+            'φA_n': The gross area required to prevent an ultimate fracture,
+            with the AS4100 capacity reduction factor included.
+
+            'A': The maximum area required.
+
+            'φA: The maximum area required, incorporating the AS4100 capacity
+            reduction factor.
+        }
     '''
 
-    return max(s7_2_Area_Reqd_Ultimate(N_t, f_u, k_t, ultimate_uncertainty),
-               s7_2_Area_Reqd_Yield(N_t, f_y)) / φ
+    results = {'A_g': s7_2_Area_Reqd_Ultimate(N_t, f_u, k_t,
+                                              ultimate_uncertainty),
+               'A_n': s7_2_Area_Reqd_Yield(N_t, f_y)}
+
+    results['A'] = max(results.values())
+
+    results['φA_g'] = results['A_g'] / φ
+    results['φA_n'] = results['A_n'] / φ
+    results['φA'] = results['A'] / φ
+
+    return results
 
 def s7_1_N_t(A_g: float, A_n: float, f_y: float, f_u: float,
                           k_t: float, φ: float = 0.9,
-                          ultimate_uncertainty: float = 0.85) -> float:
-    '''
+                          ultimate_uncertainty: float = 0.85) -> Dict[
+    str, float]:
+    """
     Calculates the tension capacity of a section according to AS4100 S7.1.
-    
+
     :param A_g: Gross area of a section in m².
     :param A_n: Net area of the section in m², allowing for holes as required
         by AS4100.
@@ -173,8 +205,35 @@ def s7_1_N_t(A_g: float, A_n: float, f_y: float, f_u: float,
     :param φ: The capacity reduction factor, by default 0.9.
     :param ultimate_uncertainty: A factor for the uncertainty in ultimate
         strength as per AS4100 S7.2. By default 0.85.
-    :return: Returns the tensile strength of the section as per AS4100 S7.1.
-    '''
+    :return: Returns the tensile strength of the section as per AS4100 S7.1,
+        in N.
 
-    return φ * min(s7_2_N_t_yield(A_g, f_y),
-                   s7_2_N_t_ultimate(A_n, f_u, ultimate_uncertainty))
+        Results are returned as a dictionary with the following values:
+
+        {
+            'N_ty': The yield capacity.
+
+            'φN_ty': The yield capacity including the AS4100 capacity reduction
+            factor.
+
+            'N_tu': The ultimate capacity
+
+            'φN_tu': The ultimate capacity including the AS4100 capacity
+            reduction factor.
+
+            'N': The minimum of N_ty and N_tu.
+
+            'φN': The minimum capacity including the AS4100 capacity
+            reduction factor.
+        }
+    """
+
+    results = {'N_ty': s7_2_N_t_yield(A_g, f_y),
+               'N_tu': s7_2_N_t_ultimate(A_n, f_u, k_t, ultimate_uncertainty)}
+    results['N'] = min(results.values())
+
+    results['φN_ty'] = results['N_ty'] * φ
+    results['φN_tu'] = results['N_tu'] * φ
+    results['φN'] = results['N'] * φ
+
+    return results
