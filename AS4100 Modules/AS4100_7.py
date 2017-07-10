@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
 """
-This module calculates tension capacities of steel members to AS4100
-It includes helper functions for determining if pin
-connections comply with clause 7.5 as well
+This module calculates tension capacities of steel members to AS4100. It
+includes helper functions for determining if pin connections comply with
+clause 7.5 as well
 
 Units are assumed to be based on SI units:
 
