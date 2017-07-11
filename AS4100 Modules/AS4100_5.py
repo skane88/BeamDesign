@@ -80,7 +80,7 @@ def s5_6_1_M_o(l_e: float, I_y: float, J: float, I_w: float,
     C = (((math.pi * math.pi) * E * I_w) / (l_e * l_e))
     D = (β_x / 2)
 
-    return (A**(0.5))*((B+C+(D**2)*A)**(0.5))+D*((A)**(0.5))
+    return (A**(0.5)) * (((B + C + (D * D)*A)**(0.5)) + D * ((A)**(0.5)))
 
 def s5_6_1_α_m(M_max: float, M_2: float, M_3: float, M_4: float,
                α_m_max: float = 2.5):
