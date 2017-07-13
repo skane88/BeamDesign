@@ -32,9 +32,10 @@ import math
 from typing import List, Union, Dict
 from HollowCircleClass import HollowCircleClass
 
-#section capacity methods
 
-#region
+# section capacity methods
+
+# region
 
 def s5_2_M_s(f_y: float, Z_e: float) -> float:
     """
@@ -45,16 +46,17 @@ def s5_2_M_s(f_y: float, Z_e: float) -> float:
         Calculated according to S5.2.
     :return: Returns the member section capacity in Nm.
     """
-    
+
     return f_y * Z_e
 
-#end section capacity methods
 
-#endregion
+# end section capacity methods
 
-#member capacity methods
+# endregion
 
-#region
+# member capacity methods
+
+# region
 
 def s5_6_1_M_o(l_e: float, I_y: float, J: float, I_w: float,
                β_x: float = 0.0, E: float = 200e9, G: float = 80e9) -> float:
@@ -70,23 +72,29 @@ def s5_6_1_M_o(l_e: float, I_y: float, J: float, I_w: float,
         in m⁴.
     :param J: St Venant's torsion constant in m⁴.
     :param I_w: The warping constant in m⁶.
+    :param β_x: This is the mono-symmetry constant of the section in m.
     :param E: The elastic modulus of the section in Pa.
     :param G: The shear modulus of the section in Pa.
     :return: The reference buckling moment in Nm as per AS4100 S5.6.1.
     """
 
-    A = (((math.pi * math.pi) * E * I_y) / (l_e * l_e))
-    B = G * J
-    C = (((math.pi * math.pi) * E * I_w) / (l_e * l_e))
-    D = (β_x / 2)
+    a = (((math.pi * math.pi) * E * I_y) / (l_e * l_e))
+    b = G * J
+    c = (((math.pi * math.pi) * E * I_w) / (l_e * l_e))
+    d = (β_x / 2)
 
-    return (A**(0.5)) * (((B + C + (D * D)*A)**(0.5)) + D * ((A)**(0.5)))
+    return (a ** 0.5) * (
+        ((b + c + (d * d) * a) ** 0.5) + d * (a ** 0.5))
+
 
 def s5_6_1_α_m(M_max: float, M_2: float, M_3: float, M_4: float,
                α_m_max: float = 2.5):
     """
     Determines the moment modification factor α_m to AS4100 S5.6.1.
-    based on the member midspan moments & maximum moment.
+    based on the member midspan moments & maximum moment. This equation only
+    applies to members that are restrained at both ends - cantilevered elements
+    which are unrestrained at their free end cannot be designed with this
+    equation.
 
     NOTE: According to the commentary this clause may be less accurate
     than some of the equations given in Table 5.6.1. 
@@ -99,9 +107,10 @@ def s5_6_1_α_m(M_max: float, M_2: float, M_3: float, M_4: float,
     :return: Returns the moment modification factor α_m to AS4100 S5.6.1.
     """
 
-    α_m = 1.7 * abs(M_max) / ((M_2 * M_2 + M_3 * M_3 + M_4 * M_4)**(0.5))
+    α_m = 1.7 * abs(M_max) / ((M_2 * M_2 + M_3 * M_3 + M_4 * M_4) ** 0.5)
 
     return min(α_m, α_m_max)
+
 
 def s5_6_α_s(M_s: float, M_o: float) -> float:
     """
@@ -116,12 +125,17 @@ def s5_6_α_s(M_s: float, M_o: float) -> float:
     :return: Returns the slenderness modification factor to AS4100 S5.6.1.
     """
 
-    return 0.6 * ((((M_s / M_o)**2 + 3)**(0.5)) - (M_s / M_o))
+    return 0.6 * ((((M_s / M_o) ** 2 + 3) ** 0.5) - (M_s / M_o))
+
 
 def s5_6_3_k_t(d_1: float, l: float, t_f: float, t_w: float, n_w: float,
                restraint_code: str = "FF") -> float:
     """
-    Calculates the twist restraint factor to AS4100 S5.6.3.
+    Calculates the twist restraint factor to AS4100 S5.6.3. This applies only
+    to sections which are composed of flanges and webs (I sections, PFCs, and
+    box type sections). For other sections (CHS, very complex box sections with
+    multiple flanges / stiffeners) this value should be calculated by some other
+    means.
 
     :param d_1: The web depth as per AS4100 (ignoring fillets & welds) in m.
     :param l: The member segment length in m.
@@ -133,18 +147,19 @@ def s5_6_3_k_t(d_1: float, l: float, t_f: float, t_w: float, n_w: float,
     :return: Returns the twist restraint factor as per AS4100 S5.6.3.
     """
 
-    if restraint_code in ['FF', 'FL', 'LL', 'FU']:
+    if restraint_code in ('FF', 'FL', 'LL', 'FU'):
         kt = 1.0
-    elif restraint_code in ['FP', 'PL', 'PU']:
-        kt = 1 + ((d_1 / l) * (t_f / (2 * t_w))**3) / n_w
-    elif restraint_code in ['PP']:
-        kt = 1 + (2 * (d_1 / l) * (t_f / (2 * t_w))**3) / n_w
+    elif restraint_code in ('FP', 'PL', 'PU'):
+        kt = 1 + ((d_1 / l) * (t_f / (2 * t_w)) ** 3) / n_w
+    elif restraint_code in ('PP'):
+        kt = 1 + (2 * (d_1 / l) * (t_f / (2 * t_w)) ** 3) / n_w
     else:
-        raise ValueError("Inappropriate restraint code provided. " + 
+        raise ValueError("Inappropriate restraint code provided. " +
                          "expected FF, FL, LL, FU, FP, PL, PU or PP. " +
                          "Value provided was " + restraint_code + ".")
 
     return kt
+
 
 def s5_6_3_l_e(k_t: float, k_l: float, k_r: float, l: float) -> float:
     """
@@ -159,6 +174,7 @@ def s5_6_3_l_e(k_t: float, k_l: float, k_r: float, l: float) -> float:
 
     return k_t * k_l * k_r * l
 
+
 def s5_6_1_Mb(M_s: float, α_m: float = 1.0, α_s: float = 1.0) -> float:
     """
     Determines the member buckling capacity according to AS4100 S5.6.1.
@@ -171,13 +187,13 @@ def s5_6_1_Mb(M_s: float, α_m: float = 1.0, α_s: float = 1.0) -> float:
 
     return α_m * α_s * M_s
 
-#end member capacity region
+# end member capacity region
 
-#endregion
+# endregion
 
-#bending capacity methods
+# bending capacity methods
 
-#region
+# region
 
 
-#endregion
+# endregion
