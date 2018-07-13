@@ -1,10 +1,10 @@
 from unittest import TestCase
-import AS4100_5
+import BeamDesign.AS4100.S5 as S5
 
 
-class Test_UT_AS4100_5(TestCase):
+class Test_UT_S5(TestCase):
     """
-    This class is a unit test class for the methods in the file AS4100_5.py
+    This class is a unit test class for the methods in the file S5.py
 
     These are all bending capacity or shear methods.
     """
@@ -86,15 +86,15 @@ class Test_UT_AS4100_5(TestCase):
         for Si, Zexi, Zeyi, fyi, Msxi, Msyi in zip(section, Zex, Zey, fy, Msx,
                                                    Msy):
 
-            Mx = AS4100_5.s5_2_M_s(fyi, Zexi)
-            My = AS4100_5.s5_2_M_s(fyi, Zeyi)
+            Mx = S5.s5_2_M_s(fyi, Zexi)
+            My = S5.s5_2_M_s(fyi, Zeyi)
 
             self.assertAlmostEqual(first=Mx, second=Msxi,
-                                   delta=Msxi / Test_UT_AS4100_5.delta_p,
+                                   delta=Msxi / Test_UT_S5.delta_p,
                                    msg='Failed test for Msx, Section was :'
                                        + Si)
             self.assertAlmostEqual(first=My, second=Msyi,
-                                   delta=Msyi / Test_UT_AS4100_5.delta_p,
+                                   delta=Msyi / Test_UT_S5.delta_p,
                                    msg='Failed test for Msy, Section was :'
                                        + Si)
 
@@ -198,10 +198,10 @@ class Test_UT_AS4100_5(TestCase):
                                                        E, G, Mo0):
 
             # first check βx = 0
-            M = AS4100_5.s5_6_1_M_o(lei, Iyi, Ji, Iwi, 0., Ei, Gi)
+            M = S5.s5_6_1_M_o(lei, Iyi, Ji, Iwi, 0., Ei, Gi)
 
             self.assertAlmostEqual(first=M, second=Mo0i,
-                                   delta=Mo0i / Test_UT_AS4100_5.delta_p,
+                                   delta=Mo0i / Test_UT_S5.delta_p,
                                    msg='Test of M_o method failed on ' +
                                        'Section: ' + Si)
 
@@ -318,10 +318,10 @@ class Test_UT_AS4100_5(TestCase):
         for Si, lei, Iyi, Ji, Iwi, βxi, Ei, Gi, Moi in zip(Section, le, Iy, J,
                                                            Iw, βx, E, G, Mo):
 
-            M = AS4100_5.s5_6_1_M_o(lei, Iyi, Ji, Iwi, βxi, Ei, Gi)
+            M = S5.s5_6_1_M_o(lei, Iyi, Ji, Iwi, βxi, Ei, Gi)
 
             self.assertAlmostEqual(first=M, second=Moi,
-                                   delta=Moi / Test_UT_AS4100_5.delta_p,
+                                   delta=Moi / Test_UT_S5.delta_p,
                                    msg='Check of M_o method failed on ' +
                                        'Section: ' + Si + '.')
 
@@ -416,10 +416,10 @@ class Test_UT_AS4100_5(TestCase):
         for Si, Mmi, M2i, M3i, M4i, αmmi, αmi in zip(Section, Mmax, M2, M3, M4,
                                                      αm_max, αm):
 
-            αm_calc = AS4100_5.s5_6_1_α_m(Mmi, M2i, M3i, M4i, αmmi)
+            αm_calc = S5.s5_6_1_α_m(Mmi, M2i, M3i, M4i, αmmi)
 
             self.assertAlmostEqual(first=αm_calc, second=αmi,
-                                   delta=αmi / Test_UT_AS4100_5.delta_p)
+                                   delta=αmi / Test_UT_S5.delta_p)
 
     def test_s5_6_α_s(self):
         """
@@ -473,10 +473,10 @@ class Test_UT_AS4100_5(TestCase):
 
         for Si, Moi, Msi, αsi in zip(Section, Mo, Ms, αs):
 
-            αs_calc = AS4100_5.s5_6_α_s(Msi, Moi)
+            αs_calc = S5.s5_6_α_s(Msi, Moi)
 
             self.assertAlmostEqual(first=αs_calc, second=αsi,
-                                   delta=αsi / Test_UT_AS4100_5.delta_p)
+                                   delta=αsi / Test_UT_S5.delta_p)
 
     def test_s5_6_3_k_t(self):
         """
@@ -599,10 +599,10 @@ class Test_UT_AS4100_5(TestCase):
         for Si, Ri, d1i, li, tfi, twi, nwi, kti in zip(Section, Restraint, d1,
                                                        l, tf, tw, nw, kt):
 
-            kt_calc = AS4100_5.s5_6_3_k_t(d1i, li, tfi, twi, nwi, Ri)
+            kt_calc = S5.s5_6_3_k_t(d1i, li, tfi, twi, nwi, Ri)
 
             self.assertAlmostEqual(first=kt_calc, second=kti,
-                                   delta=kti / Test_UT_AS4100_5.delta_p,
+                                   delta=kti / Test_UT_S5.delta_p,
                                    msg='Test for k_t failed with Section: '
                                        + Si + ' and n_w: ' + str(nwi))
 
@@ -710,10 +710,10 @@ class Test_UT_AS4100_5(TestCase):
 
         for Si, li, kti, kli, kri, lei in zip(Section, l, kt, kl, kr, le):
 
-            le_calc = AS4100_5.s5_6_3_l_e(kti, kli, kri, li)
+            le_calc = S5.s5_6_3_l_e(kti, kli, kri, li)
 
             self.assertAlmostEqual(first=le_calc, second=lei,
-                                   delta=lei / Test_UT_AS4100_5.delta_p)
+                                   delta=lei / Test_UT_S5.delta_p)
 
     def test_s5_6_1_Mb(self):
         """
@@ -778,9 +778,9 @@ class Test_UT_AS4100_5(TestCase):
 
         for Si, αsi, αmi, Msi, Mbi in zip(Section, αs, αm, Ms, Mb):
 
-            Mb_calc = AS4100_5.s5_6_1_Mb(Msi, αmi, αsi)
+            Mb_calc = S5.s5_6_1_Mb(Msi, αmi, αsi)
 
             self.assertAlmostEqual(first=Mb_calc, second=Mbi,
-                                   delta=Mbi / Test_UT_AS4100_5.delta_p,
+                                   delta=Mbi / Test_UT_S5.delta_p,
                                    msg='Failure of the test for s5_6_1_Mb '
                                        + 'with Section: ' + Si)

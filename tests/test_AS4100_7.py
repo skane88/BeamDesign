@@ -1,13 +1,13 @@
 import unittest
-import AS4100_7
+import BeamDesign.AS4100.S7 as S7
 
-class Test_AS4100_7_Test(unittest.TestCase):
+class Test_S7_Test(unittest.TestCase):
 
     delta_p = 10000.  # accept an accuracy of 0.01% in these tests U.N.O.
 
     def test_s_7_2_N_t_yield(self):
         """
-        Test the AS4100_7.s_7_2_N_t_yield method against values calculated in
+        Test the S7.s_7_2_N_t_yield method against values calculated in
         MS Excel.
         """
 
@@ -65,14 +65,14 @@ class Test_AS4100_7_Test(unittest.TestCase):
 
         for Agi, fyi, Ntyi in zip(Ag ,fy, Nt_yield):
 
-            N = AS4100_7.s7_2_N_t_yield(Agi, fyi)
-            delta = Ntyi / Test_AS4100_7_Test.delta_p
+            N = S7.s7_2_N_t_yield(Agi, fyi)
+            delta = Ntyi / Test_S7_Test.delta_p
 
             self.assertAlmostEqual(first = N, second = Ntyi, delta = delta)
 
     def test_s_7_2_Ag(self):
         """
-        Tests the AS4100_7.s_7_2_Ag method against values calculated in MS Excel
+        Tests the S7.s_7_2_Ag method against values calculated in MS Excel
         """
 
         N = (
@@ -125,14 +125,14 @@ class Test_AS4100_7_Test(unittest.TestCase):
 
         for Ni, fyi, Agi in zip(N, fy, Ag):
 
-            Ag_calc = AS4100_7.s7_2_Ag(Ni, fyi)
-            delta = Agi / Test_AS4100_7_Test.delta_p
+            Ag_calc = S7.s7_2_Ag(Ni, fyi)
+            delta = Agi / Test_S7_Test.delta_p
 
             self.assertAlmostEqual(first = Ag_calc, second = Agi, delta = delta)
 
     def test_s_7_2_N_t_ultimate(self):
         """
-        Test the AS4100_7.s7_2_N_t_ultimate method against values calculated in
+        Test the S7.s7_2_N_t_ultimate method against values calculated in
         MS Excel.
         """
 
@@ -213,8 +213,8 @@ class Test_AS4100_7_Test(unittest.TestCase):
         1.1024E+07, 3.6662E+06, 4.3792E+06)
 
         for Ani, kti, fui, UUi, Ntui in zip(An, kt, fu, UU, Nt_ultimate):
-            Nt = AS4100_7.s7_2_N_t_ultimate(Ani, fui, kti, UUi)
-            delta = Ntui / Test_AS4100_7_Test.delta_p
+            Nt = S7.s7_2_N_t_ultimate(Ani, fui, kti, UUi)
+            delta = Ntui / Test_S7_Test.delta_p
 
             self.assertAlmostEqual(first = Nt, second = Ntui, delta = delta)
 
@@ -302,9 +302,9 @@ class Test_AS4100_7_Test(unittest.TestCase):
 
         for Ni, kti, fui, UUi, Ani in zip(N, kt, fu, UltUncert, An):
 
-            delta = Ani / Test_AS4100_7_Test.delta_p
+            delta = Ani / Test_S7_Test.delta_p
 
-            Anc = AS4100_7.s7_2_An(Ni, fui, kti, UUi)
+            Anc = S7.s7_2_An(Ni, fui, kti, UUi)
 
             self.assertAlmostEqual(first = Anc, second = Ani, delta = delta)
 
@@ -366,10 +366,10 @@ class Test_AS4100_7_Test(unittest.TestCase):
 
         for aei, sfti, ti in zip(a_e_perp, sft, t_min):
 
-            t_reqd = AS4100_7.s7_5_a_min_thickness(aei, sfti)
+            t_reqd = S7.s7_5_a_min_thickness(aei, sfti)
 
             self.assertAlmostEqual(first = t_reqd, second = ti,
-                                   delta = ti / Test_AS4100_7_Test.delta_p)
+                                   delta = ti / Test_S7_Test.delta_p)
 
     def test_s7_5_b_A_beyond(self):
 
@@ -429,10 +429,10 @@ class Test_AS4100_7_Test(unittest.TestCase):
 
         for Areqdi, sfi, Abeyondi in zip(Areqd, sf, Abeyond):
 
-            A = AS4100_7.s7_5_b_A_beyond(Areqdi, sfi)
+            A = S7.s7_5_b_A_beyond(Areqdi, sfi)
 
             self.assertAlmostEqual(first = A, second = Abeyondi,
-                                   delta = Abeyondi / Test_AS4100_7_Test.delta_p)
+                                   delta = Abeyondi / Test_S7_Test.delta_p)
 
     def test_s7_5_c_A_perp(self):
 
@@ -492,10 +492,10 @@ class Test_AS4100_7_Test(unittest.TestCase):
 
         for Areqdi, sfi, Aperpi in zip(Areqd, sf, Aperp):
 
-            A = AS4100_7.s7_5_c_A_perp(Areqdi, sfi)
+            A = S7.s7_5_c_A_perp(Areqdi, sfi)
 
             self.assertAlmostEqual(first = A, second = Aperpi,
-                                   delta = Aperpi / Test_AS4100_7_Test.delta_p)
+                                   delta = Aperpi / Test_S7_Test.delta_p)
 
     def test_s7_1_Tension_Capacity(self):
 
@@ -736,14 +736,14 @@ class Test_AS4100_7_Test(unittest.TestCase):
         for Agi, Ani, kti, fyi, fui, UUi, φi, Ntyi, φNtyi, Ntui, φNtui, Nti, φNti \
             in zip(Ag, An, kt, fy, fu, UU, φ, Nty, φNty, Ntu, φNtu, Nt, φNt):
 
-            results = AS4100_7.s7_1_N_t(Agi, Ani, fyi, fui, kti, φi, UUi)
+            results = S7.s7_1_N_t(Agi, Ani, fyi, fui, kti, φi, UUi)
 
-            self.assertAlmostEqual(first = results['N_ty'], second = Ntyi, delta = Ntyi / Test_AS4100_7_Test.delta_p)
-            self.assertAlmostEqual(first = results['φN_ty'], second = φNtyi, delta = φNtyi / Test_AS4100_7_Test.delta_p)
-            self.assertAlmostEqual(first = results['N_tu'], second = Ntui, delta = Ntui / Test_AS4100_7_Test.delta_p)
-            self.assertAlmostEqual(first = results['φN_tu'], second = φNtui, delta = φNtui / Test_AS4100_7_Test.delta_p)
-            self.assertAlmostEqual(first = results['N'], second = Nti, delta = Nti / Test_AS4100_7_Test.delta_p)
-            self.assertAlmostEqual(first = results['φN'], second = φNti, delta = φNti / Test_AS4100_7_Test.delta_p)
+            self.assertAlmostEqual(first = results['N_ty'], second = Ntyi, delta = Ntyi / Test_S7_Test.delta_p)
+            self.assertAlmostEqual(first = results['φN_ty'], second = φNtyi, delta = φNtyi / Test_S7_Test.delta_p)
+            self.assertAlmostEqual(first = results['N_tu'], second = Ntui, delta = Ntui / Test_S7_Test.delta_p)
+            self.assertAlmostEqual(first = results['φN_tu'], second = φNtui, delta = φNtui / Test_S7_Test.delta_p)
+            self.assertAlmostEqual(first = results['N'], second = Nti, delta = Nti / Test_S7_Test.delta_p)
+            self.assertAlmostEqual(first = results['φN'], second = φNti, delta = φNti / Test_S7_Test.delta_p)
 
     def test_s7_1_Area_Reqd(self):
 
@@ -966,20 +966,20 @@ class Test_AS4100_7_Test(unittest.TestCase):
         for Fi, kti, fyi, fui, UUi, φi, Agi, Ani, Ai, φAgi, φAni, φAi \
                 in zip(F, kt, fy, fu, UU, φ, Ag, An, A, φAg, φAn, φA):
 
-            results = AS4100_7.s7_1_A_reqd(Fi, fyi, fui, kti, φi, UUi)
+            results = S7.s7_1_A_reqd(Fi, fyi, fui, kti, φi, UUi)
 
             self.assertAlmostEqual(first = results['A_g'], second = Agi,
-                                   delta = Agi / Test_AS4100_7_Test.delta_p)
+                                   delta = Agi / Test_S7_Test.delta_p)
             self.assertAlmostEqual(first = results['A_n'], second = Ani,
-                                   delta = Ani / Test_AS4100_7_Test.delta_p)
+                                   delta = Ani / Test_S7_Test.delta_p)
             self.assertAlmostEqual(first=results['A'], second=Ai,
-                                   delta=Ai / Test_AS4100_7_Test.delta_p)
+                                   delta=Ai / Test_S7_Test.delta_p)
             self.assertAlmostEqual(first=results['φA_g'], second=φAgi,
-                                   delta=φAgi / Test_AS4100_7_Test.delta_p)
+                                   delta=φAgi / Test_S7_Test.delta_p)
             self.assertAlmostEqual(first=results['φA_n'], second=φAni,
-                                   delta=φAni / Test_AS4100_7_Test.delta_p)
+                                   delta=φAni / Test_S7_Test.delta_p)
             self.assertAlmostEqual(first=results['φA'], second=φAi,
-                                   delta=φAi / Test_AS4100_7_Test.delta_p)
+                                   delta=φAi / Test_S7_Test.delta_p)
 
 if __name__ == '__main__':
     unittest.main()

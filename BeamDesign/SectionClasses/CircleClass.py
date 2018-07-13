@@ -2,7 +2,7 @@
 for calculating section properties. It inherits from
 "clsSection"."""
 
-from SectionClass import SectionClass
+from BeamDesign.SectionClasses.SectionClass import SectionClass
 import math
 
 class CircleClass(SectionClass):

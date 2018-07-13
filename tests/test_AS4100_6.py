@@ -1,8 +1,8 @@
 import unittest
-import AS4100_6
-from SymmetryClass import Symmetry
+import BeamDesign.AS4100.S6 as S6
+from BeamDesign.Misc.SymmetryClass import Symmetry
 
-class Test_UT_AS4100_6(unittest.TestCase):
+class Test_UT_S6(unittest.TestCase):
 
     delta_p = 100000. #accept an accuracy of 0.001% in these tests U.N.O.
 
@@ -50,9 +50,9 @@ class Test_UT_AS4100_6(unittest.TestCase):
               1.300000000E-2, 1.300000000E-2, 1.300000000E-2)
 
         for Ani, kfi, Aei in zip(An, kf, Ae):
-            A_e = AS4100_6.s6_2_A_e(Ani, kfi)
+            A_e = S6.s6_2_A_e(Ani, kfi)
             expected = Aei
-            delta = Aei / Test_UT_AS4100_6.delta_p
+            delta = Aei / Test_UT_S6.delta_p
 
             self.assertAlmostEqual(first = A_e, second = Aei, delta = delta)
 
@@ -109,10 +109,10 @@ class Test_UT_AS4100_6(unittest.TestCase):
               3.900000000E+6, 3.900000000E+6, 3.900000000E+6)
 
         for Ani, kfi, fyi, Nsi in zip(An, kf, fy, Ns):
-            A_e = AS4100_6.s6_2_A_e(Ani, kfi)
-            N_s = AS4100_6.s6_2_N_s(A_e, fyi)
+            A_e = S6.s6_2_A_e(Ani, kfi)
+            N_s = S6.s6_2_N_s(A_e, fyi)
 
-            delta = Nsi / Test_UT_AS4100_6.delta_p
+            delta = Nsi / Test_UT_S6.delta_p
 
             self.assertAlmostEqual(first = N_s, second = Nsi, delta = delta)
 
@@ -130,25 +130,25 @@ class Test_UT_AS4100_6(unittest.TestCase):
         l = 1
         k = 0.5
 
-        l_e = AS4100_6.s6_3_2_l_e(l, k)
+        l_e = S6.s6_3_2_l_e(l, k)
         expected = l * k
-        delta = Test_UT_AS4100_6.delta_p
+        delta = Test_UT_S6.delta_p
         self.assertAlmostEqual(first = l_e, second = expected, delta = delta)
 
         l = 1
         k = 1
 
-        l_e = AS4100_6.s6_3_2_l_e(l, k)
+        l_e = S6.s6_3_2_l_e(l, k)
         expected = l * k
-        delta = Test_UT_AS4100_6.delta_p
+        delta = Test_UT_S6.delta_p
         self.assertAlmostEqual(first = l_e, second = expected, delta = delta)
 
         l = 1
         k = 2.2
 
-        l_e = AS4100_6.s6_3_2_l_e(l, k)
+        l_e = S6.s6_3_2_l_e(l, k)
         expected = l * k
-        delta = Test_UT_AS4100_6.delta_p
+        delta = Test_UT_S6.delta_p
         self.assertAlmostEqual(first = l_e, second = expected, delta = delta)
 
     #end member property methods
@@ -245,11 +245,11 @@ class Test_UT_AS4100_6(unittest.TestCase):
 
         for Ei, Ixi, lexi, Iyi, leyi, Nxi, Nyi in zip(E, Ix, lex, Iy, ley,
                                                       Neuler_x, Neuler_y):
-            Nx = AS4100_6.N_euler(Ei, Ixi, lexi)
-            delta_x = Nxi / Test_UT_AS4100_6.delta_p
+            Nx = S6.N_euler(Ei, Ixi, lexi)
+            delta_x = Nxi / Test_UT_S6.delta_p
 
-            Ny = AS4100_6.N_euler(Ei, Iyi, leyi)
-            delta_y = Nyi / Test_UT_AS4100_6.delta_p
+            Ny = S6.N_euler(Ei, Iyi, leyi)
+            delta_y = Nyi / Test_UT_S6.delta_p
 
             self.assertAlmostEqual(first = Nx, second = Nxi,
                                    delta = delta_x)
@@ -345,13 +345,13 @@ class Test_UT_AS4100_6(unittest.TestCase):
 
         for Ei, lexi, rxi, leyi, ryi, fxi, fyi in zip(E, lex, rx, ley, ry,
                                                       feuler_x, feuler_y):
-            fx = AS4100_6.f_euler(Ei, lexi, rxi)
-            delta_x = fxi / Test_UT_AS4100_6.delta_p
+            fx = S6.f_euler(Ei, lexi, rxi)
+            delta_x = fxi / Test_UT_S6.delta_p
 
             self.assertAlmostEqual(first = fx, second = fxi, delta = delta_x)
 
-            fy = AS4100_6.f_euler(Ei, leyi, ryi)
-            delta_y = fyi / Test_UT_AS4100_6.delta_p
+            fy = S6.f_euler(Ei, leyi, ryi)
+            delta_y = fyi / Test_UT_S6.delta_p
 
             self.assertAlmostEqual(first = fy, second = fyi, delta = delta_y)
 
@@ -436,8 +436,8 @@ class Test_UT_AS4100_6(unittest.TestCase):
                1.36732688E-1, 1.36732688E-1, 1.36732688E-1)
 
         for rxi, ryi, xoi, yoi, roli in zip(rx, ry, xo, yo, rol):
-            r_ol = AS4100_6.r_ol(rxi, ryi, xoi, yoi)
-            delta = roli / Test_UT_AS4100_6.delta_p
+            r_ol = S6.r_ol(rxi, ryi, xoi, yoi)
+            delta = roli / Test_UT_S6.delta_p
 
             self.assertAlmostEqual(first = r_ol, second = roli,
                                    delta = delta)
@@ -597,9 +597,9 @@ class Test_UT_AS4100_6(unittest.TestCase):
                                                                         J, Iw,
                                                                         E, G,
                                                                         Foz):
-            f = AS4100_6.f_euler_torsion(Ani, lezi, rxi, ryi, xoi, yoi, Ji, Iwi,
+            f = S6.f_euler_torsion(Ani, lezi, rxi, ryi, xoi, yoi, Ji, Iwi,
                                          Ei, Gi)
-            delta = Fozi / Test_UT_AS4100_6.delta_p
+            delta = Fozi / Test_UT_S6.delta_p
 
             self.assertAlmostEqual(first = f, second = Fozi,
                                    delta = delta)
@@ -677,9 +677,9 @@ class Test_UT_AS4100_6(unittest.TestCase):
                4.30937253485181)
 
         for kfi, lexi, rxi, fyi, frefi, λnxi in zip(kf, lex, rx, fy, fref, λnx):
-            λ_n = AS4100_6.s6_3_3_λ_n(kfi, lexi, rxi, fyi, frefi)
+            λ_n = S6.s6_3_3_λ_n(kfi, lexi, rxi, fyi, frefi)
 
-            delta = λnxi / Test_UT_AS4100_6.delta_p
+            delta = λnxi / Test_UT_S6.delta_p
             self.assertAlmostEqual(first = λ_n, second = λnxi, delta = delta)
 
         ley = (10, 5, 1, 0.5, 80, 40, 20, 10, 5, 1, 20, 10, 5, 1, 0.5, 0.1, 20,
@@ -718,9 +718,9 @@ class Test_UT_AS4100_6(unittest.TestCase):
                1.208351471E+2, 2.416702941E+1, 1.208351471E+1)
 
         for kfi, leyi, ryi, fyi, frefi, λnyi in zip(kf, ley, ry, fy, fref, λny):
-            λ_n = AS4100_6.s6_3_3_λ_n(kfi, leyi, ryi, fyi, frefi)
+            λ_n = S6.s6_3_3_λ_n(kfi, leyi, ryi, fyi, frefi)
 
-            delta = λnyi / Test_UT_AS4100_6.delta_p
+            delta = λnyi / Test_UT_S6.delta_p
             self.assertAlmostEqual(first = λ_n, second = λnyi, delta = delta)
 
     def test_s6_3_3_α_c(self):
@@ -794,14 +794,14 @@ class Test_UT_AS4100_6(unittest.TestCase):
                3.787678741E-1, 9.465251935E-1, 1.000000000E+0)
 
         for λnxi, λnyi, αbi, αcxi, αcyi in zip(λnx, λny, αb, αcx, αcy):
-            α_c = AS4100_6.s6_3_3_α_c(λnxi, αbi)
-            delta = αcxi / Test_UT_AS4100_6.delta_p
+            α_c = S6.s6_3_3_α_c(λnxi, αbi)
+            delta = αcxi / Test_UT_S6.delta_p
 
             self.assertAlmostEqual(first = α_c['α_c'], second = αcxi,
                                    delta = delta)
 
-            α_c = AS4100_6.s6_3_3_α_c(λnyi, αbi)
-            delta = αcyi / Test_UT_AS4100_6.delta_p
+            α_c = S6.s6_3_3_α_c(λnyi, αbi)
+            delta = αcyi / Test_UT_S6.delta_p
 
             self.assertAlmostEqual(first = α_c['α_c'], second = αcyi,
                                    delta = delta)
@@ -930,14 +930,14 @@ class Test_UT_AS4100_6(unittest.TestCase):
 
         for Ani, kfi, lexi, rxi, leyi, ryi, fyi, frefi, αbi, Ncxi, Ncyi in \
                 zip(An, kf, lex, rx, ley, ry, fy, fref, αb, Ncx, Ncy):
-            N_c = AS4100_6.s6_3_3_N_c(Ani, kfi, lexi, rxi, fyi, frefi, αbi)
-            delta = Ncxi / Test_UT_AS4100_6.delta_p
+            N_c = S6.s6_3_3_N_c(Ani, kfi, lexi, rxi, fyi, frefi, αbi)
+            delta = Ncxi / Test_UT_S6.delta_p
 
             self.assertAlmostEqual(first = N_c['N_c'], second = Ncxi,
                                    delta = delta)
 
-            N_c = AS4100_6.s6_3_3_N_c(Ani, kfi, leyi, ryi, fyi, frefi, αbi)
-            delta = Ncyi / Test_UT_AS4100_6.delta_p
+            N_c = S6.s6_3_3_N_c(Ani, kfi, leyi, ryi, fyi, frefi, αbi)
+            delta = Ncyi / Test_UT_S6.delta_p
 
             self.assertAlmostEqual(first = N_c['N_c'], second = Ncyi,
                                    delta = delta)
@@ -1072,9 +1072,9 @@ class Test_UT_AS4100_6(unittest.TestCase):
 
         for Ani, lexi, lezi, rxi, ryi, xoi, yoi, Ji, Iwi, Ei, Gi, expi \
                 in zip(An, lex, lez, rx, ry, xo, yo, J, Iw, E, G, expected):
-            f_oxz = AS4100_6.f_oxz(Ani, lexi, lezi, rxi, ryi, xoi, yoi, Ji, Iwi,
+            f_oxz = S6.f_oxz(Ani, lexi, lezi, rxi, ryi, xoi, yoi, Ji, Iwi,
                                    Ei, Gi)['f_oxz']
-            delta = expi / Test_UT_AS4100_6.delta_p
+            delta = expi / Test_UT_S6.delta_p
             self.assertAlmostEqual(first = f_oxz, second = expi, delta = delta)
 
     def test_f_oc_double_symmetric(self):
@@ -1147,9 +1147,9 @@ class Test_UT_AS4100_6(unittest.TestCase):
 
         for Ani, lexi, lezi, rxi, ryi, xoi, yoi, Ji, Iwi, Ei, Gi, expi \
                 in zip(An, lex, lez, rx, ry, xo, yo, J, Iw, E, G, expected):
-            f_oc = AS4100_6.f_oc_double_symmetric(Ani,lexi, lezi, rxi, ryi, xoi,
+            f_oc = S6.f_oc_double_symmetric(Ani,lexi, lezi, rxi, ryi, xoi,
                                                   yoi, Ji, Iwi, Ei, Gi)['f_oc']
-            delta = expi / Test_UT_AS4100_6.delta_p
+            delta = expi / Test_UT_S6.delta_p
             self.assertAlmostEqual(first = f_oc, second = expi,
                                    delta = delta)
 
@@ -1258,8 +1258,8 @@ class Test_UT_AS4100_6(unittest.TestCase):
         for Ani, lexi, leyi, lezi, rxi, ryi, xoi, yoi, Ji, Iwi, Ei, Gi, Axi, \
                 expi in zip(An, lex, ley, lez, rx, ry, xo, yo, J, Iw, E, G,
                             Axis, expected):
-            delta = expi / Test_UT_AS4100_6.delta_p
-            f_oc = AS4100_6.f_oc_single_symmetric(Ani, lexi, leyi, lezi, rxi,
+            delta = expi / Test_UT_S6.delta_p
+            f_oc = S6.f_oc_single_symmetric(Ani, lexi, leyi, lezi, rxi,
                                                   ryi, xoi, yoi, Ji, Iwi, Ei,
                                                   Gi, Symmetry(Axi))['f_oc']
             self.assertAlmostEqual(first = f_oc, second = expi, delta = delta)
@@ -1376,9 +1376,9 @@ class Test_UT_AS4100_6(unittest.TestCase):
 
         for Ani, lezi, rxi, ryi, xoi, yoi, Ji, Iwi, Ei, Gi, expi \
                 in zip(An, lez, rx, ry, xo, yo, J, Iw, E, G, expected):
-            foc = AS4100_6.f_oc_point_symmetric(Ani, lezi, rxi, ryi, xoi, yoi,
+            foc = S6.f_oc_point_symmetric(Ani, lezi, rxi, ryi, xoi, yoi,
                                                 Ji, Iwi, Ei, Gi)['f_oc']
-            delta = expi / Test_UT_AS4100_6.delta_p
+            delta = expi / Test_UT_S6.delta_p
 
             self.assertAlmostEqual(first = foc, second = expi, delta = delta)
 
@@ -1412,10 +1412,10 @@ class Test_UT_AS4100_6(unittest.TestCase):
         J = 1
         I_w = 1
 
-        f_oc = AS4100_6.f_oc_unsymmetric(A_n, l_ex, l_ey, l_ez, r_x, r_y, x_o,
+        f_oc = S6.f_oc_unsymmetric(A_n, l_ex, l_ey, l_ez, r_x, r_y, x_o,
                                          y_o, J, I_w, E, G)
         expected = 4932891193. #calculated at wolfram from coefficients
-        delta_val = expected / Test_UT_AS4100_6.delta_p
+        delta_val = expected / Test_UT_S6.delta_p
 
         self.assertAlmostEqual(first= f_oc['f_oc'], second= expected,
                                msg = "f_oc was incorrectly calculated. " +
@@ -1431,10 +1431,10 @@ class Test_UT_AS4100_6(unittest.TestCase):
         x_o = 0
         y_o = 0
 
-        f_oc = AS4100_6.f_oc_unsymmetric(A_n, l_ex, l_ey, l_ez, r_x, r_y, x_o,
+        f_oc = S6.f_oc_unsymmetric(A_n, l_ex, l_ey, l_ez, r_x, r_y, x_o,
                                          y_o, J, I_w, E, G)
         expected = 4.9348e9 #calculated at wolfram from coefficients
-        delta_val = expected / Test_UT_AS4100_6.delta_p
+        delta_val = expected / Test_UT_S6.delta_p
 
         self.assertAlmostEqual(first= f_oc['f_oc'], second= expected,
                                msg = "f_oc was incorrectly calculated. " +
@@ -1450,10 +1450,10 @@ class Test_UT_AS4100_6(unittest.TestCase):
         I_w = 0.1
         J = 0.1
 
-        f_oc = AS4100_6.f_oc_unsymmetric(A_n, l_ex, l_ey, l_ez, r_x, r_y, x_o,
+        f_oc = S6.f_oc_unsymmetric(A_n, l_ex, l_ey, l_ez, r_x, r_y, x_o,
                                          y_o, J, I_w, E, G)
         expected = 4934802200. #calculated at wolfram from coefficients
-        delta_val = expected / Test_UT_AS4100_6.delta_p
+        delta_val = expected / Test_UT_S6.delta_p
 
         self.assertAlmostEqual(first= f_oc['f_oc'], second= expected,
                                msg = "f_oc was incorrectly calculated. " +
@@ -1475,10 +1475,10 @@ class Test_UT_AS4100_6(unittest.TestCase):
         J = 3.04*1e-7
         I_w = 0
 
-        f_oc = AS4100_6.f_oc_unsymmetric(A_n, l_ex, l_ey, l_ez, r_x, r_y, x_o,
+        f_oc = S6.f_oc_unsymmetric(A_n, l_ex, l_ey, l_ez, r_x, r_y, x_o,
                                          y_o, J, I_w, E, G)
         expected = 6.1931813648690e8 #calculated at wolfram from coefficients
-        delta_val = expected / Test_UT_AS4100_6.delta_p
+        delta_val = expected / Test_UT_S6.delta_p
 
         self.assertAlmostEqual(first= f_oc['f_oc'], second= expected,
                                msg = "f_oc was incorrectly calculated. " +
@@ -1500,10 +1500,10 @@ class Test_UT_AS4100_6(unittest.TestCase):
         J = 1.48*1e-8
         I_w = 0
 
-        f_oc = AS4100_6.f_oc_unsymmetric(A_n, l_ex, l_ey, l_ez, r_x, r_y, x_o,
+        f_oc = S6.f_oc_unsymmetric(A_n, l_ex, l_ey, l_ez, r_x, r_y, x_o,
                                          y_o, J, I_w, E, G)
         expected = 5.2683229401870e8 #calculated at wolfram from coefficients
-        delta_val = expected / Test_UT_AS4100_6.delta_p
+        delta_val = expected / Test_UT_S6.delta_p
 
         self.assertAlmostEqual(first= f_oc['f_oc'], second= expected,
                                msg = "f_oc was incorrectly calculated. " +
@@ -1525,10 +1525,10 @@ class Test_UT_AS4100_6(unittest.TestCase):
         J = 1.01*1e-9
         I_w = 0
 
-        f_oc = AS4100_6.f_oc_unsymmetric(A_n, l_ex, l_ey, l_ez, r_x, r_y, x_o,
+        f_oc = S6.f_oc_unsymmetric(A_n, l_ex, l_ey, l_ez, r_x, r_y, x_o,
                                          y_o, J, I_w, E, G)
         expected = 1.9346398547015e8 #calculated at wolfram from coefficients
-        delta_val = expected / Test_UT_AS4100_6.delta_p
+        delta_val = expected / Test_UT_S6.delta_p
 
         self.assertAlmostEqual(first= f_oc['f_oc'], second= expected,
                                msg = "f_oc was incorrectly calculated. " +
@@ -1742,14 +1742,14 @@ class Test_UT_AS4100_6(unittest.TestCase):
                                                 yo, J, Iw, E, G, aexp, bexp,
                                                 cexp, dexp, focexp):
 
-            f_oc = AS4100_6.f_oc_unsymmetric(Ani,lexi,leyi, lezi, rxi, ryi, xoi,
+            f_oc = S6.f_oc_unsymmetric(Ani,lexi,leyi, lezi, rxi, ryi, xoi,
                                              yoi, Ji, Iwi, Ei, Gi)
 
-            delta_a = aexpi / Test_UT_AS4100_6.delta_p
-            delta_b = bexpi / Test_UT_AS4100_6.delta_p
-            delta_c = cexpi / Test_UT_AS4100_6.delta_p
-            delta_d = dexpi / Test_UT_AS4100_6.delta_p
-            delta_foc = focexpi / Test_UT_AS4100_6.delta_p
+            delta_a = aexpi / Test_UT_S6.delta_p
+            delta_b = bexpi / Test_UT_S6.delta_p
+            delta_c = cexpi / Test_UT_S6.delta_p
+            delta_d = dexpi / Test_UT_S6.delta_p
+            delta_foc = focexpi / Test_UT_S6.delta_p
 
             self.assertAlmostEqual(first = f_oc['Intermediate']['a'],
                                    second = aexpi, delta = delta_a)
@@ -1843,11 +1843,11 @@ class Test_UT_AS4100_6(unittest.TestCase):
             Gi, Axi, Ncexpi in zip(An, kf, lex, ley, lez, rx, ry, xo, yo, J, Iw,
                                    fy, E, G, Axis, Ncexp):
 
-            Nc = AS4100_6.s6_3_3_N_c_torsion(Ani, kfi, lexi, leyi, lezi, rxi,
+            Nc = S6.s6_3_3_N_c_torsion(Ani, kfi, lexi, leyi, lezi, rxi,
                                              ryi, xoi, yoi, Ji, Iwi, fyi, Ei,
                                              Gi, Symmetry(Axi))['N_cz']
 
-            delta = Ncexpi / Test_UT_AS4100_6.delta_p
+            delta = Ncexpi / Test_UT_S6.delta_p
             self.assertAlmostEqual(first = Nc, second = Ncexpi, delta = delta)
 
         #endregion
@@ -1955,10 +1955,10 @@ class Test_UT_AS4100_6(unittest.TestCase):
             Gi, Axi, Ncexpi in zip(An, kf, lex, ley, lez, rx, ry, xo, yo, J, Iw,
                                    fy, E, G, Axis, Ncexp):
 
-            Nc = AS4100_6.s6_3_3_N_c_torsion(Ani, kfi, lexi, leyi, lezi, rxi,
+            Nc = S6.s6_3_3_N_c_torsion(Ani, kfi, lexi, leyi, lezi, rxi,
                                              ryi, xoi, yoi, Ji, Iwi, fyi, Ei,
                                              Gi, Symmetry(Axi))['N_cz']
-            delta = Ncexpi / Test_UT_AS4100_6.delta_p
+            delta = Ncexpi / Test_UT_S6.delta_p
             self.assertAlmostEqual(first=Nc, second=Ncexpi, delta=delta)
 
         #endregion
@@ -2109,10 +2109,10 @@ class Test_UT_AS4100_6(unittest.TestCase):
             Gi, Axi, Ncexpi in zip(An, kf, lex, ley, lez, rx, ry, xo, yo, J, Iw,
                                    fy, E, G, Axis, Ncexp):
 
-            Nc = AS4100_6.s6_3_3_N_c_torsion(Ani, kfi, lexi, leyi, lezi, rxi,
+            Nc = S6.s6_3_3_N_c_torsion(Ani, kfi, lexi, leyi, lezi, rxi,
                                              ryi, xoi, yoi, Ji, Iwi, fyi, Ei,
                                              Gi, Symmetry(Axi))['N_cz']
-            delta = Ncexpi / Test_UT_AS4100_6.delta_p
+            delta = Ncexpi / Test_UT_S6.delta_p
             self.assertAlmostEqual(first=Nc, second=Ncexpi, delta=delta)
 
         #endregion
@@ -2264,10 +2264,10 @@ class Test_UT_AS4100_6(unittest.TestCase):
             Gi, Axi, Ncexpi in zip(An, kf, lex, ley, lez, rx, ry, xo, yo, J, Iw,
                                    fy, E, G, Axis, Ncexp):
 
-            Nc = AS4100_6.s6_3_3_N_c_torsion(Ani, kfi, lexi, leyi, lezi, rxi,
+            Nc = S6.s6_3_3_N_c_torsion(Ani, kfi, lexi, leyi, lezi, rxi,
                                              ryi, xoi, yoi, Ji, Iwi, fyi, Ei,
                                              Gi, Symmetry(Axi))['N_cz']
-            delta = Ncexpi / Test_UT_AS4100_6.delta_p
+            delta = Ncexpi / Test_UT_S6.delta_p
             self.assertAlmostEqual(first=Nc, second=Ncexpi, delta=delta)
 
         #endregion
@@ -2577,7 +2577,7 @@ class Test_UT_AS4100_6(unittest.TestCase):
                         G, Axis, fref, αb, calc_buckle, calc_torsion, φNs, φNcx,
                         φNcy, φNcz, φNc):
 
-            N = AS4100_6.s6_1_1_Nc(Ani, kfi, li, kexi, keyi, kezi, rxi, ryi,
+            N = S6.s6_1_1_Nc(Ani, kfi, li, kexi, keyi, kezi, rxi, ryi,
                                    xoi, yoi, Ji, Iwi, fyi, Ei, Gi,
                                    Symmetry(Axi), frefi, αbi, 0.85, 0.9, cbucki,
                                    ctori)
@@ -2588,11 +2588,11 @@ class Test_UT_AS4100_6(unittest.TestCase):
             Nczexp = φNczi
             Ncexp = φNci
 
-            Nsdelta = Nsexp / Test_UT_AS4100_6.delta_p
-            Ncxdelta = Ncxexp / Test_UT_AS4100_6.delta_p
-            Ncydelta = Ncyexp / Test_UT_AS4100_6.delta_p
-            Nczdelta = Nczexp / Test_UT_AS4100_6.delta_p
-            Ncdelta = Ncexp / Test_UT_AS4100_6.delta_p
+            Nsdelta = Nsexp / Test_UT_S6.delta_p
+            Ncxdelta = Ncxexp / Test_UT_S6.delta_p
+            Ncydelta = Ncyexp / Test_UT_S6.delta_p
+            Nczdelta = Nczexp / Test_UT_S6.delta_p
+            Ncdelta = Ncexp / Test_UT_S6.delta_p
 
             self.assertAlmostEqual(first = N['φN_s'], second = Nsexp,
                                    delta = Nsdelta)

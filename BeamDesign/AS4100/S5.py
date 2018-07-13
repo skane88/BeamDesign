@@ -30,7 +30,7 @@ in consistent systems of units.
 
 import math
 from typing import List, Union, Dict
-from HollowCircleClass import HollowCircleClass
+from BeamDesign.SectionClasses.HollowCircleClass import HollowCircleClass
 
 
 # section capacity methods
