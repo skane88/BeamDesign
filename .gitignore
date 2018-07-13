@@ -88,7 +88,7 @@ ENV/
 .ropeproject
 
 # Pycharm files / folders
-/.idea
+.idea/
 
 # =========================
 # Operating System Files
