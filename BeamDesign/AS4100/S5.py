@@ -29,15 +29,27 @@ in consistent systems of units.
 """
 
 import math
+import enum
+
 from typing import List, Union, Dict
 from BeamDesign.SectionClasses.HollowCircleClass import HollowCircleClass
 
+
+# define some helpful enumerations
+class Restraints(enum.Enum):
+    FF='FF'
+    FP='FP'
+    FU='FU'
+    PP='PP'
+    PL='PL'
+    PU='PU'
+    LL='LL'
 
 # section capacity methods
 
 # region
 
-def s5_2_M_s(f_y: float, Z_e: float) -> float:
+def s5_2_M_s(*, f_y: float, Z_e: float) -> float:
     """
     Calculates the member section capacity according to AS4100 S5.2
     
@@ -58,7 +70,7 @@ def s5_2_M_s(f_y: float, Z_e: float) -> float:
 
 # region
 
-def s5_6_1_M_o(l_e: float, I_y: float, J: float, I_w: float,
+def s5_6_1_M_o(*, l_e: float, I_y: float, J: float, I_w: float,
                β_x: float = 0.0, E: float = 200e9, G: float = 80e9) -> float:
     """
     Calculates the reference buckling moment according to AS4100 S5.6.1.2.
@@ -87,7 +99,7 @@ def s5_6_1_M_o(l_e: float, I_y: float, J: float, I_w: float,
         ((b + c + (d * d) * a) ** 0.5) + d * (a ** 0.5))
 
 
-def s5_6_1_α_m(M_max: float, M_2: float, M_3: float, M_4: float,
+def s5_6_1_α_m(*, M_max: float, M_2: float, M_3: float, M_4: float,
                α_m_max: float = 2.5):
     """
     Determines the moment modification factor α_m to AS4100 S5.6.1.
@@ -112,7 +124,7 @@ def s5_6_1_α_m(M_max: float, M_2: float, M_3: float, M_4: float,
     return min(α_m, α_m_max)
 
 
-def s5_6_α_s(M_s: float, M_o: float) -> float:
+def s5_6_α_s(*, M_s: float, M_o: float) -> float:
     """
     Determines the slenderness modification factor α_s to AS4100 S5.6.1
     and S5.6.2. Both these sections use an identical equation except for
@@ -129,7 +141,7 @@ def s5_6_α_s(M_s: float, M_o: float) -> float:
 
 
 def s5_6_3_k_t(d_1: float, l: float, t_f: float, t_w: float, n_w: float,
-               restraint_code: str = "FF") -> float:
+               restraint_code: str = Restraints.FF) -> float:
     """
     Calculates the twist restraint factor to AS4100 S5.6.3. This applies only
     to sections which are composed of flanges and webs (I sections, PFCs, and
@@ -147,21 +159,24 @@ def s5_6_3_k_t(d_1: float, l: float, t_f: float, t_w: float, n_w: float,
     :return: Returns the twist restraint factor as per AS4100 S5.6.3.
     """
 
-    if restraint_code in ('FF', 'FL', 'LL', 'FU'):
+    assert restraint_code in Restraints
+
+    if restraint_code in (Restraints.FF, Restraints.FL,
+                          Restraints.LL, Restraints.FU):
         kt = 1.0
-    elif restraint_code in ('FP', 'PL', 'PU'):
+    elif restraint_code in (Restraints.FP, Restraints.PL, Restraints.PU):
         kt = 1 + ((d_1 / l) * (t_f / (2 * t_w)) ** 3) / n_w
-    elif restraint_code in ('PP'):
+    elif restraint_code in (Restraints.PP):
         kt = 1 + (2 * (d_1 / l) * (t_f / (2 * t_w)) ** 3) / n_w
     else:
-        raise ValueError("Inappropriate restraint code provided. " +
-                         "expected FF, FL, LL, FU, FP, PL, PU or PP. " +
-                         "Value provided was " + restraint_code + ".")
+        raise ValueError(f"Inappropriate restraint code provided. " +
+                         f"expected {[x.value for x in Restraints]}. " +
+                         f"Restraint code provided was " + restraint_code + ".")
 
     return kt
 
 
-def s5_6_3_l_e(k_t: float, k_l: float, k_r: float, l: float) -> float:
+def s5_6_3_l_e(*, k_t: float, k_l: float, k_r: float, l: float) -> float:
     """
     Determine the effective length for bending to AS4100 S5.6.3.
 
@@ -175,7 +190,7 @@ def s5_6_3_l_e(k_t: float, k_l: float, k_r: float, l: float) -> float:
     return k_t * k_l * k_r * l
 
 
-def s5_6_1_Mb(M_s: float, α_m: float = 1.0, α_s: float = 1.0) -> float:
+def s5_6_1_Mb(*, M_s: float, α_m: float = 1.0, α_s: float = 1.0) -> float:
     """
     Determines the member buckling capacity according to AS4100 S5.6.1.
 
