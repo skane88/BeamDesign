@@ -39,6 +39,7 @@ from BeamDesign.SectionClasses.HollowCircleClass import HollowCircleClass
 class Restraints(enum.Enum):
     FF='FF'
     FP='FP'
+    FL='FL'
     FU='FU'
     PP='PP'
     PL='PL'
@@ -166,28 +167,28 @@ def s5_6_3_k_t(d_1: float, l: float, t_f: float, t_w: float, n_w: float,
         kt = 1.0
     elif restraint_code in (Restraints.FP, Restraints.PL, Restraints.PU):
         kt = 1 + ((d_1 / l) * (t_f / (2 * t_w)) ** 3) / n_w
-    elif restraint_code in (Restraints.PP):
+    elif restraint_code in (Restraints.PP,):
         kt = 1 + (2 * (d_1 / l) * (t_f / (2 * t_w)) ** 3) / n_w
     else:
         raise ValueError(f"Inappropriate restraint code provided. " +
-                         f"expected {[x.value for x in Restraints]}. " +
+                         f"expected {Restraints}. " +
                          f"Restraint code provided was " + restraint_code + ".")
 
     return kt
 
 
-def s5_6_3_l_e(*, k_t: float, k_l: float, k_r: float, l: float) -> float:
+def s5_6_3_l_e(*, k_t: float, k_l: float, k_r: float, l_act: float) -> float:
     """
     Determine the effective length for bending to AS4100 S5.6.3.
 
     :param k_t: Twist restraint factor.
     :param k_l: Load height factor.
     :param k_r: Lateral rotation restraint factor.
-    :param l: Member segment length between restraints.
+    :param l_act: Member segment length between restraints.
     :return: The effective length as per AS4100 S5.6.3.1.
     """
 
-    return k_t * k_l * k_r * l
+    return k_t * k_l * k_r * l_act
 
 
 def s5_6_1_Mb(*, M_s: float, α_m: float = 1.0, α_s: float = 1.0) -> float:

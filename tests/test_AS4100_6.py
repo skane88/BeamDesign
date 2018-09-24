@@ -439,8 +439,10 @@ class Test_UT_S6(unittest.TestCase):
             r_ol = S6.r_ol(rxi, ryi, xoi, yoi)
             delta = roli / Test_UT_S6.delta_p
 
-            self.assertAlmostEqual(first = r_ol, second = roli,
-                                   delta = delta)
+            with self.subTest():
+
+                self.assertAlmostEqual(first = r_ol, second = roli,
+                                       delta = delta)
 
     def test_f_euler_torsion(self):
         """
