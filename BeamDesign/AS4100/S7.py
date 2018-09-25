@@ -23,7 +23,8 @@ in consistent systems of units.
 
 from typing import Dict
 
-def s7_2_N_t_yield(A_g: float, f_y: float) -> float:
+
+def s7_2_N_t_yield(*, A_g: float, f_y: float) -> float:
     """
     Calculates the yield capacity of a member but does not include the capacity
     reduction factor.
@@ -35,7 +36,8 @@ def s7_2_N_t_yield(A_g: float, f_y: float) -> float:
 
     return A_g * f_y
 
-def s7_2_Ag(N_t: float, f_y: float) -> float:
+
+def s7_2_Ag(*, N_t: float, f_y: float) -> float:
     '''
     Calculates the area required to carry the force applied without yielding.
     
@@ -47,8 +49,9 @@ def s7_2_Ag(N_t: float, f_y: float) -> float:
 
     return N_t / f_y
 
-def s7_2_N_t_ultimate(A_n: float, f_u: float, k_t: float,
-                           ultimate_uncertainty: float = 0.85) -> float:
+
+def s7_2_N_t_ultimate(*, A_n: float, f_u: float, k_t: float,
+                      ultimate_uncertainty: float = 0.85) -> float:
     '''
     Calculates the ultimate fracture capacity of a section and includes the
     additional uncertainty factor from AS4100.
@@ -62,11 +65,12 @@ def s7_2_N_t_ultimate(A_n: float, f_u: float, k_t: float,
         behaviour, by default 0.85.
     :return: Returns the ultimate fracture capacity in N.
     '''
-    
+
     return A_n * f_u * k_t * ultimate_uncertainty
 
-def s7_2_An(N_t: float, f_u: float, k_t: float,
-                            ultimate_uncertainty: float = 0.85) -> float:
+
+def s7_2_An(*, N_t: float, f_u: float, k_t: float,
+            ultimate_uncertainty: float = 0.85) -> float:
     '''
     Calculates the area required to carry the force applied without fracture at
     ultimate load.
@@ -81,7 +85,8 @@ def s7_2_An(N_t: float, f_u: float, k_t: float,
 
     return N_t / ultimate_uncertainty / k_t / f_u
 
-def s7_5_a_min_thickness(a_e: float, safety_factor: 0.25) -> float:
+
+def s7_5_a_min_thickness(*, a_e: float, safety_factor: 0.25) -> float:
     '''
     Determines the required thickness of a connection plate in a pinned
     connection as per AS4100 S7.5a).
@@ -98,8 +103,8 @@ def s7_5_a_min_thickness(a_e: float, safety_factor: 0.25) -> float:
 
     return a_e * safety_factor
 
-def s7_5_b_A_beyond(A_reqd: float, safety_factor: float = 1.00) \
-        -> float:
+
+def s7_5_b_A_beyond(*, A_reqd: float, safety_factor: float = 1.00) -> float:
     '''
     Determines the area required beyond a hole in a pinned connection based on
         the requirements of AS4100 S7.5.b).
@@ -117,8 +122,8 @@ def s7_5_b_A_beyond(A_reqd: float, safety_factor: float = 1.00) \
 
     return A_reqd * safety_factor
 
-def s7_5_c_A_perp(A_reqd: float, safety_factor: float = 1.33) \
-        -> float:
+
+def s7_5_c_A_perp(*, A_reqd: float, safety_factor: float = 1.33) -> float:
     '''
     Determines the area required at a pinned connection, perpendicular to the
         member axis based on the requirements of AS4100 S7.5c.
@@ -132,9 +137,10 @@ def s7_5_c_A_perp(A_reqd: float, safety_factor: float = 1.33) \
 
     return A_reqd * safety_factor
 
-def s7_1_A_reqd(N_t: float, f_y: float, f_u: float, k_t: float,
-                   φ: float = 0.9, ultimate_uncertainty: float = 0.85) -> Dict[
-    str, float]:
+
+def s7_1_A_reqd(*, N_t: float, f_y: float, f_u: float,
+                k_t: float, φ: float = 0.9,
+                ultimate_uncertainty: float = 0.85) -> Dict[str, float]:
     '''
     Calculates the area required for a member to AS4100 section 7.1
     
@@ -169,8 +175,9 @@ def s7_1_A_reqd(N_t: float, f_y: float, f_u: float, k_t: float,
         }
     '''
 
-    results = {'A_g': s7_2_Ag(N_t, f_y),
-               'A_n': s7_2_An(N_t, f_u, k_t, ultimate_uncertainty)}
+    results = {'A_g': s7_2_Ag(N_t=N_t, f_y=f_y),
+               'A_n': s7_2_An(N_t=N_t, f_u=f_u, k_t=k_t,
+                              ultimate_uncertainty=ultimate_uncertainty)}
 
     results['A'] = max(results.values())
 
@@ -180,10 +187,10 @@ def s7_1_A_reqd(N_t: float, f_y: float, f_u: float, k_t: float,
 
     return results
 
-def s7_1_N_t(A_g: float, A_n: float, f_y: float, f_u: float,
-                          k_t: float, φ: float = 0.9,
-                          ultimate_uncertainty: float = 0.85) -> Dict[
-    str, float]:
+
+def s7_1_N_t(*, A_g: float, A_n: float, f_y: float, f_u: float,
+             k_t: float, φ: float = 0.9,
+             ultimate_uncertainty: float = 0.85) -> Dict[str, float]:
     """
     Calculates the tension capacity of a section according to AS4100 S7.1.
 
@@ -225,8 +232,9 @@ def s7_1_N_t(A_g: float, A_n: float, f_y: float, f_u: float,
         }
     """
 
-    results = {'N_ty': s7_2_N_t_yield(A_g, f_y),
-               'N_tu': s7_2_N_t_ultimate(A_n, f_u, k_t, ultimate_uncertainty)}
+    results = {'N_ty': s7_2_N_t_yield(A_g=A_g, f_y=f_y),
+               'N_tu': s7_2_N_t_ultimate(A_n=A_n, f_u=f_u, k_t=k_t,
+                                         ultimate_uncertainty=ultimate_uncertainty)}
     results['N'] = min(results.values())
 
     results['φN_ty'] = results['N_ty'] * φ
