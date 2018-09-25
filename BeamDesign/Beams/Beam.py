@@ -55,38 +55,38 @@ class Beam:
         loads = np.array(loads)
         self._loads = loads
 
-    def get_loads(self, position):
+    def get_loads(self, *, position):
 
-        return [self.get_load_x(position),
-                self.get_load_y(position),
-                self.get_load_z(position),
-                self.get_load_mx(position),
-                self.get_load_my(position),
-                self.get_load_mz(position)]
+        return [self.get_load_x(position=position),
+                self.get_load_y(position=position),
+                self.get_load_z(position=position),
+                self.get_load_mx(position=position),
+                self.get_load_my(position=position),
+                self.get_load_mz(position=position)]
 
-    def get_load_x(self, position):
+    def get_load_x(self, *, position):
 
-        return self.get_load_generic(position, 'x')
+        return self.get_load_generic(position=position, load='x')
 
-    def get_load_y(self, position):
+    def get_load_y(self, *, position):
 
-        return self.get_load_generic(position, 'y')
+        return self.get_load_generic(position=position, load='y')
 
-    def get_load_z(self, position):
+    def get_load_z(self, *, position):
 
-        return self.get_load_generic(position, 'z')
+        return self.get_load_generic(position=position, load='z')
 
-    def get_load_mx(self, position):
+    def get_load_mx(self, *, position):
 
-        return self.get_load_generic(position, 'mx')
+        return self.get_load_generic(position=position, load='mx')
 
-    def get_load_my(self, position):
+    def get_load_my(self, *,  position):
 
-        return self.get_load_generic(position, 'my')
+        return self.get_load_generic(position=position, load='my')
 
-    def get_load_mz(self, position):
+    def get_load_mz(self, *, position):
 
-        return self.get_load_generic(position, 'mz')
+        return self.get_load_generic(position=position, load='mz')
 
     def get_load_generic(self, *,  position, load: str):
 
