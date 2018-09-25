@@ -28,6 +28,14 @@ import numpy as np
 
 class Beam:
 
+    _loads: np.ndarray
+    _loads_map = {'x': 1,
+                  'y': 2,
+                  'z': 3,
+                  'mx': 4,
+                  'my': 5,
+                  'mz': 6}
+
     def __init__(self, *, length, section=None, material=None, name: str=None,
                  loads=None, **kwargs):
         self.length = length
@@ -52,7 +60,10 @@ class Beam:
 
     @loads.setter
     def loads(self, loads: None):
-        loads = np.array(loads)
+
+        if loads is not None:
+            loads = np.array(loads)
+
         self._loads = loads
 
     def get_loads(self, *, position):
@@ -90,4 +101,13 @@ class Beam:
 
     def get_load_generic(self, *,  position, load: str):
 
+        if self._loads is None:
+            return None
+
+        # first get the loads and their positions as numpy arrays:
+
+        p = self._loads[:0, :]  # select the entire first row of the array
+
         raise NotImplementedError()
+
+
