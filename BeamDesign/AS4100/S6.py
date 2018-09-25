@@ -35,7 +35,7 @@ from typing import Dict, Union
 
 #region
 
-def s6_2_A_e(A_n: float, k_f: float) -> float:
+def s6_2_A_e(*, A_n: float, k_f: float) -> float:
     '''
     Calculates the generic effective compression area to AS4100 S6.2.
     Relies on k_f having already been calculated.
@@ -47,7 +47,7 @@ def s6_2_A_e(A_n: float, k_f: float) -> float:
 
     return A_n * k_f
 
-def s6_2_N_s(A_e: float, f_y: float) -> float:
+def s6_2_N_s(*, A_e: float, f_y: float) -> float:
     '''
     Calculate the section capacity to AS4100 S6.2
 
@@ -64,7 +64,7 @@ def s6_2_N_s(A_e: float, f_y: float) -> float:
 
 #region
 
-def s6_3_2_l_e(l: float, k_e: float = 1.0) -> float:
+def s6_3_2_l_e(*, l: float, k_e: float = 1.0) -> float:
     '''
     Calculate the effective length according to AS4100 S6.3.2
     
@@ -81,7 +81,7 @@ def s6_3_2_l_e(l: float, k_e: float = 1.0) -> float:
 
 #region
 
-def N_euler(E: float, I: float, l_e: float) -> float:
+def N_euler(*, E: float, I: float, l_e: float) -> float:
     '''
     Calculates the Euler buckling load of a column.
     
@@ -93,7 +93,7 @@ def N_euler(E: float, I: float, l_e: float) -> float:
 
     return (math.pi * math.pi) * E * I / (l_e * l_e)
 
-def f_euler(E: float, l_e: float, r: float) -> float:
+def f_euler(*, E: float, l_e: float, r: float) -> float:
     '''
     Calculates the Euler buckling stress of a column.
     
@@ -105,7 +105,7 @@ def f_euler(E: float, l_e: float, r: float) -> float:
     return (math.pi * math.pi) * E / ((l_e / r)*(l_e / r))
 
 @functools.lru_cache()
-def r_ol(r_x: float, r_y: float, x_o: float, y_o: float) -> float:
+def r_ol(*, r_x: float, r_y: float, x_o: float, y_o: float) -> float:
         '''
         Returns the polar radius of gyration required by AS4600 for a check
         of the torsional buckling capacity.
@@ -126,7 +126,7 @@ def r_ol(r_x: float, r_y: float, x_o: float, y_o: float) -> float:
         return ((r_x*r_x) + (r_y*r_y) + (x_o*x_o) + (y_o*y_o))**0.5
 
 @functools.lru_cache()
-def f_euler_torsion(A: float, l_ez: float, r_x: float, r_y: float,
+def f_euler_torsion(*, A: float, l_ez: float, r_x: float, r_y: float,
                     x_o: float, y_o: float, J: float, I_w: float,
                     E: float, G: float) -> float:
     '''
@@ -149,7 +149,7 @@ def f_euler_torsion(A: float, l_ez: float, r_x: float, r_y: float,
     :return: The euler buckling stress for torsion in Pa.
     '''
 
-    r_o = r_ol(r_x, r_y, x_o, y_o)
+    r_o = r_ol(r_x=r_x, r_y=r_y, x_o=x_o, y_o=y_o)
     a = (G * J) / (A * r_o * r_o)
     b = ((math.pi*math.pi) * E * I_w) / (G * J * (l_ez*l_ez))
 
@@ -161,7 +161,7 @@ def f_euler_torsion(A: float, l_ez: float, r_x: float, r_y: float,
 
 #region
 
-def s6_3_3_λ_n(k_f: float, l_e: float, r: float, f_y: float,
+def s6_3_3_λ_n(*, k_f: float, l_e: float, r: float, f_y: float,
                f_ref: float = 250e6) -> float:
     """
     Calculate the member modified effective slenderness (λ_n) according
@@ -178,7 +178,7 @@ def s6_3_3_λ_n(k_f: float, l_e: float, r: float, f_y: float,
 
     return (l_e / r) * (k_f ** 0.5) * ((f_y / f_ref) ** 0.5)
 
-def s6_3_3_α_c(λ_n: float, α_b: float = 1.0)\
+def s6_3_3_α_c(*, λ_n: float, α_b: float = 1.0)\
         -> Dict[str, Union[Dict[str, float], float]]:
     """
     Calculate the buckling coefficient α_c according to AS4100 S6.3.3.
@@ -212,7 +212,7 @@ def s6_3_3_α_c(λ_n: float, α_b: float = 1.0)\
 
     return {"Intermediate": {"α_a": α_a, "λ": λ, "η": η, "ξ": ξ}, "α_c": α_c}
 
-def s6_3_3_N_c(A_n: float, k_f: float, l_e: float, r: float, f_y: float,
+def s6_3_3_N_c(*, A_n: float, k_f: float, l_e: float, r: float, f_y: float,
                f_ref: float = 250e6, α_b: float = 1.0) -> Dict[str, float]:
     """
     Calculates the member buckling capacity according to AS4100 S6.3.3
@@ -236,10 +236,10 @@ def s6_3_3_N_c(A_n: float, k_f: float, l_e: float, r: float, f_y: float,
         To get only N_c, use: results_dict['N_c'].
     """
 
-    N_s = s6_2_N_s(s6_2_A_e(A_n, k_f),f_y)
+    N_s = s6_2_N_s(A_e=s6_2_A_e(A_n=A_n, k_f=k_f), f_y=f_y)
 
-    λ_n = s6_3_3_λ_n(k_f, l_e, r, f_y, f_ref)
-    α_c = s6_3_3_α_c(λ_n, α_b)
+    λ_n = s6_3_3_λ_n(k_f=k_f, l_e=l_e, r=r, f_y=f_y, f_ref=f_ref)
+    α_c = s6_3_3_α_c(λ_n=λ_n, α_b=α_b)
 
     N_c = N_s * α_c['α_c']
 
@@ -259,7 +259,7 @@ def s6_3_3_N_c(A_n: float, k_f: float, l_e: float, r: float, f_y: float,
 #region
 
 @functools.lru_cache()
-def f_oxz(A_n: float, l_ex: float, l_ez: float, r_x: float,
+def f_oxz(*, A_n: float, l_ex: float, l_ez: float, r_x: float,
           r_y: float, x_o: float, y_o: float, J: float, I_w: float,
           E: float, G: float):
     """
@@ -287,10 +287,11 @@ def f_oxz(A_n: float, l_ex: float, l_ez: float, r_x: float,
         For only the compressive buckling stress use returnval["f_oxz"].
     """
 
-    r_o = r_ol(r_x, r_y, x_o, y_o)
+    r_o = r_ol(r_x=r_x, r_y=r_y, x_o=x_o, y_o=y_o)
     β = 1 - (x_o / r_o)**2
-    f_ox = f_euler(E, l_ex, r_x)
-    f_oz = f_euler_torsion(A_n, l_ez, r_x, r_y, x_o, y_o, J, I_w, E, G)
+    f_ox = f_euler(E=E, l_e=l_ex, r=r_x)
+    f_oz = f_euler_torsion(A=A_n, l_ez=l_ez, r_x=r_x, r_y=r_y, x_o=x_o, y_o=y_o,
+                           J=J, I_w=I_w, E=E, G=G)
 
     f_ = 1/(2 * β) * ((f_ox + f_oz) - ((f_ox + f_oz)**2 -
                                        (4 * β * f_ox * f_oz))**0.5)
@@ -299,7 +300,7 @@ def f_oxz(A_n: float, l_ex: float, l_ez: float, r_x: float,
                              'r_y': r_y, 'x_o': x_o, 'y_o': y_o, 'r_ol': r_o},
             "f_oxz": f_}
 
-def f_oc_double_symmetric(A_n: float, l_ex: float, l_ez: float, r_x: float,
+def f_oc_double_symmetric(*, A_n: float, l_ex: float, l_ez: float, r_x: float,
                           r_y: float, x_o: float, y_o: float, J: float,
                           I_w: float, E: float, G: float,
                           sym: object = Symmetry(['x', 'y'])):
@@ -338,8 +339,11 @@ def f_oc_double_symmetric(A_n: float, l_ex: float, l_ez: float, r_x: float,
         For the value of f_oc only call returnvals["f_oc"].
     """
 
-    foxz = f_oxz(A_n, l_ex, l_ez, r_x, r_y, x_o, y_o, J, I_w, E, G)
-    foz = f_euler_torsion(A_n, l_ez, r_x, r_y, x_o, y_o, J, I_w, E, G)
+    foxz = f_oxz(A_n=A_n, l_ex=l_ex, l_ez=l_ez, r_x=r_x, r_y=r_y, x_o=x_o,
+                 y_o=y_o, J=J, I_w=I_w, E=E, G=G)
+
+    foz = f_euler_torsion(A=A_n, l_ez=l_ez, r_x=r_x, r_y=r_y, x_o=x_o, y_o=y_o,
+                          J=J, I_w=I_w, E=E, G=G)
 
     """
     AS4600 S3.4.3 states that for doubly symmetric sections subject
@@ -369,7 +373,7 @@ def f_oc_double_symmetric(A_n: float, l_ex: float, l_ez: float, r_x: float,
 
     return results
 
-def f_oc_single_symmetric(A_n: float, l_ex: float, l_ey: float, l_ez: float,
+def f_oc_single_symmetric(*, A_n: float, l_ex: float, l_ey: float, l_ez: float,
                           r_x: float, r_y: float, x_o: float, y_o: float,
                           J: float, I_w: float, E: float, G: float,
                           sym: object = Symmetry()):
@@ -426,10 +430,12 @@ def f_oc_single_symmetric(A_n: float, l_ex: float, l_ey: float, l_ez: float,
     checks will be carried out about the 'y' axis.
     '''
     if sym.axes[0] == 'x':
-        f_oc = f_oxz(A_n, l_ex, l_ez, r_x, r_y, x_o, y_o, J, I_w, E, G)
+        f_oc = f_oxz(A_n=A_n, l_ex=l_ex, l_ez=l_ez, r_x=r_x, r_y=r_y, x_o=x_o,
+                     y_o=y_o, J=J, I_w=I_w, E=E, G=G)
         f_oc['Intermediate'].update({'Axis of Symmetry': 'x'})
     else:
-        f_oc = f_oxz(A_n, l_ey, l_ez, r_y, r_x, y_o, x_o, J, I_w, E, G)
+        f_oc = f_oxz(A_n=A_n, l_ex=l_ey, l_ez=l_ez, r_x=r_y, r_y=r_x, x_o=y_o,
+                     y_o=x_o, J=J, I_w=I_w, E=E, G=G)
         #note that have switched l_ey for l_ex, and positions of r_x & r_y,
         #x_o & y_o
         f_oc['Intermediate'].update({'Axis of Symmetry': 'y'})
@@ -447,7 +453,7 @@ def f_oc_single_symmetric(A_n: float, l_ex: float, l_ey: float, l_ez: float,
 
     return results
 
-def f_oc_point_symmetric(A_n: float, l_ez: float, r_x: float, r_y: float,
+def f_oc_point_symmetric(*, A_n: float, l_ez: float, r_x: float, r_y: float,
                          x_o: float, y_o: float, J: float, I_w: float,
                          E: float, G: float):
     """
@@ -477,10 +483,11 @@ def f_oc_point_symmetric(A_n: float, l_ez: float, r_x: float, r_y: float,
         To get f_oc, call results["f_oc"]
     """
 
-    return {"f_oc": f_euler_torsion(A_n, l_ez, r_x, r_y, x_o, y_o, J, I_w, E, G),
+    return {"f_oc": f_euler_torsion(A=A_n, l_ez=l_ez, r_x=r_x, r_y=r_y, x_o=x_o,
+                                    y_o=y_o, J=J, I_w=I_w, E=E, G=G),
             "Intermediate": {"AS4600 Clause": "AS4600 S3.4.4"}}
 
-def f_oc_unsymmetric(A_n: float, l_ex: float, l_ey: float, l_ez: float,
+def f_oc_unsymmetric(*, A_n: float, l_ex: float, l_ey: float, l_ez: float,
                      r_x: float, r_y: float, x_o: float, y_o: float,
                      J: float, I_w: float, E: float, G: float):
     """
@@ -511,10 +518,11 @@ def f_oc_unsymmetric(A_n: float, l_ex: float, l_ey: float, l_ez: float,
         To get just f_oc call resultvals["f_oc"].
     """
 
-    f_ox = f_euler(E, l_ex, r_x)
-    f_oy = f_euler(E, l_ey, r_y)
-    r_o = r_ol(r_x, r_y, x_o, y_o)
-    f_oz = f_euler_torsion(A_n, l_ez, r_x, r_y, x_o, y_o, J, I_w, E, G)
+    f_ox = f_euler(E=E, l_e=l_ex, r=r_x)
+    f_oy = f_euler(E=E, l_e=l_ey, r=r_y)
+    r_o = r_ol(r_x=r_x, r_y=r_y, x_o=x_o, y_o=y_o)
+    f_oz = f_euler_torsion(A=A_n, l_ez=l_ez, r_x=r_x, r_y=r_y, x_o=x_o, y_o=y_o,
+                           J=J, I_w=I_w, E=E, G=G)
 
     a = (r_o**2) - (x_o**2) * (y_o**2)
     b = (r_o**2) * (f_ox + f_oy + f_oz) - (f_oy * (x_o**2) + f_ox * (y_o**2))
@@ -559,7 +567,7 @@ def f_oc_unsymmetric(A_n: float, l_ex: float, l_ey: float, l_ez: float,
                                 "f_oy": f_oy, "f_oz": f_oz, "a": a, "b": b,
                                 "c": c, "d": d}}
 
-def s6_3_3_N_c_torsion(A_n: float, k_f: float, l_ex: float, l_ey: float,
+def s6_3_3_N_c_torsion(*, A_n: float, k_f: float, l_ex: float, l_ey: float,
                        l_ez: float, r_x: float, r_y: float, x_o: float,
                        y_o: float, J: float, I_w: float, f_y: float,
                        E: float, G: float, sym: object = Symmetry(),
@@ -604,7 +612,7 @@ def s6_3_3_N_c_torsion(A_n: float, k_f: float, l_ex: float, l_ey: float,
     """
 
     #first calculate some required section properties
-    A_e = s6_2_A_e(A_n, k_f)
+    A_e = s6_2_A_e(A_n=A_n, k_f=k_f)
 
     if sym.symmetry == 'Double':
         '''
@@ -614,17 +622,21 @@ def s6_3_3_N_c_torsion(A_n: float, k_f: float, l_ex: float, l_ey: float,
         symmetric sections.
         '''
 
-        results = f_oc_double_symmetric(A_n, l_ex, l_ez, r_x, r_y, x_o, y_o,
-                                        J, I_w, E, G, sym)
+        results = f_oc_double_symmetric(A_n=A_n, l_ex=l_ex, l_ez=l_ez, r_x=r_x,
+                                        r_y=r_y, x_o=x_o, y_o=y_o, J=J, I_w=I_w,
+                                        E=E, G=G, sym=sym)
     elif sym.symmetry == 'Single':
-        results = f_oc_single_symmetric(A_n, l_ex, l_ey, l_ez, r_x, r_y, x_o,
-                                        y_o, J, I_w, E, G, sym)
+        results = f_oc_single_symmetric(A_n=A_n, l_ex=l_ex, l_ey=l_ey,
+                                        l_ez=l_ez, r_x=r_x, r_y=r_y, x_o=x_o,
+                                        y_o=y_o, J=J, I_w=I_w, E=E, G=G,
+                                        sym=sym)
     elif sym.symmetry == 'Point':
-        results = f_oc_point_symmetric(A_n, l_ez, r_x, r_y, x_o, y_o, J, I_w,
-                                       E, G)
+        results = f_oc_point_symmetric(A_n=A_n, l_ez=l_ez, r_x=r_x, r_y=r_y,
+                                       x_o=x_o, y_o=y_o, J=J, I_w=I_w, E=E, G=G)
     elif sym.symmetry == 'None':
-        results = f_oc_unsymmetric(A_n,l_ex, l_ey, l_ez, r_x, r_y, x_o, y_o,
-                                   J, I_w, E, G)
+        results = f_oc_unsymmetric(A_n=A_n, l_ex=l_ex, l_ey=l_ey, l_ez=l_ez,
+                                   r_x=r_x, r_y=r_y, x_o=x_o, y_o=y_o, J=J,
+                                   I_w=I_w, E=E, G=G)
     else:
         raise ValueError("Error in AS4600 buckling stress check. " +
                             "Expected a symmetry type")
@@ -656,7 +668,7 @@ def s6_3_3_N_c_torsion(A_n: float, k_f: float, l_ex: float, l_ey: float,
 
 #member capacity methods
 
-def s6_1_1_Nc(A_n: float, k_f: float, l: float, k_ex: float, k_ey: float,
+def s6_1_1_Nc(*, A_n: float, k_f: float, l: float, k_ex: float, k_ey: float,
               k_ez: float, r_x: float, r_y: float, x_o: float, y_o: float,
               J: float, I_w: float, f_y: float, E: float, G: float,
               sym: object = Symmetry(), f_ref: float = 250e6,
@@ -702,9 +714,9 @@ def s6_1_1_Nc(A_n: float, k_f: float, l: float, k_ex: float, k_ey: float,
         for future reference.
     """
 
-    A_e = s6_2_A_e(A_n, k_f) #calculate effective area, as required for calculations below
+    A_e = s6_2_A_e(A_n=A_n, k_f=k_f) #calculate effective area, as required for calculations below
 
-    N_s = s6_2_N_s(A_e, f_y)
+    N_s = s6_2_N_s(A_e=A_e, f_y=f_y)
     φN_s = φ * N_s
 
     results = {'N_s': N_s, 'φN_s': φN_s}
@@ -717,11 +729,13 @@ def s6_1_1_Nc(A_n: float, k_f: float, l: float, k_ex: float, k_ey: float,
 
     #if buckling calculations required, do them.
     if calc_buckling == True:
-        l_ex = s6_3_2_l_e(l, k_ex)
-        l_ey = s6_3_2_l_e(l, k_ey)
+        l_ex = s6_3_2_l_e(l=l, k_e=k_ex)
+        l_ey = s6_3_2_l_e(l=l, k_e=k_ey)
 
-        N_cx_buckling = s6_3_3_N_c(A_n, k_f, l_ex, r_x, f_y, f_ref, α_b)
-        N_cy_buckling = s6_3_3_N_c(A_n, k_f, l_ey, r_y, f_y, f_ref, α_b)
+        N_cx_buckling = s6_3_3_N_c(A_n=A_n, k_f=k_f, l_e=l_ex, r=r_x, f_y=f_y,
+                                   f_ref=f_ref, α_b=α_b)
+        N_cy_buckling = s6_3_3_N_c(A_n=A_n, k_f=k_f, l_e=l_ey, r=r_y, f_y=f_y,
+                                   f_ref=f_ref, α_b=α_b)
 
         N_cx = min(N_cx_buckling["N_c"], N_s)
         φN_cx = φ * N_cx
@@ -742,11 +756,13 @@ def s6_1_1_Nc(A_n: float, k_f: float, l: float, k_ex: float, k_ey: float,
 
     #calculate torsional capacity if required.
     if calc_buckling == True and calc_torsion == True:
-        l_ez = s6_3_2_l_e(l, k_ez)
+        l_ez = s6_3_2_l_e(l=l, k_e=k_ez)
 
-        N_cz_results = s6_3_3_N_c_torsion(A_n, k_f, l_ex, l_ey, l_ez, r_x,
-                                           r_y, x_o, y_o, J, I_w, f_y, E, G,
-                                           sym, uncertainty_factor)
+        N_cz_results = s6_3_3_N_c_torsion(A_n=A_n, k_f=k_f, l_ex=l_ex,
+                                          l_ey=l_ey, l_ez=l_ez, r_x=r_x,
+                                          r_y=r_y, x_o=x_o, y_o=y_o, J=J,
+                                          I_w=I_w, f_y=f_y, E=E, G=G, sym=sym,
+                                          uncertainty_factor=uncertainty_factor)
 
         results["N_cz Intermediate"] = N_cz_results["Intermediate"]
 
