@@ -26,13 +26,13 @@ in consistent systems of units.
 import math
 from typing import List, Union, Dict, Any
 
-from HollowCircleClass import HollowCircleClass
+from BeamDesign.SectionClasses.HollowCircleClass import HollowCircleClass
 
 # shear capacity methods
 
 # region
 
-def s5_11_4_V_w_Generic(A_w: float, f_y: float,
+def s5_11_4_V_w_Generic(*, A_w: float, f_y: float,
                         shear_to_axial: float = 0.6) -> float:
     """
     Determines the shear yielding capacity of a flat web section to
@@ -62,9 +62,9 @@ def s5_11_4_V_w_Generic(A_w: float, f_y: float,
 
     return f_y_v * A_w
 
-def s5_11_4_V_w_CHS(A_e: float, f_y: float,
-                    shear_to_axial: float = 0.6, CHS_shear_area: float = 0.6)\
-        -> float:
+def s5_11_4_V_w_CHS(*, A_e: float, f_y: float,
+                    shear_to_axial: float = 0.6,
+                    CHS_shear_area: float = 0.6) -> float:
     """
     Determine the shear yielding capacity of a CHS section to AS4100 S5.11.4.
 
@@ -89,11 +89,12 @@ def s5_11_4_V_w_CHS(A_e: float, f_y: float,
 
     return CHS_shear_area * f_y_v * A_e
 
-def s5_11_4_V_w_multiple(A: Union(float, List[float]),
-                         f_y: Union(float, List[float]),
-                         d: Union(float, List[float]),
-                         t: Union(float, List[float]),
-                         is_CHS: Union(bool, List[bool]),
+
+def s5_11_4_V_w_multiple(*, A: Union[float, List[float]],
+                         f_y: Union[float, List[float]],
+                         d: Union[float, List[float]],
+                         t: Union[float, List[float]],
+                         is_CHS: Union[bool, List[bool]],
                          shear_to_axial: float = 0.6,
                          CHS_shear_area: float = 0.6):
     """
@@ -231,12 +232,14 @@ def s5_11_4_V_w_multiple(A: Union(float, List[float]),
         if not CHSi:
             #if not a CHS, use the generic shear capacity method
 
-            V_current = s5_11_4_V_w_Generic(Ai, f_y_min, shear_to_yield)
+            V_current = s5_11_4_V_w_Generic(A_w=Ai, f_y=f_y_min,
+                                            shear_to_axial=shear_to_axial)
 
         else:
             #else, need to use the CHS method
 
-            V_current = s5_11_4_V_w_CHS(Ai, f_y_min, shear_to_yield)
+            V_current = s5_11_4_V_w_CHS(A_e=Ai, f_y=f_y_min,
+                                        shear_to_axial=shear_to_axial)
 
         #finally, the shear capacity of the multiple sections is simply
         #the sum of the yield capacities
@@ -251,7 +254,7 @@ def s5_11_4_V_w_multiple(A: Union(float, List[float]),
 
     return results
 
-def s5_11_5_α_v(d_p: float, t_w: float, f_y: float,
+def s5_11_5_α_v(*, d_p: float, t_w: float, f_y: float,
                 slenderness_limit: float = 82.0,
                 f_y_ref: float = 250e6) -> float:
     """
@@ -281,11 +284,11 @@ def s5_11_5_α_v(d_p: float, t_w: float, f_y: float,
 
     return α_v
 
-def s5_11_5_α_vMultiple(d_p: Union(List[float], float),
-                        t_w: Union(List[float], float),
-                        f_y: Union(List[float], float),
-                        check_buckle: Union(List[bool], bool),
-                        slenderness_limit: Union(List[float], float),
+def s5_11_5_α_vMultiple(*, d_p: Union[List[float], float],
+                        t_w: Union[List[float], float],
+                        f_y: Union[List[float], float],
+                        check_buckle: Union[List[bool], bool],
+                        slenderness_limit: Union[List[float], float],
                         f_y_ref: float = 250e6):
     """
     Determines the shear buckling coefficient α_v, which reduces the shear
@@ -439,7 +442,8 @@ def s5_11_5_α_vMultiple(d_p: Union(List[float], float),
 
             if check_buckle_i:
                 #if buckling check is required, get α_v
-                α_v_current = s5_11_5_α_v(d_pi, t_wi, f_yi, slenderness_limit_i)
+                α_v_current = s5_11_5_α_v(d_p=d_pi, t_w=t_wi, f_y=f_yi,
+                                          slenderness_limit=slenderness_limit_i)
             else:
                 #if buckling is not checked, α_v = 1.0 is the assumption.
                 α_v_current = 1.0
@@ -475,7 +479,7 @@ def s5_11_5_α_vMultiple(d_p: Union(List[float], float),
 
     return results
 
-def s5_11_3_Non_uniform_shear_factor(f_vm: float, f_va: float) -> float:
+def s5_11_3_Non_uniform_shear_factor(*, f_vm: float, f_va: float) -> float:
     """
     Determines the non-uniform shear modification factor as per
     AS4100 S5.11.3. This applies for sections such as PFCs, Mono-symmetric
@@ -492,11 +496,11 @@ def s5_11_3_Non_uniform_shear_factor(f_vm: float, f_va: float) -> float:
     return min(2 / (0.9 + (f_vm / f_va)), 1.0)
 
 
-def s5_11_2_V_v(A: Union(List[float], float), f_y: Union(List[float], float),
-                d: Union(List[float], float), t: Union(List[float], float),
-                is_CHS: Union(List[bool], bool),
-                check_buckle: Union(List[bool], bool),
-                slenderness_limit: Union(List[float], float),
+def s5_11_2_V_v(A: Union[List[float], float], f_y: Union[List[float], float],
+                d: Union[List[float], float], t: Union[List[float], float],
+                is_CHS: Union[List[bool], bool],
+                check_buckle: Union[List[bool], bool],
+                slenderness_limit: Union[List[float], float],
                 shear_to_axial: float = 0.6, CHS_shear_area: float = 0.6,
                 f_y_ref: float = 250e6, is_uniform: bool = True,
                 f_vm: float = 1.0, f_va: float = 1.0):
@@ -653,8 +657,9 @@ def s5_11_2_V_v(A: Union(List[float], float), f_y: Union(List[float], float),
                          + str(list_lens[6]) + '.')
 
     #first determine the yield strength
-    V_y_results = s5_11_4_V_w_multiple(A, f_y, d, t, is_CHS, shear_to_axial,
-                                       CHS_shear_area)
+    V_y_results = s5_11_4_V_w_multiple(A=A, f_y=f_y, d=d, t=t, is_CHS=is_CHS,
+                                       shear_to_axial=shear_to_axial,
+                                       CHS_shear_area=CHS_shear_area)
 
     V_y = V_y_results['V_y'] #actual yield strength
 
@@ -665,8 +670,10 @@ def s5_11_2_V_v(A: Union(List[float], float), f_y: Union(List[float], float),
     }
 
     #next determine the buckling factor
-    α_v_results = s5_11_5_α_vMultiple(d, t, f_y, check_buckle,
-                                      slenderness_limit, f_y_ref)
+    α_v_results = s5_11_5_α_vMultiple(d_p=d, t_w=t, f_y=f_y,
+                                      check_buckle=check_buckle,
+                                      slenderness_limit=slenderness_limit,
+                                      f_y_ref=f_y_ref)
 
     α_v = α_v_results['α_v']
 
@@ -683,7 +690,8 @@ def s5_11_2_V_v(A: Union(List[float], float), f_y: Union(List[float], float),
     uniform_shear_factor = 1.0  #by default
 
     if not is_uniform:
-        uniform_shear_factor = s5_11_3_Non_uniform_shear_factor(f_vm, f_va)
+        uniform_shear_factor = s5_11_3_Non_uniform_shear_factor(f_vm=f_vm,
+                                                                f_va=f_va)
 
     # update results
     results['Intermediate'].update(
@@ -705,8 +713,8 @@ def s5_11_2_V_v(A: Union(List[float], float), f_y: Union(List[float], float),
 
     return results
 
-def s5_11_4_V_w_Weld(v_w: Union(List[float], float), Q: float, I: float)\
-                            -> float:
+def s5_11_4_V_w_Weld(*, v_w: Union[List[float], float], Q: float,
+                     I: float) -> float:
     """
     Calculates the capacity of section in shear according to AS4100 S5.11.4
     where the capacity is limited by a weld, as is the case with some welded
@@ -743,7 +751,7 @@ def s5_11_4_V_w_Weld(v_w: Union(List[float], float), Q: float, I: float)\
 
     return v_w * I / Q
 
-def s5_11_4_V_w_WeldMultiple(v_w: Union(List[float], List[List[float]]),
+def s5_11_4_V_w_WeldMultiple(*, v_w: Union[List[float], List[List[float]]],
                              Q: List[float], I: float):
     """
     Calculates the capacity of section in shear according to AS4100 S5.11.4
@@ -808,7 +816,7 @@ def s5_11_4_V_w_WeldMultiple(v_w: Union(List[float], List[List[float]]),
 
     for vwi, Qi, i in zip(v_w, Q, range(0, len(Q))):
 
-        V_w_current = s5_11_4_V_w_Weld(vwi, Qi, I)
+        V_w_current = s5_11_4_V_w_Weld(v_w=vwi, Q=Qi, I=I)
 
         if i == 0:
             #if the first element, set V_w = V_w_current
@@ -835,10 +843,10 @@ def s5_11_4_V_w_WeldMultiple(v_w: Union(List[float], List[List[float]]),
 
     return results
 
-def s5_11_4_V_w_Interface(t1: Union(List[float], float),
-                          t2: Union(List[float], float), f_y_min: float,
-                          Q: float, I: float, shear_to_axial: float = 0.6)\
-                          -> Dict:
+def s5_11_4_V_w_Interface(*, t1: Union[List[float], float],
+                          t2: Union[List[float], float], f_y_min: float,
+                          Q: float, I: float,
+                          shear_to_axial: float = 0.6) -> Dict:
     """
     Calculates the capacity of a section in shear based on local shear
     yielding of an interface such as the connection between a flange and a web.
@@ -900,11 +908,11 @@ def s5_11_4_V_w_Interface(t1: Union(List[float], float),
 
     return results
 
-def s5_11_4_V_w_InterfaceMultiple(t1: Union(List[float], List[List[float]]),
-                                 t2: Union(List[float], List[List[float]]),
+def s5_11_4_V_w_InterfaceMultiple(*, t1: Union[List[float], List[List[float]]],
+                                 t2: Union[List[float], List[List[float]]],
                                  Q: List[float],
-                                 f_y1: Union(List[float], float),
-                                 f_y2: Union(List[float], float),
+                                 f_y1: Union[List[float], float],
+                                 f_y2: Union[List[float], float],
                                  I: float, shear_to_axial: float = 0.6):
     """
     Calculates the capacity of a section in shear based on local shear
@@ -1015,8 +1023,10 @@ def s5_11_4_V_w_InterfaceMultiple(t1: Union(List[float], List[List[float]]),
 
     for t1i, t2i, Qi, f_y1i, f_y2i, i in zip(t1, t2, Q, f_y1, f_y2,
                                              range(0, len(Q))):
-        V_i_current = s5_11_4_V_w_Interface(t1i, t2i, min(f_y1i, f_y2i), Qi, I,
-                                            shear_to_axial)
+        V_i_current = s5_11_4_V_w_Interface(t1=t1i, t2=t2i,
+                                            f_y_min=min(f_y1i, f_y2i), Q=Qi,
+                                            I=I,
+                                            shear_to_axial=shear_to_axial)
 
         if i == 0:
             #if the first interface, by default V_i is the result.
@@ -1044,16 +1054,16 @@ def s5_11_4_V_w_InterfaceMultiple(t1: Union(List[float], List[List[float]]),
 
     return results
 
-def s5_11_2_V_v(A: Union(List[float], float), f_y: Union(List[float], float),
-                d: Union(List[float], float), t: Union(List[float], float),
-                is_CHS: Union(List[bool], bool),
-                check_buckle: Union(List[bool], bool),
-                slenderness_limit: Union(List[float], float),
-                v_w: Union(float, List[float]), Q: Union(List[float] ,float),
-                t_i1: Union(List[float], float),
-                t_i2: Union(List[float], float),
-                f_y1: Union(List[float], float),
-                f_y2: Union(List[float], float), I: float,
+def s5_11_2_V_v(*, A: Union[List[float], float], f_y: Union[List[float], float],
+                d: Union[List[float], float], t: Union[List[float], float],
+                is_CHS: Union[List[bool], bool],
+                check_buckle: Union[List[bool], bool],
+                slenderness_limit: Union[List[float], float],
+                v_w: Union[float, List[float]], Q: Union[List[float] ,float],
+                t_i1: Union[List[float], float],
+                t_i2: Union[List[float], float],
+                f_y1: Union[List[float], float],
+                f_y2: Union[List[float], float], I: float,
                 shear_to_axial: float = 0.6, CHS_shear_area: float = 0.6,
                 f_y_ref: float = 250e6, is_uniform: bool = True,
                 f_vm: float = 1.0, f_va: float = 1.0, check_welds: bool = False,
@@ -1244,7 +1254,7 @@ def s5_11_2_V_v(A: Union(List[float], float), f_y: Union(List[float], float),
     if check_welds:
         #If welds need to be checked
 
-        V_weld_results = s5_11_4_V_w_WeldMultiple(v_w, Q, I)
+        V_weld_results = s5_11_4_V_w_WeldMultiple(v_w=v_w, Q=Q, I=I)
         results['V_weld'] = V_weld_results['V_weld']
         results['φV_weld'] = V_weld_results['V_weld'] * φ_weld
         results['Intermediate'].update(V_weld_results['Intermediate'])
@@ -1252,9 +1262,10 @@ def s5_11_2_V_v(A: Union(List[float], float), f_y: Union(List[float], float),
     if check_interface:
         # If interface needs to be checked.
 
-        V_interface_results = s5_11_4_V_w_InterfaceMultiple(t_i1, t_i2, Q, f_y1,
-                                                            f_y2, I,
-                                                            shear_to_axial)
+        V_interface_results = s5_11_4_V_w_InterfaceMultiple(t1=t_i1, t2=t_i2,
+                                                            Q=Q, f_y1=f_y1,
+                                                            f_y2=f_y2, I=I,
+                                                            shear_to_axial=shear_to_axial)
 
         results['V_interface'] = V_interface_results['V_interface']
         results['φV_interface'] = V_interface_results['V_interface'] * φ_steel
