@@ -3,7 +3,8 @@ This module contains functions for calculating effective section properties
 as required by AS4100 S5, 6 & 7.
 """
 
-from HollowCircleClass import HollowCircleClass #import to allow an area calculation.
+from BeamDesign.Sections.HollowCircle import HollowCircle
+
 
 def s6_2_λ_e_flatplate(b, t, f_y, f_ref = 250.):
     """
@@ -18,6 +19,7 @@ def s6_2_λ_e_flatplate(b, t, f_y, f_ref = 250.):
 
     return (b / t)*((f_y / f_ref)**0.5)
 
+
 def s6_2_λ_e_CHS(d_o, t, f_y, f_ref = 250.):
     """
     Calculates the slenderness of a CHS element to
@@ -31,6 +33,7 @@ def s6_2_λ_e_CHS(d_o, t, f_y, f_ref = 250.):
 
     return (d_o / t)*(f_y / f_ref)
 
+
 def s6_2_b_e_flatplate(b, λ_e, λ_ey):
     """
     Calculates the effective width of a flat plate element to
@@ -43,6 +46,7 @@ def s6_2_b_e_flatplate(b, λ_e, λ_ey):
     """
 
     return min(b * (λ_ey / λ_e), b)
+
 
 def s6_2_d_e_CHS(d_o, λ_e, λ_ey):
     """
@@ -60,6 +64,7 @@ def s6_2_d_e_CHS(d_o, λ_e, λ_ey):
 
     return min(d_e1, d_e2, d_o)
 
+
 def s6_2_A_e_flatplate(b, t, f_y, λ_ey, f_ref = 250.):
     """
     Calculates the compression area of a flat
@@ -73,10 +78,11 @@ def s6_2_A_e_flatplate(b, t, f_y, λ_ey, f_ref = 250.):
     f_ref: the reference yield stress, by default 250 MPa
     """
     
-    λ_e = s6_2_λ_e_flatplate(b,t,f_y,f_ref) #slenderness of plate
-    b_e = s6_2_b_e_flatplate(b,λ_e,λ_ey) #effective width
+    λ_e = s6_2_λ_e_flatplate(b,t,f_y,f_ref) # slenderness of plate
+    b_e = s6_2_b_e_flatplate(b,λ_e,λ_ey) # effective width
 
     return b_e * t
+
 
 def s6_2_A_e_CHS(d_o, t, f_y, λ_ey, f_ref = 250.):
     """
@@ -91,12 +97,13 @@ def s6_2_A_e_CHS(d_o, t, f_y, λ_ey, f_ref = 250.):
     f_ref: the reference yield stress, by default 250 MPa
     """
     
-    λ_e = s6_2_λ_e_CHS(d_o,t,f_y,f_ref) #effective slenderness
-    d_e = s6_2_d_e_CHS(d_o, λ_e, λ_ey) #effective diameter
+    λ_e = s6_2_λ_e_CHS(d_o,t,f_y,f_ref) # effective slenderness
+    d_e = s6_2_d_e_CHS(d_o, λ_e, λ_ey) # effective diameter
     
-    c = HollowCircleClass(0,0,d_e/2,d_e/2-t)
+    c = HollowCircle(0,0,d_e/2,d_e/2-t)
 
     return c.area()
+
 
 def s6_2_k_f_Form_Factor(A_n, A_e):
     """

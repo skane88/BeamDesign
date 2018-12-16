@@ -26,7 +26,7 @@ in consistent systems of units.
 import math
 from typing import List, Union, Dict, Any
 
-from BeamDesign.SectionClasses.HollowCircleClass import HollowCircleClass
+from BeamDesign.Sections.HollowCircle import HollowCircle
 
 # shear capacity methods
 
@@ -219,7 +219,7 @@ def s5_11_4_V_w_multiple(*, A: Union[float, List[float]],
                 A_current = di * ti
 
             else:
-                CHS = HollowCircleClass(0.0, 0.0, di / 2, (di - 2 * ti) / 2)
+                CHS = HollowCircle(0.0, 0.0, di / 2, (di - 2 * ti) / 2)
                 A_current = CHS.area
 
         else:

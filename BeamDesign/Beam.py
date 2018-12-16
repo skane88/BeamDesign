@@ -25,26 +25,17 @@ with multiple design codes.
 
 import numpy as np
 
-
 class Beam:
 
-    _loads: np.ndarray
-    _loads_map = {'x': 1,
-                  'y': 2,
-                  'z': 3,
-                  'mx': 4,
-                  'my': 5,
-                  'mz': 6}
-
-    def __init__(self, *, length, section=None, material=None, name: str=None,
+    def __init__(self, *, length=None, section=None, material=None,
+                 name: str=None,
                  loads=None, **kwargs):
+
         self.length = length
         self.section = section
         self.material = material
-        self.loads = loads
-
-        # if name is specified, pop off name and give it to the beam element
         self.name = name
+        self.loads = loads
 
         for i, v in kwargs.items():
 
@@ -61,14 +52,18 @@ class Beam:
     @loads.setter
     def loads(self, loads: None):
 
-        if loads is not None:
-            loads = np.array(loads)
+        if loads is None:
+            self._loads = loads
+            return
+
+        loads = np.array(loads)
 
         self._loads = loads
 
     def get_loads(self, *, position):
 
-        return [self.get_load_x(position=position),
+        return [position,
+                self.get_load_x(position=position),
                 self.get_load_y(position=position),
                 self.get_load_z(position=position),
                 self.get_load_mx(position=position),
@@ -99,15 +94,46 @@ class Beam:
 
         return self.get_load_generic(position=position, load='mz')
 
-    def get_load_generic(self, *,  position, load: str):
+    def get_load_generic(self, *, position, load: str):
 
         if self._loads is None:
             return None
 
         # first get the loads and their positions as numpy arrays:
 
-        p = self._loads[:0, :]  # select the entire first row of the array
+        p = self.loads[0,:]  # select the entire first row of the array
+
+        l_index = self._load_map[load]
 
         raise NotImplementedError()
 
 
+class LoadCase:
+
+    _loads: np.ndarray
+    _load_map = {'l': 0,
+                 'x': 1,
+                 'y': 2,
+                 'z': 3,
+                 'mx': 4,
+                 'my': 5,
+                 'mz': 6
+                 }
+
+    def __init__(self, *, loads=None):
+
+        self._loads = self._set_loads(loads)
+
+        pass
+
+    @property
+    def loads(self):
+        return self._loads
+
+    def _set_loads(self, *, loads):
+
+        if loads is None:
+            self._loads = None
+            return
+
+        self._loads = np.ndarray(loads)
