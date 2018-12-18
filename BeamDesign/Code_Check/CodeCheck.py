@@ -5,5 +5,6 @@ inherit from.
 
 from abc import ABC
 
+
 class CodeCheck(ABC):
     pass
