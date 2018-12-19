@@ -25,11 +25,18 @@ with multiple design codes.
 
 import numpy as np
 
-class Beam:
 
-    def __init__(self, *, length=None, section=None, material=None,
-                 name: str=None,
-                 loads=None, **kwargs):
+class Beam:
+    def __init__(
+        self,
+        *,
+        length=None,
+        section=None,
+        material=None,
+        name: str = None,
+        loads=None,
+        **kwargs,
+    ):
 
         self.length = length
         self.section = section
@@ -40,8 +47,9 @@ class Beam:
         for i, v in kwargs.items():
 
             if i in self.__dict__:
-                raise ValueError(f'Argument {i} already present in the beam '
-                                 + f'object.')
+                raise ValueError(
+                    f"Argument {i} already present in the beam " + f"object."
+                )
 
             self.__dict__[i] = v
 
@@ -62,37 +70,39 @@ class Beam:
 
     def get_loads(self, *, position):
 
-        return [position,
-                self.get_load_x(position=position),
-                self.get_load_y(position=position),
-                self.get_load_z(position=position),
-                self.get_load_mx(position=position),
-                self.get_load_my(position=position),
-                self.get_load_mz(position=position)]
+        return [
+            position,
+            self.get_load_x(position=position),
+            self.get_load_y(position=position),
+            self.get_load_z(position=position),
+            self.get_load_mx(position=position),
+            self.get_load_my(position=position),
+            self.get_load_mz(position=position),
+        ]
 
     def get_load_x(self, *, position):
 
-        return self.get_load_generic(position=position, load='x')
+        return self.get_load_generic(position=position, load="x")
 
     def get_load_y(self, *, position):
 
-        return self.get_load_generic(position=position, load='y')
+        return self.get_load_generic(position=position, load="y")
 
     def get_load_z(self, *, position):
 
-        return self.get_load_generic(position=position, load='z')
+        return self.get_load_generic(position=position, load="z")
 
     def get_load_mx(self, *, position):
 
-        return self.get_load_generic(position=position, load='mx')
+        return self.get_load_generic(position=position, load="mx")
 
-    def get_load_my(self, *,  position):
+    def get_load_my(self, *, position):
 
-        return self.get_load_generic(position=position, load='my')
+        return self.get_load_generic(position=position, load="my")
 
     def get_load_mz(self, *, position):
 
-        return self.get_load_generic(position=position, load='mz')
+        return self.get_load_generic(position=position, load="mz")
 
     def get_load_generic(self, *, position, load: str):
 
@@ -101,7 +111,7 @@ class Beam:
 
         # first get the loads and their positions as numpy arrays:
 
-        p = self.loads[0,:]  # select the entire first row of the array
+        p = self.loads[0, :]  # select the entire first row of the array
 
         l_index = self._load_map[load]
 
@@ -111,14 +121,7 @@ class Beam:
 class LoadCase:
 
     _loads: np.ndarray
-    _load_map = {'l': 0,
-                 'x': 1,
-                 'y': 2,
-                 'z': 3,
-                 'mx': 4,
-                 'my': 5,
-                 'mz': 6
-                 }
+    _load_map = {"l": 0, "x": 1, "y": 2, "z": 3, "mx": 4, "my": 5, "mz": 6}
 
     def __init__(self, *, loads=None):
 
