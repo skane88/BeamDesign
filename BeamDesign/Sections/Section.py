@@ -1,6 +1,7 @@
 """This defines a parent class of "section" objects
 for calculating section properties."""
 
+
 class Section(object):
     """
     Section implements a parent class for  calculating
@@ -18,14 +19,14 @@ class Section(object):
     is_hollow: is the section hollow or not?
     """
 
-    def __init__(self, x = 0., y = 0.):
+    def __init__(self, x=0.0, y=0.0):
         """
         Initialise a section object.
 
         x: The x co-ordinate of the centroid of the shape.
         y: The y co-ordinate of the centroid of the shape.
         """
-        
+
         self.x = x
         self.y = y
 
@@ -37,7 +38,7 @@ class Section(object):
         Returns 0 by default in this class.
         """
 
-        return 0.
+        return 0.0
 
     @property
     def is_circle(self):
