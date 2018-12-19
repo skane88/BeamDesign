@@ -1,7 +1,7 @@
 from unittest import TestCase
 
-class Test_AS4100_S5_Shear(TestCase):
 
+class Test_AS4100_S5_Shear(TestCase):
     def test_s5_11_4_V_w_Generic(self):
         self.fail()
 

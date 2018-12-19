@@ -1,7 +1,7 @@
-
 from pytest import mark
 
 from BeamDesign.Beam import Beam, LoadCase
+
 
 def test_Beam_init():
 
@@ -9,18 +9,20 @@ def test_Beam_init():
 
     assert a
 
-@mark.parametrize('length', [None, 1.000, 3.000, 4.532, 1, 3])
+
+@mark.parametrize("length", [None, 1.000, 3.000, 4.532, 1, 3])
 def test_beam_get_length(length):
 
     a = Beam(length=length)
 
-    assert a.length==length
+    assert a.length == length
+
 
 def test_loads_1():
 
     a = LoadCase()
 
-    position = 1.
+    position = 1.0
 
     assert a.get_load_x(position=position) is None
     assert a.get_load_y(position=position) is None
@@ -32,6 +34,7 @@ def test_loads_1():
     expected = [position, None, None, None, None, None, None]
 
     assert a.get_loads(position=position) == expected
+
 
 def test_loads_2():
 
