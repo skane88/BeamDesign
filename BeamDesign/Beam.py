@@ -26,7 +26,7 @@ with multiple design codes.
 import numpy as np
 
 
-class Beam:
+class Element:
     def __init__(
         self,
         *,
@@ -37,6 +37,17 @@ class Beam:
         loads=None,
         **kwargs,
     ):
+        """
+        A simple beam Element object. It is intended that multiple Elements can be
+        combined into a single Beam element.
+
+        :param length:
+        :param section:
+        :param material:
+        :param name:
+        :param loads:
+        :param kwargs:
+        """
 
         self.length = length
         self.section = section
