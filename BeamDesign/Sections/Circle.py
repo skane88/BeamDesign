@@ -1,6 +1,7 @@
-"""This defines a class of circular "section" objects
-for calculating section properties. It inherits from
-"clsSection"."""
+"""
+This defines a class of circular "section" objects for calculating section properties.
+It inherits from ``clsSection``.
+"""
 
 from BeamDesign.Sections.Section import Section
 import math
