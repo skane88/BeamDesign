@@ -28,7 +28,7 @@ from typing import Union
 import numpy as np
 
 from BeamDesign.Utility.Exceptions import LoadCaseError
-from BeamDesign.const import Components
+from BeamDesign.const import LoadComponents
 
 
 class Beam:
@@ -244,7 +244,7 @@ class LoadCase:
 
         self._loads = arr
 
-    def get_loads(self, *, component: Union[str, int, Components]):
+    def get_loads(self, *, component: Union[str, int, LoadComponents]):
         """
         Gets the values for a given load component at all positions available in the
         element.
@@ -267,15 +267,15 @@ class LoadCase:
 
         # but first check that the component is a component object
         if isinstance(component, str):
-            component = Components[component]
+            component = LoadComponents[component]
 
         if isinstance(component, int):
-            component = Components(component)
+            component = LoadComponents(component)
 
         # now get the positions column and the load column for the given component
         return self._loads[:, [0, component.value]]
 
-    def get_load(self, *, position: float, component: Union[str, Components] = None):
+    def get_load(self, *, position: float, component: Union[str, LoadComponents] = None):
         """
         Gets the load in a load case at a given position. If there are multiple loads
         at a position it returns all of them. Returns in the form of a
@@ -310,7 +310,7 @@ class LoadCase:
         ), f"Position must be between 0.0 and 1.0. Position given was {position}."
 
         def get_load_single_component(
-            *, position: float, component: Union[str, int, Components]
+            *, position: float, component: Union[str, int, LoadComponents]
         ):
             """
             A helper function to allow get_load to return either a single component or
@@ -327,10 +327,10 @@ class LoadCase:
 
             # but first check that the component is a component object
             if isinstance(component, str):
-                component = Components[component]
+                component = LoadComponents[component]
 
             if isinstance(component, int):
-                component = Components(component)
+                component = LoadComponents(component)
 
             # if loads is only 1x row long, we just return the value
             if self.num_positions == 1:
@@ -374,12 +374,12 @@ class LoadCase:
 
         if component is None:
 
-            fx = get_load_single_component(position=position, component=Components.FX)
-            fy = get_load_single_component(position=position, component=Components.FY)
-            fz = get_load_single_component(position=position, component=Components.FZ)
-            mx = get_load_single_component(position=position, component=Components.MX)
-            my = get_load_single_component(position=position, component=Components.MY)
-            mz = get_load_single_component(position=position, component=Components.MZ)
+            fx = get_load_single_component(position=position, component=LoadComponents.FX)
+            fy = get_load_single_component(position=position, component=LoadComponents.FY)
+            fz = get_load_single_component(position=position, component=LoadComponents.FZ)
+            mx = get_load_single_component(position=position, component=LoadComponents.MX)
+            my = get_load_single_component(position=position, component=LoadComponents.MY)
+            mz = get_load_single_component(position=position, component=LoadComponents.MZ)
 
             return np.hstack((fx, fy, fz, mx, my, mz))
 

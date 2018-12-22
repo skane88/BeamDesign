@@ -5,7 +5,7 @@ Contains constants used throughout the program such as enumerations etc.
 from enum import Enum
 
 
-class Components(Enum):
+class LoadComponents(Enum):
     FX = 1
     FY = 2
     FZ = 3
