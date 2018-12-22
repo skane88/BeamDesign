@@ -141,15 +141,6 @@ class Element:
 class LoadCase:
 
     _loads: np.ndarray
-    _load_map = {
-        "l": 0,
-        Components.FX: 1,
-        Components.FY: 2,
-        Components.FZ: 3,
-        Components.MX: 4,
-        Components.MY: 5,
-        Components.MZ: 6,
-    }
 
     def __init__(self, *, case_id: int = None, case_name: str = None, loads=None):
         """
@@ -253,7 +244,7 @@ class LoadCase:
 
         self._loads = arr
 
-    def get_loads(self, *, component: Union[str, Components]):
+    def get_loads(self, *, component: Union[str, int, Components]):
         """
         Gets the values for a given load component at all positions available in the
         element.
@@ -273,13 +264,16 @@ class LoadCase:
             return None
 
         # else return the whole component
+
+        # but first check that the component is a component object
         if isinstance(component, str):
             component = Components[component]
 
-        comp_idx = self._load_map[component]
+        if isinstance(component, int):
+            component = Components(component)
 
         # now get the positions column and the load column for the given component
-        return self._loads[:, [0, comp_idx]]
+        return self._loads[:, [0, component.value]]
 
     def get_load(self, *, position: float, component: Union[str, Components] = None):
         """
@@ -316,7 +310,7 @@ class LoadCase:
         ), f"Position must be between 0.0 and 1.0. Position given was {position}."
 
         def get_load_single_component(
-            *, position: float, component: Union[str, Components]
+            *, position: float, component: Union[str, int, Components]
         ):
             """
             A helper function to allow get_load to return either a single component or
@@ -330,15 +324,18 @@ class LoadCase:
                 return np.array([[None]])
 
             # if not, we need to actually search the loads array
+
+            # but first check that the component is a component object
             if isinstance(component, str):
                 component = Components[component]
 
-            comp_idx = self._load_map[component]
+            if isinstance(component, int):
+                component = Components(component)
 
             # if loads is only 1x row long, we just return the value
             if self.num_positions == 1:
 
-                return self.loads[0:1, comp_idx : comp_idx + 1]
+                return self.loads[0:1, component.value : component.value + 1]
 
             # if loads is greater than 1 then we need to do some interpolation etc.
 
@@ -360,7 +357,9 @@ class LoadCase:
 
                     idx = idx_dict[position]
 
-                    return self.loads[idx : idx + count, comp_idx : comp_idx + 1]
+                    return self.loads[
+                        idx : idx + count, component.value : component.value + 1
+                    ]
 
             loads = self.get_loads(component=component)
 
