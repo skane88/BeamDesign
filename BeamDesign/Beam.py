@@ -24,7 +24,6 @@ with multiple design codes.
 """
 
 from typing import Union
-from enum import Enum
 
 import numpy as np
 
@@ -136,15 +135,6 @@ class Element:
         l_index = self._load_map[load]
 
         raise NotImplementedError()
-
-
-class Components(Enum):
-    FX = "FX"
-    FY = "FY"
-    FZ = "FZ"
-    MX = "MX"
-    MY = "MY"
-    MZ = "MZ"
 
 
 class LoadCase:
@@ -397,6 +387,4 @@ class LoadCase:
             return get_load_single_component(position=position, component=component)
 
     def __repr__(self):
-        return (f'{self.__class__.__name__}('
-                f'{self.case_name}, {self.loads}'
-                f')')
+        return f"{self.__class__.__name__}(" f"{self.case_name}, {self.loads}" f")"
