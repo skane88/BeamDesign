@@ -23,6 +23,7 @@ The intent here is to make the ``Beam`` class as generic as possible for use
 with multiple design codes.
 """
 
+from typing import Union
 from enum import Enum
 
 import numpy as np
@@ -162,7 +163,9 @@ class LoadCase:
     def __init__(self, *, section=None, loads=None):
 
         self._section = section
-        self._loads = self._set_loads(loads=loads)
+
+        # set the loads using some setting logic
+        self._set_loads(loads=loads)
 
         pass
 
@@ -171,9 +174,28 @@ class LoadCase:
         return self._loads
 
     @property
-    def positions(self):
+    def positions(self) -> np.ndarray:
+        """
+        Returns an array of the positions that loads are available in. Position values
+        are stored as a float between 0.0 and 1.0 where 0.0 and 1.0 define the ends of
+        the element on which the load case is being applied. To get the true positions
+        along the element's lengths these values must be multiplied by the element
+        length.
 
-        return self._loads[:, :1].T
+        :return: An array of the position values.
+        """
+
+        return self._loads[:, 0]
+
+    @property
+    def num_positions(self) -> int:
+        """
+        Returns the number of positions that loads are stored at.
+
+        :return:
+        """
+
+        return len(self.positions)
 
     def _set_loads(self, *, loads):
         """
@@ -193,11 +215,21 @@ class LoadCase:
             # if passed a single row list, reshape into a 2D numpy array
             arr = arr.reshape((1, 7))
 
+        # test if array has a position and FX, FY, FZ, MX, MY, MZ
         if arr.shape[1] != 7:
             raise LoadCaseError(
                 f"Load cases must form an (n, 7) array. "
                 f"Current array shape is {arr.shape}"
             )
+
+        # get a position array for use in further testing
+        pos = arr[:, 0]
+
+        # positions should be ascending
+        assert np.all(np.diff(pos) >= 0), "Positions should be in ascending order"
+        assert np.all(pos <= 1.0) and np.all(
+            pos >= 0.0
+        ), "Positions should be between 0 & 1.0"
 
         self._loads = arr
 
@@ -208,9 +240,86 @@ class LoadCase:
 
         pass
 
-    def get_load(self, *, position: float, component: str):
+    def get_loads(self, *, component: Union[str, Components]):
+        """
+        Gets the values for a given load component at all positions available in the
+        element.
 
+        :param component: The component to return.
+        :return: Returns a numpy array containing the position and load components in
+            the following format:
+
+            [[position1, component_val1]
+             [position2, component_val2]
+             [position3, component_val3]
+             ]
+        """
+
+        # if loads is None we can simply return None
         if self._loads is None:
             return None
 
-        raise NotImplementedError()
+        # else return the whole component
+        if isinstance(component, str):
+            component = Components[component]
+
+        comp_idx = self._load_map[component]
+
+        # now get the positions column and the load column for the given component
+        return self._loads[:, [0, comp_idx]]
+
+    def get_load(self, *, position: float, component: Union[str, Components]):
+
+        assert (
+            0 <= position and position <= 1.0
+        ), f"Position must be between 0.0 and 1.0. Position given was {position}."
+
+        # if loads is None we can simply return None
+        if self._loads is None:
+            # for consistency with the case where we need to return multiple values
+            # we should return as a numpy array
+            return np.array([[None]])
+
+        # if not, we need to actually search the loads array
+        if isinstance(component, str):
+            component = Components[component]
+
+        comp_idx = self._load_map[component]
+
+        # if loads is only 1x row long, we just return the value
+        if self.num_positions == 1:
+
+            return self.loads[0:1, comp_idx : comp_idx + 1]
+
+        # if loads is greater than 1 then we need to do some interpolation etc.
+
+        # First check for the corner case where there is more than one occurence of
+        # position in the table.
+
+        unique, idxs, counts = np.unique(
+            self.positions, return_index=True, return_counts=True
+        )
+        counts_dict = dict(zip(unique, counts))
+        idx_dict = dict(zip(unique, idxs))
+
+        if position in counts_dict:
+
+            count = counts_dict[position]
+
+            if count > 1:
+                # need to return all instances of the load for the given positions
+
+                idx = idx_dict[position]
+
+                return self.loads[idx : idx + count, comp_idx : comp_idx + 1]
+
+        loads = self.get_loads(component=component)
+
+        xs = loads[:, 0]
+        ys = loads[:, 1]
+
+        # for consistency with the case where we need to return multiple values
+        # we should return as a numpy array
+
+        ret_val = np.array([[np.interp(position, xs, ys)]])
+        return ret_val
