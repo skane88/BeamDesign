@@ -28,6 +28,7 @@ from typing import Union
 import numpy as np
 
 from BeamDesign.Utility.Exceptions import LoadCaseError
+from BeamDesign.const import Components
 
 
 class Beam:
