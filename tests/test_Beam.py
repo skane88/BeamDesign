@@ -2,7 +2,9 @@ from pytest import mark
 
 import numpy as np
 
-from BeamDesign.Beam import Beam, Element, LoadCase, LoadComponents
+from BeamDesign.Beam import Beam, Element
+from BeamDesign.LoadCase import LoadCase
+from BeamDesign.const import LoadComponents
 
 
 def test_Element_init():
