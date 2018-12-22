@@ -160,14 +160,33 @@ class LoadCase:
         Components.MZ: 6,
     }
 
-    def __init__(self, *, case_name: str = None, loads=None):
+    def __init__(self, *, case_id: int = None, case_name: str = None, loads=None):
+        """
+        Initialises a LoadCase object.
 
+        :param case_id: An integer ID to give to the load case.
+        :param case_name: A case name.
+        :param loads: The loads to set. Must be an object that can be formatted into a
+            numpy array of shape (n, 7). The following format is expected:
+
+            [[pos_1, fx_1, fy_1, fz_1, mx_1, my_1, mz_1]
+             [pos_2, fx_2, fy_2, fz_2, mx_2, my_2, mz_2]
+             ...
+             [pos_n, fx_n, fy_n, fz_n, mx_n, my_n, mz_n]
+             ]
+        """
+
+        self._case_id = case_id
         self._case_name = case_name
 
         # set the loads using some setting logic
         self._set_loads(loads=loads)
 
         pass
+
+    @property
+    def case_id(self):
+        return self._case_id
 
     @property
     def case_name(self):
@@ -206,7 +225,13 @@ class LoadCase:
         Helper method to set the loads property.
 
         :param loads: The loads to set. Must be an object that can be formatted into a
-            numpy array of shape (n, 7).
+            numpy array of shape (n, 7). The following format is expected:
+
+            [[pos_1, fx_1, fy_1, fz_1, mx_1, my_1, mz_1]
+             [pos_2, fx_2, fy_2, fz_2, mx_2, my_2, mz_2]
+             ...
+             [pos_n, fx_n, fy_n, fz_n, mx_n, my_n, mz_n]
+             ]
         """
 
         if loads is None:
@@ -370,3 +395,8 @@ class LoadCase:
 
         else:
             return get_load_single_component(position=position, component=component)
+
+    def __repr__(self):
+        return (f'{self.__class__.__name__}('
+                f'{self.case_name}, {self.loads}'
+                f')')
