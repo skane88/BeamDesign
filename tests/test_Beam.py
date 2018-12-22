@@ -425,3 +425,57 @@ def test_load_5():
     assert np.array_equal(
         a.get_load(position=position, component=Components["MZ"]), np.array([[8]])
     )
+
+
+def test_load_6():
+    """
+    Now test the case where no component is specified.
+
+    :return:
+    """
+
+    loads = [
+        [0.0, 0, 0, 0, 0, 0, 0],
+        [0.25, 1, 2, 3, 4, 5, 6],
+        [0.5, 1.5, 2.5, 3.5, 4.5, 5.5, 6.5],
+        [0.5, 10, 10, 10, 10, 10, 10],
+        [0.75, 2, 3, 4, 5, 6, 7],
+        [1.0, 3, 4, 5, 6, 7, 8],
+    ]
+
+    a = LoadCase(loads=loads)
+
+    position = 0.0
+
+    assert np.array_equal(a.get_load(position=position), np.array([[0, 0, 0, 0, 0, 0]]))
+
+    position = 0.25
+
+    assert np.array_equal(a.get_load(position=position), np.array([[1, 2, 3, 4, 5, 6]]))
+
+    position = 0.4
+
+    assert np.allclose(
+        a.get_load(position=position), np.array([[1.3, 2.3, 3.3, 4.3, 5.3, 6.3]])
+    )
+
+    position = 0.5
+
+    assert np.array_equal(
+        a.get_load(position=position),
+        np.array([[1.5, 2.5, 3.5, 4.5, 5.5, 6.5], [10, 10, 10, 10, 10, 10]]),
+    )
+
+    position = 0.6
+
+    assert np.allclose(
+        a.get_load(position=position), np.array([[6.8, 7.2, 7.6, 8.0, 8.4, 8.8]])
+    )
+
+    position = 0.75
+
+    assert np.array_equal(a.get_load(position=position), np.array([[2, 3, 4, 5, 6, 7]]))
+
+    position = 1.0
+
+    assert np.array_equal(a.get_load(position=position), np.array([[3, 4, 5, 6, 7, 8]]))
