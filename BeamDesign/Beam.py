@@ -23,7 +23,15 @@ The intent here is to make the ``Beam`` class as generic as possible for use
 with multiple design codes.
 """
 
+from enum import Enum
+
 import numpy as np
+
+from BeamDesign.Utility.Exceptions import LoadCaseError
+
+
+class Beam:
+    pass
 
 
 class Element:
@@ -129,14 +137,32 @@ class Element:
         raise NotImplementedError()
 
 
+class Components(Enum):
+    FX = "FX"
+    FY = "FY"
+    FZ = "FZ"
+    MX = "MX"
+    MY = "MY"
+    MZ = "MZ"
+
+
 class LoadCase:
 
     _loads: np.ndarray
-    _load_map = {"l": 0, "x": 1, "y": 2, "z": 3, "mx": 4, "my": 5, "mz": 6}
+    _load_map = {
+        "l": 0,
+        Components.FX: 1,
+        Components.FY: 2,
+        Components.FZ: 3,
+        Components.MX: 4,
+        Components.MY: 5,
+        Components.MZ: 6,
+    }
 
-    def __init__(self, *, loads=None):
+    def __init__(self, *, section=None, loads=None):
 
-        self._loads = self._set_loads(loads)
+        self._section = section
+        self._loads = self._set_loads(loads=loads)
 
         pass
 
@@ -144,10 +170,47 @@ class LoadCase:
     def loads(self):
         return self._loads
 
+    @property
+    def positions(self):
+
+        return self._loads[:, :1].T
+
     def _set_loads(self, *, loads):
+        """
+        Helper method to set the loads property.
+
+        :param loads: The loads to set. Must be an object that can be formatted into a
+            numpy array of shape (n, 7).
+        """
 
         if loads is None:
             self._loads = None
             return
 
-        self._loads = np.ndarray(loads)
+        arr = np.array(loads)
+
+        if len(arr.shape) == 1:
+            # if passed a single row list, reshape into a 2D numpy array
+            arr = arr.reshape((1, 7))
+
+        if arr.shape[1] != 7:
+            raise LoadCaseError(
+                f"Load cases must form an (n, 7) array. "
+                f"Current array shape is {arr.shape}"
+            )
+
+        self._loads = arr
+
+    def _get_row(self, position: float, row_before: bool = True):
+
+        if self._loads.shape[0] == 1:
+            return 0
+
+        pass
+
+    def get_load(self, *, position: float, component: str):
+
+        if self._loads is None:
+            return None
+
+        raise NotImplementedError()

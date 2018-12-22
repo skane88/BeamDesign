@@ -1,9 +1,9 @@
 from pytest import mark
 
-from BeamDesign.Beam import Beam, LoadCase
+from BeamDesign.Beam import Beam, Element, LoadCase
 
 
-def test_Beam_init():
+def test_Element_init():
 
     a = Beam()
 
@@ -11,12 +11,18 @@ def test_Beam_init():
 
 
 @mark.parametrize("length", [None, 1.000, 3.000, 4.532, 1, 3])
-def test_beam_get_length(length):
+def test_Element_get_length(length):
 
-    a = Beam(length=length)
+    a = Element(length=length)
 
     assert a.length == length
 
+
+def test_loads_init():
+
+    l = LoadCase()
+
+    assert l
 
 def test_loads_1():
 
@@ -24,16 +30,12 @@ def test_loads_1():
 
     position = 1.0
 
-    assert a.get_load_x(position=position) is None
-    assert a.get_load_y(position=position) is None
-    assert a.get_load_z(position=position) is None
-    assert a.get_load_mx(position=position) is None
-    assert a.get_load_my(position=position) is None
-    assert a.get_load_mz(position=position) is None
-
-    expected = [position, None, None, None, None, None, None]
-
-    assert a.get_loads(position=position) == expected
+    assert a.get_load(position=position, component='FX') is None
+    assert a.get_load(position=position, component='FY') is None
+    assert a.get_load(position=position, component='FZ') is None
+    assert a.get_load(position=position, component='MX') is None
+    assert a.get_load(position=position, component='MY') is None
+    assert a.get_load(position=position, component='MZ') is None
 
 
 def test_loads_2():
@@ -42,13 +44,10 @@ def test_loads_2():
 
     position = 0.25
 
-    assert a.get_load_x(position=position) == 1
-    assert a.get_load_y(position=position) == 1
-    assert a.get_load_z(position=position) == 1
-    assert a.get_load_mx(position=position) == 1
-    assert a.get_load_my(position=position) == 1
-    assert a.get_load_mz(position=position) == 1
+    assert a.get_load(position=position, component='FX') == 1
+    assert a.get_load(position=position, component='FY') == 1
+    assert a.get_load(position=position, component='FZ') == 1
+    assert a.get_load(position=position, component='MX') == 1
+    assert a.get_load(position=position, component='MY') == 1
+    assert a.get_load(position=position, component='MZ') == 1
 
-    expected = [position, 1, 1, 1, 1, 1, 1]
-
-    assert a.get_loads(position=position) == expected

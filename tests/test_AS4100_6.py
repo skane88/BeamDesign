@@ -1,6 +1,6 @@
 import unittest
 import BeamDesign.Code_Check.AS4100.S6 as S6
-from BeamDesign.Misc.Symmetry import Symmetry
+from BeamDesign.Utility.Symmetry import Symmetry
 
 
 class Test_UT_S6(unittest.TestCase):
