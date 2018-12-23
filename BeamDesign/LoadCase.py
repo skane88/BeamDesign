@@ -320,7 +320,10 @@ class LoadCase:
             in real world lengths must be normalised by dividing by the element length.
             length.
 
-            Positions can be a single position or a list of positions.
+            Positions can be a single position or a list of positions. If a list is
+            provided, any duplicate values will be ignored, and the order will be
+            ignored - return values will be at positions sorted ascending from 0.0 to
+            1.0.
 
             If ``position`` is provided, ``min_positions`` must be ``None`` to
             avoid ambiguity.
@@ -355,6 +358,7 @@ class LoadCase:
 
             # now convert to a numpy array for use later
             position = np.array(position)
+            position = np.unique(position)
 
         else:
             # if we are here, we need to build a list of the positions.
@@ -394,4 +398,4 @@ class LoadCase:
         return ret_val
 
     def __repr__(self):
-        return f"{self.__class__.__name__}(" f"{self.case_name}, {self.loads}" f")"
+        return f"{self.__class__.__name__}(" f"loads={self.loads}" f")"

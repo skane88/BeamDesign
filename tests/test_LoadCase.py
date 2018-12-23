@@ -59,7 +59,10 @@ def test_get_loads_3():
     )
 
 
-def test_load_1():
+def test_get_load_None():
+    """
+    Test that if we input no loads, we get None out.
+    """
 
     a = LoadCase()
 
@@ -85,33 +88,79 @@ def test_load_1():
     )
 
 
-def test_load_2():
+def test_get_load_single():
+    """
+    Test that if we input a single load position, we get out the same value at multiple
+    positions.
+    """
 
     a = LoadCase(loads=[0.5, 1, 2, 3, 4, 5, 6])
 
     position = 0.25
 
     assert np.array_equal(
-        a.get_load(position=position, component="FX"), np.array([[0.25, 1]])
+        a.get_load(position=position, component="FX"), np.array([[position, 1]])
     )
     assert np.array_equal(
-        a.get_load(position=position, component="FY"), np.array([[0.25, 2]])
+        a.get_load(position=position, component="FY"), np.array([[position, 2]])
     )
     assert np.array_equal(
-        a.get_load(position=position, component="FZ"), np.array([[0.25, 3]])
+        a.get_load(position=position, component="FZ"), np.array([[position, 3]])
     )
     assert np.array_equal(
-        a.get_load(position=position, component="MX"), np.array([[0.25, 4]])
+        a.get_load(position=position, component="MX"), np.array([[position, 4]])
     )
     assert np.array_equal(
-        a.get_load(position=position, component="MY"), np.array([[0.25, 5]])
+        a.get_load(position=position, component="MY"), np.array([[position, 5]])
     )
     assert np.array_equal(
-        a.get_load(position=position, component="MZ"), np.array([[0.25, 6]])
+        a.get_load(position=position, component="MZ"), np.array([[position, 6]])
+    )
+
+    position = 0.5
+
+    assert np.array_equal(
+        a.get_load(position=position, component="FX"), np.array([[position, 1]])
+    )
+    assert np.array_equal(
+        a.get_load(position=position, component="FY"), np.array([[position, 2]])
+    )
+    assert np.array_equal(
+        a.get_load(position=position, component="FZ"), np.array([[position, 3]])
+    )
+    assert np.array_equal(
+        a.get_load(position=position, component="MX"), np.array([[position, 4]])
+    )
+    assert np.array_equal(
+        a.get_load(position=position, component="MY"), np.array([[position, 5]])
+    )
+    assert np.array_equal(
+        a.get_load(position=position, component="MZ"), np.array([[position, 6]])
+    )
+
+    position = 0.75
+
+    assert np.array_equal(
+        a.get_load(position=position, component="FX"), np.array([[position, 1]])
+    )
+    assert np.array_equal(
+        a.get_load(position=position, component="FY"), np.array([[position, 2]])
+    )
+    assert np.array_equal(
+        a.get_load(position=position, component="FZ"), np.array([[position, 3]])
+    )
+    assert np.array_equal(
+        a.get_load(position=position, component="MX"), np.array([[position, 4]])
+    )
+    assert np.array_equal(
+        a.get_load(position=position, component="MY"), np.array([[position, 5]])
+    )
+    assert np.array_equal(
+        a.get_load(position=position, component="MZ"), np.array([[position, 6]])
     )
 
 
-def test_load_3():
+def test_get_load_components():
     """
     Test the case where components are provided directly, rather than as a string
     :return:
@@ -146,7 +195,7 @@ def test_load_3():
     )
 
 
-def test_load_4():
+def test_get_load_multiple_positions():
     """Need to test the case where there are multiple positions of loads."""
 
     loads = [[0.25, 1, 2, 3, 4, 5, 6], [0.75, 2, 3, 4, 5, 6, 7]]
@@ -259,7 +308,7 @@ def test_load_4():
     )
 
 
-def test_load_5():
+def test_get_load_multiple_positions2():
     """
     Now test the case where there are multiple loads at the same position.
     """
@@ -423,7 +472,7 @@ def test_load_5():
     )
 
 
-def test_load_6():
+def test_get_load_multiple_positions3():
     """
     Now test the case where no component is specified.
 
@@ -485,9 +534,36 @@ def test_load_6():
     )
 
 
-def test_load_7():
+def test_get_load_multiple_positions4():
     """
-    Now test the get_load method with a minimum number of positions.
+    Now test the get_load method with a list of positions.
     """
 
-    assert False
+    loads = [
+        [0.0, 0, 0, 0, 0, 0, 0],
+        [0.25, 1, 2, 3, 4, 5, 6],
+        [0.5, 1.5, 2.5, 3.5, 4.5, 5.5, 6.5],
+        [0.5, 10, 10, 10, 10, 10, 10],
+        [0.75, 2, 3, 4, 5, 6, 7],
+        [1.0, 3, 4, 5, 6, 7, 8],
+    ]
+
+    a = LoadCase(loads=loads)
+
+    position = [0.0, 0.4, 0.25, 0.5, 0.6, 0.75, 1.0]
+
+    assert np.allclose(
+        a.get_load(position=position),
+        np.array(
+            [
+                [0.0, 0, 0, 0, 0, 0, 0],
+                [0.25, 1, 2, 3, 4, 5, 6],
+                [0.4, 1.3, 2.3, 3.3, 4.3, 5.3, 6.3],
+                [0.5, 1.5, 2.5, 3.5, 4.5, 5.5, 6.5],
+                [0.5, 10, 10, 10, 10, 10, 10],
+                [0.6, 6.8, 7.2, 7.6, 8.0, 8.4, 8.8],
+                [0.75, 2, 3, 4, 5, 6, 7],
+                [1.0, 3, 4, 5, 6, 7, 8],
+            ]
+        ),
+    )
