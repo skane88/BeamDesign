@@ -23,111 +23,54 @@ The intent here is to make the ``Beam`` class as generic as possible for use
 with multiple design codes.
 """
 
+from typing import Dict
+
 import numpy as np
 
+from BeamDesign.LoadCase import LoadCase
 
 class Beam:
     pass
 
 
 class Element:
+    """
+    This is a basic Element object. It is intended that multiple ``Element`` objects
+    will form the basis of a single Beam object, to allow easier mapping between the
+    output of FEA models, where multiple FEA elements will correspond to a single
+    design ``Beam`` objects.
+    """
+
     def __init__(
         self,
         *,
         length=None,
         section=None,
         material=None,
-        name: str = None,
-        loads=None,
-        **kwargs,
+        loads: Dict[int, LoadCase] = None
     ):
         """
-        A simple beam Element object. It is intended that multiple Elements can be
-        combined into a single Beam element.
+        Constructor for an ``Element``.
 
-        :param length:
-        :param section:
-        :param material:
-        :param name:
-        :param loads:
-        :param kwargs:
+        :param length: The length of the ``Element``, corresponding to its real world
+            length.
+        :param section: The section of the ``Element``.
+        :param material: The material of the ``Element``.
+        :param loads: The loads on the ``Element``. Must take the form of a dictionary
+            of LoadCase objects mapped to a unique integer ID.
         """
 
         self.length = length
         self.section = section
         self.material = material
-        self.name = name
-        self.loads = loads
-
-        for i, v in kwargs.items():
-
-            if i in self.__dict__:
-                raise ValueError(
-                    f"Argument {i} already present in the beam " + f"object."
-                )
-
-            self.__dict__[i] = v
-
-    @property
-    def loads(self):
-        return self._loads
-
-    @loads.setter
-    def loads(self, loads: None):
-
-        if loads is None:
-            self._loads = loads
-            return
-
-        loads = np.array(loads)
-
         self._loads = loads
 
-    def get_loads(self, *, position):
+    @property
+    def loads(self) -> Dict[int, LoadCase]:
+        """
+        The loads on the ``Element``. This is a property decorator to enforce read-only
+        status.
+        :return: The loads on the element as a dictionary of ``LoadCase`` objects.
+        """
+        return self._loads
 
-        return [
-            position,
-            self.get_load_x(position=position),
-            self.get_load_y(position=position),
-            self.get_load_z(position=position),
-            self.get_load_mx(position=position),
-            self.get_load_my(position=position),
-            self.get_load_mz(position=position),
-        ]
-
-    def get_load_x(self, *, position):
-
-        return self.get_load_generic(position=position, load="x")
-
-    def get_load_y(self, *, position):
-
-        return self.get_load_generic(position=position, load="y")
-
-    def get_load_z(self, *, position):
-
-        return self.get_load_generic(position=position, load="z")
-
-    def get_load_mx(self, *, position):
-
-        return self.get_load_generic(position=position, load="mx")
-
-    def get_load_my(self, *, position):
-
-        return self.get_load_generic(position=position, load="my")
-
-    def get_load_mz(self, *, position):
-
-        return self.get_load_generic(position=position, load="mz")
-
-    def get_load_generic(self, *, position, load: str):
-
-        if self._loads is None:
-            return None
-
-        # first get the loads and their positions as numpy arrays:
-
-        p = self.loads[0, :]  # select the entire first row of the array
-
-        l_index = self._load_map[load]
-
-        raise NotImplementedError()
