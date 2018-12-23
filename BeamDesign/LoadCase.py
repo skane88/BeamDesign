@@ -14,7 +14,7 @@ class LoadCase:
 
     _loads: np.ndarray
 
-    def __init__(self, *, case_id: int = None, case_name: str = None, loads=None):
+    def __init__(self, *, loads=None):
         """
         Initialises a LoadCase object.
 
@@ -30,21 +30,10 @@ class LoadCase:
              ]
         """
 
-        self._case_id = case_id
-        self._case_name = case_name
-
         # set the loads using some setting logic
         self._set_loads(loads=loads)
 
         pass
-
-    @property
-    def case_id(self):
-        return self._case_id
-
-    @property
-    def case_name(self):
-        return self._case_name
 
     @property
     def loads(self):
