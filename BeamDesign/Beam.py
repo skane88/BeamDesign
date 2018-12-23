@@ -154,6 +154,8 @@ class Element:
         A constructor for an empty ``Element`` with no properties except an empty
         ``LoadCase`` object at load case 0.
 
+        This is a helper method for easily instantiating ``Elements`` for testing etc.
+
         :return: An ``Element`` object.
         """
 
