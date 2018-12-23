@@ -2,7 +2,7 @@
 Contains the LoadCase class used for applying loads to an element.
 """
 
-from typing import Union
+from typing import Union, List
 
 import numpy as np
 
@@ -274,15 +274,25 @@ class LoadCase:
                 position=position, component=LoadComponents.MZ
             )
 
-            return np.hstack((fx, fy, fz, mx, my, mz))
+            comp = np.hstack((fx, fy, fz, mx, my, mz))
 
         else:
-            return self._get_load_single_component(
+            comp = self._get_load_single_component(
                 position=position, component=component
             )
 
+        rows = comp.shape[0]
+
+        pos = np.full((rows, 1), position)
+
+        return np.hstack((pos, comp))
+
     def get_load(
-        self, *, position: float, component: Union[str, LoadComponents] = None
+        self,
+        *,
+        position: [float, List[float]] = None,
+        min_positions: int = None,
+        component: Union[str, LoadComponents] = None,
     ):
         """
         Gets the load in a load case at a given position. If there are multiple loads
@@ -305,15 +315,83 @@ class LoadCase:
         ]
 
         :param position: The position at which to return the load. Position values
-            should be entered as a float between 0.0 and 1.0 where 0.0 and 1.0 define
+            should be entered as floats between 0.0 and 1.0 where 0.0 and 1.0 define
             the ends of the element on which the load case is being applied. Positions
             in real world lengths must be normalised by dividing by the element length.
-        length.
+            length.
+
+            Positions can be a single position or a list of positions.
+
+            If ``position`` is provided, ``min_positions`` must be ``None`` to
+            avoid ambiguity.
+        :param min_positions: The minimum number of positions to return. Positions will
+            be returned such that loads are returned at equally spaced positions between
+            0.0 and 1.0 (inclusive). All stored load positions will also be included to
+            ensure that discontinuities are included.
+
+            If ``min_positions`` is provided,
+            ``position`` must be ``None`` to avoid ambiguity.
         :param component: The component of load to return.
         :return: A numpy array containing the loads at the specified position.
         """
 
-        return self._get_load_single_position(position=position, component=component)
+        assert (
+            position is not None or min_positions is not None
+        ), "Expected either position or num_positions to be provided. Both were None."
+
+        assert (
+            position is None or min_positions is None
+        ), "Expected only position or num_positions. Both were provided."
+
+        # now that we have done some basic asserts, need to build a list of positions
+        # to get values at.
+
+        if position is not None:
+            # if position is not None then we can just use it.
+
+            if isinstance(position, float):
+                # if position is a float, convert to a list for consistent code below
+                position = [position]
+
+            # now convert to a numpy array for use later
+            position = np.array(position)
+
+        else:
+            # if we are here, we need to build a list of the positions.
+            # - we will start from the positions already in the loads document so that
+            # we don't miss anything.
+
+            position = self.positions
+
+            # now we get an array of positions
+
+            lin_pos = np.linspace(0.0, 1.0, min_positions)
+
+            # now we need to combine them
+
+            position = np.concatenate((position, lin_pos))
+
+            # now we get the unique values
+
+            position = np.unique(position)
+
+            # do an assert to confirm.
+
+            assert len(position) >= min_positions, (
+                f"Error generating number of positions. Expected {min_positions}, "
+                f"generated {len(position)} positions."
+            )
+
+        for i, p in enumerate(position):
+
+            val = self._get_load_single_position(position=p, component=component)
+
+            if i == 0:
+                ret_val = val
+            else:
+                ret_val = np.vstack((ret_val, val))
+
+        return ret_val
 
     def __repr__(self):
         return f"{self.__class__.__name__}(" f"{self.case_name}, {self.loads}" f")"
