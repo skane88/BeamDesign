@@ -142,8 +142,23 @@ class LoadCase:
         self, *, position: float, component: Union[str, int, LoadComponents]
     ):
         """
-        A helper function to allow get_load to return either a single component or
-        the whole set of components.
+        A helper function for ``self.get_load`` that returns the value of a single
+        component at a specified position. If there are multiple loads at a position it
+        returns all of them. Returns in the form of a numpy array of the format:
+
+        [[load_1]
+         [load_2]
+         ...
+         [load_n]
+         ]
+
+        :param position: The position at which to return the load. Position values
+            should be entered as a float between 0.0 and 1.0 where 0.0 and 1.0 define
+            the ends of the element on which the load case is being applied. Positions
+            in real world lengths must be normalised by dividing by the element length.
+        length.
+        :param component: The component of load to return.
+        :return: A numpy array containing the loads at the specified position.
         """
 
         # if loads is None we can simply return None
@@ -208,19 +223,19 @@ class LoadCase:
         at a position it returns all of them. Returns in the form of a
         numpy array of the format:
 
-        [[load_1]
-         [load_2]
+        [[pos, load_1]
+         [pos, load_2]
          ...
-         [load_n]
-         ]
+         [pos, load_n]
+        ]
 
         If ``component`` is not provided, then an array of all loads at the given
         position is returned:
 
-        [[fx_1, fy_1, fz_1, mx_1, my_1, mz_1]
-         [fx_2, fy_2, fz_2, mx_2, my_2, mz_2]
+        [[pos, fx_1, fy_1, fz_1, mx_1, my_1, mz_1]
+         [pos, fx_2, fy_2, fz_2, mx_2, my_2, mz_2]
          ...
-         [fx_n, fy_n, fz_n, mx_n, my_n, mz_n]
+         [pos, fx_n, fy_n, fz_n, mx_n, my_n, mz_n]
         ]
 
         :param position: The position at which to return the load. Position values
