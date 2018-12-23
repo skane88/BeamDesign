@@ -215,10 +215,12 @@ class LoadCase:
         ret_val = np.array([[np.interp(position, xs, ys)]])
         return ret_val
 
-    def get_load(
-        self, *, position: float, component: Union[str, LoadComponents] = None
+    def _get_load_single_position(
+        self, *, position: float, component: Union[str, int, LoadComponents]
     ):
         """
+        Helper function for ``self.get_load``.
+
         Gets the load in a load case at a given position. If there are multiple loads
         at a position it returns all of them. Returns in the form of a
         numpy array of the format:
@@ -278,6 +280,40 @@ class LoadCase:
             return self._get_load_single_component(
                 position=position, component=component
             )
+
+    def get_load(
+        self, *, position: float, component: Union[str, LoadComponents] = None
+    ):
+        """
+        Gets the load in a load case at a given position. If there are multiple loads
+        at a position it returns all of them. Returns in the form of a
+        numpy array of the format:
+
+        [[pos, load_1]
+         [pos, load_2]
+         ...
+         [pos, load_n]
+        ]
+
+        If ``component`` is not provided, then an array of all loads at the given
+        position is returned:
+
+        [[pos, fx_1, fy_1, fz_1, mx_1, my_1, mz_1]
+         [pos, fx_2, fy_2, fz_2, mx_2, my_2, mz_2]
+         ...
+         [pos, fx_n, fy_n, fz_n, mx_n, my_n, mz_n]
+        ]
+
+        :param position: The position at which to return the load. Position values
+            should be entered as a float between 0.0 and 1.0 where 0.0 and 1.0 define
+            the ends of the element on which the load case is being applied. Positions
+            in real world lengths must be normalised by dividing by the element length.
+        length.
+        :param component: The component of load to return.
+        :return: A numpy array containing the loads at the specified position.
+        """
+
+        return self._get_load_single_position(position=position, component=component)
 
     def __repr__(self):
         return f"{self.__class__.__name__}(" f"{self.case_name}, {self.loads}" f")"
