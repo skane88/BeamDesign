@@ -14,24 +14,24 @@ def test_LoadCase_init():
 def test_get_loads_1():
     a = LoadCase()
 
-    assert a.get_loads(component="FX") is None
-    assert a.get_loads(component="FY") is None
-    assert a.get_loads(component="FZ") is None
-    assert a.get_loads(component="MX") is None
-    assert a.get_loads(component="MY") is None
-    assert a.get_loads(component="MZ") is None
+    assert a._get_input_loads(component="FX") is None
+    assert a._get_input_loads(component="FY") is None
+    assert a._get_input_loads(component="FZ") is None
+    assert a._get_input_loads(component="MX") is None
+    assert a._get_input_loads(component="MY") is None
+    assert a._get_input_loads(component="MZ") is None
 
 
 def test_get_loads_2():
 
     a = LoadCase(loads=[0.5, 1, 2, 3, 4, 5, 6])
 
-    assert np.array_equal(a.get_loads(component="FX"), np.array([[0.5, 1]]))
-    assert np.array_equal(a.get_loads(component="FY"), np.array([[0.5, 2]]))
-    assert np.array_equal(a.get_loads(component="FZ"), np.array([[0.5, 3]]))
-    assert np.array_equal(a.get_loads(component="MX"), np.array([[0.5, 4]]))
-    assert np.array_equal(a.get_loads(component="MY"), np.array([[0.5, 5]]))
-    assert np.array_equal(a.get_loads(component="MZ"), np.array([[0.5, 6]]))
+    assert np.array_equal(a._get_input_loads(component="FX"), np.array([[0.5, 1]]))
+    assert np.array_equal(a._get_input_loads(component="FY"), np.array([[0.5, 2]]))
+    assert np.array_equal(a._get_input_loads(component="FZ"), np.array([[0.5, 3]]))
+    assert np.array_equal(a._get_input_loads(component="MX"), np.array([[0.5, 4]]))
+    assert np.array_equal(a._get_input_loads(component="MY"), np.array([[0.5, 5]]))
+    assert np.array_equal(a._get_input_loads(component="MZ"), np.array([[0.5, 6]]))
 
 
 def test_get_loads_3():
@@ -39,12 +39,12 @@ def test_get_loads_3():
 
     a = LoadCase(loads=loads)
 
-    assert np.array_equal(a.get_loads(component="FX"), np.array([[0.25, 1], [0.75, 2]]))
-    assert np.array_equal(a.get_loads(component="FY"), np.array([[0.25, 2], [0.75, 3]]))
-    assert np.array_equal(a.get_loads(component="FZ"), np.array([[0.25, 3], [0.75, 4]]))
-    assert np.array_equal(a.get_loads(component="MX"), np.array([[0.25, 4], [0.75, 5]]))
-    assert np.array_equal(a.get_loads(component="MY"), np.array([[0.25, 5], [0.75, 6]]))
-    assert np.array_equal(a.get_loads(component="MZ"), np.array([[0.25, 6], [0.75, 7]]))
+    assert np.array_equal(a._get_input_loads(component="FX"), np.array([[0.25, 1], [0.75, 2]]))
+    assert np.array_equal(a._get_input_loads(component="FY"), np.array([[0.25, 2], [0.75, 3]]))
+    assert np.array_equal(a._get_input_loads(component="FZ"), np.array([[0.25, 3], [0.75, 4]]))
+    assert np.array_equal(a._get_input_loads(component="MX"), np.array([[0.25, 4], [0.75, 5]]))
+    assert np.array_equal(a._get_input_loads(component="MY"), np.array([[0.25, 5], [0.75, 6]]))
+    assert np.array_equal(a._get_input_loads(component="MZ"), np.array([[0.25, 6], [0.75, 7]]))
 
 
 def test_load_1():

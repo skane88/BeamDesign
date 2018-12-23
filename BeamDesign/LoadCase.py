@@ -105,10 +105,12 @@ class LoadCase:
 
         self._loads = arr
 
-    def get_loads(self, *, component: Union[str, int, LoadComponents]):
+    def _get_input_loads(self, *, component: Union[str, int, LoadComponents]):
         """
-        Gets the values for a given load component at all positions available in the
-        element.
+        Gets the values for a given load component at all positions stored in the
+        LoadCase.
+
+        A helper method for ``self.get_load``.
 
         :param component: The component of load to return.
         :return: Returns a numpy array containing the position and load components in
@@ -135,6 +137,68 @@ class LoadCase:
 
         # now get the positions column and the load column for the given component
         return self._loads[:, [0, component.value]]
+
+    def _get_load_single_component(
+        self, *, position: float, component: Union[str, int, LoadComponents]
+    ):
+        """
+        A helper function to allow get_load to return either a single component or
+        the whole set of components.
+        """
+
+        # if loads is None we can simply return None
+        if self._loads is None:
+            # for consistency with the case where we need to return multiple values
+            # we should return as a numpy array
+            return np.array([[None]])
+
+        # if not, we need to actually search the loads array
+
+        # but first check that the component is a component object
+        if isinstance(component, str):
+            component = LoadComponents[component]
+
+        if isinstance(component, int):
+            component = LoadComponents(component)
+
+        # if loads is only 1x row long, we just return the value
+        if self.num_positions == 1:
+            return self.loads[0:1, component.value : component.value + 1]
+
+        # if loads is greater than 1 then we need to do some interpolation etc.
+
+        # First check for the corner case where there is more than one occurrence of
+        # position in the table.
+
+        unique, idxs, counts = np.unique(
+            self.positions, return_index=True, return_counts=True
+        )
+        counts_dict = dict(zip(unique, counts))
+        idx_dict = dict(zip(unique, idxs))
+
+        if position in counts_dict:
+
+            count = counts_dict[position]
+
+            if count > 1:
+                # need to return all instances of the load for the given positions
+
+                idx = idx_dict[position]
+
+                return self.loads[
+                    idx : idx + count, component.value : component.value + 1
+                ]
+
+        loads = self._get_input_loads(component=component)
+
+        xs = loads[:, 0]
+        ys = loads[:, 1]
+
+        # for consistency with the case where we need to return multiple values
+        # we should return as a numpy array
+
+        ret_val = np.array([[np.interp(position, xs, ys)]])
+        return ret_val
 
     def get_load(
         self, *, position: float, component: Union[str, LoadComponents] = None
@@ -169,97 +233,36 @@ class LoadCase:
         """
 
         assert (
-            0 <= position and position <= 1.0
+            0 <= position <= 1.0
         ), f"Position must be between 0.0 and 1.0. Position given was {position}."
-
-        def get_load_single_component(
-            *, position: float, component: Union[str, int, LoadComponents]
-        ):
-            """
-            A helper function to allow get_load to return either a single component or
-            the whole set of components.
-            """
-
-            # if loads is None we can simply return None
-            if self._loads is None:
-                # for consistency with the case where we need to return multiple values
-                # we should return as a numpy array
-                return np.array([[None]])
-
-            # if not, we need to actually search the loads array
-
-            # but first check that the component is a component object
-            if isinstance(component, str):
-                component = LoadComponents[component]
-
-            if isinstance(component, int):
-                component = LoadComponents(component)
-
-            # if loads is only 1x row long, we just return the value
-            if self.num_positions == 1:
-
-                return self.loads[0:1, component.value : component.value + 1]
-
-            # if loads is greater than 1 then we need to do some interpolation etc.
-
-            # First check for the corner case where there is more than one occurence of
-            # position in the table.
-
-            unique, idxs, counts = np.unique(
-                self.positions, return_index=True, return_counts=True
-            )
-            counts_dict = dict(zip(unique, counts))
-            idx_dict = dict(zip(unique, idxs))
-
-            if position in counts_dict:
-
-                count = counts_dict[position]
-
-                if count > 1:
-                    # need to return all instances of the load for the given positions
-
-                    idx = idx_dict[position]
-
-                    return self.loads[
-                        idx : idx + count, component.value : component.value + 1
-                    ]
-
-            loads = self.get_loads(component=component)
-
-            xs = loads[:, 0]
-            ys = loads[:, 1]
-
-            # for consistency with the case where we need to return multiple values
-            # we should return as a numpy array
-
-            ret_val = np.array([[np.interp(position, xs, ys)]])
-            return ret_val
 
         if component is None:
 
-            fx = get_load_single_component(
+            fx = self._get_load_single_component(
                 position=position, component=LoadComponents.FX
             )
-            fy = get_load_single_component(
+            fy = self._get_load_single_component(
                 position=position, component=LoadComponents.FY
             )
-            fz = get_load_single_component(
+            fz = self._get_load_single_component(
                 position=position, component=LoadComponents.FZ
             )
-            mx = get_load_single_component(
+            mx = self._get_load_single_component(
                 position=position, component=LoadComponents.MX
             )
-            my = get_load_single_component(
+            my = self._get_load_single_component(
                 position=position, component=LoadComponents.MY
             )
-            mz = get_load_single_component(
+            mz = self._get_load_single_component(
                 position=position, component=LoadComponents.MZ
             )
 
             return np.hstack((fx, fy, fz, mx, my, mz))
 
         else:
-            return get_load_single_component(position=position, component=component)
+            return self._get_load_single_component(
+                position=position, component=component
+            )
 
     def __repr__(self):
         return f"{self.__class__.__name__}(" f"{self.case_name}, {self.loads}" f")"
