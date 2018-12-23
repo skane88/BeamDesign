@@ -23,9 +23,7 @@ The intent here is to make the ``Beam`` class as generic as possible for use
 with multiple design codes.
 """
 
-from typing import Dict, Union
-
-import numpy as np
+from typing import List, Dict, Union
 
 from BeamDesign.LoadCase import LoadCase
 from BeamDesign.const import LoadComponents
