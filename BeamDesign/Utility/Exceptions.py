@@ -13,7 +13,31 @@ class BeamDesignError(Exception):
 
 class LoadCaseError(BeamDesignError):
     """
-    Mast exception for load case errors.
+    Main exception for ``LoadCase`` errors.
+    """
+
+    pass
+
+
+class BeamError(Exception):
+    """
+    Main exception for ``Beam`` object errors.
+    """
+
+    pass
+
+
+class ElementError(BeamError):
+    """
+    Main Exception for ``Element`` object errors.
+    """
+
+    pass
+
+
+class ElementCaseError(ElementError):
+    """
+    Error to throw while checking the element cases that make up a beam object.
     """
 
     pass

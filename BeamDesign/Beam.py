@@ -27,10 +27,7 @@ from typing import List, Dict, Union
 
 from BeamDesign.LoadCase import LoadCase
 from BeamDesign.const import LoadComponents
-
-
-class Beam:
-    pass
+from BeamDesign.Utility.Exceptions import ElementError, ElementCaseError
 
 
 class Element:
@@ -117,6 +114,11 @@ class Element:
          [pos, fx_n, fy_n, fz_n, mx_n, my_n, mz_n]
         ]
 
+        The values of position are normalised between 0.0 and 1.0. To get the true real
+        world length along the element they should be multiplied by ``self.length``.
+        This is not done at this stage as real-world lengths will generally only be
+        required on a ``Beam`` object which may consist of multiple elements.
+
         :param load_case: The load case to get the loads in. If
         :param position: The position at which to return the load. Position values
             should be entered as floats between 0.0 and 1.0 where 0.0 and 1.0 define
@@ -173,3 +175,96 @@ class Element:
             + f"no. load cases={self.no_load_cases}"
             + f")"
         )
+
+
+class Beam:
+    """
+    This is a ``Beam`` object, intended to form the basis of all design checks. It is a
+    wrapper object around at least 1x ``Element`` object which corresponds to
+    (for example) an FEA beam element. This allows a ``Beam`` object to correspond to
+    multiple FEA elements (as will often be the case in a real design scenario).
+    """
+
+    def __init__(self, *, elements: Union[Element, List[Element]]):
+        """
+        Constructor for the ``Beam`` object.
+
+        :param elements: A list of ``Element`` objects that underly the ``Beam`` object.
+           They should be ordered consistently, as should the ``LoadCase`` objects in
+           them, such that:
+
+           Element_0 length=1.0 == Element_1 length=0.0
+           Element_1 length=1.0 == Element_2 length=0.0
+
+           and so-on.
+        """
+
+        # first do some consistency checking of the elements.
+
+        if isinstance(elements, Element):
+            # make into a list for consistent handling below.
+            elements = [elements]
+
+        self._check_elements(elements=elements)
+
+        self._elements = elements
+
+    def _check_elements(self, *, elements: List[Element]):
+        """
+        A helper method for checking the elements provided to the __init__ method for
+        consistency.
+
+        Has no side-effects other than calling appropriate errors as required.
+
+        :param elements: The elements to check for consistency.
+        """
+
+        # first check that there is at least an element.
+
+        if elements == [] or elements == [None]:
+            raise ElementError(
+                f"Expected at least one element to create the Beam. "
+                f"Was given the following elements {elements}"
+            )
+
+        # next check for any Nones
+
+        if any(e == None for e in elements):
+            raise ElementError(
+                f"At least one provided element in the elements list is " f"None."
+            )
+
+        # next check that each element has a matching no of load cases.
+
+        no_cases = [i.no_load_cases for i in elements]
+        first_no_cases = no_cases[0]
+
+        if not all(c == first_no_cases for c in no_cases):
+            raise ElementCaseError(
+                f"No. of load cases should match across all Elements in a Beam. "
+                f"No. of cases for each element is {no_cases}"
+            )
+
+        # next check that the elements match.
+
+        cases = [i.load_cases for i in elements]
+        first_cases = cases[0]
+
+        if not all(c == first_cases for c in cases):
+            raise ElementCaseError(
+                f"The index used for load cases should match across "
+                f"all Elements in a Beam. At least one Element has non-matching cases."
+            )
+
+    @classmethod
+    def empty_beam(cls):
+        """
+        Helper constructor to build an empty Beam object with an empty element object,
+        primarly for testing purposes.
+
+        :return: Returns a ``Beam`` object.
+        """
+
+        element = Element.empty_element()
+
+        return cls(elements=element)
