@@ -1,14 +1,58 @@
 import numpy as np
 
+import pytest
+
 from BeamDesign.LoadCase import LoadCase
 from BeamDesign.const import LoadComponents
+from BeamDesign.Utility.Exceptions import LoadCaseError
 
 
 def test_LoadCase_init():
+    """
+    Test we can instantiate an empty LoadCase
+    """
 
     l = LoadCase()
 
     assert l
+
+
+def test_LoadCase_init2():
+    """
+    Test we can instantiate a full load case object.
+    :return:
+    """
+
+    loads = [
+        [0.0, 0, 0, 0, 0, 0, 0],
+        [0.25, 1, 2, 3, 4, 5, 6],
+        [0.5, 1.5, 2.5, 3.5, 4.5, 5.5, 6.5],
+        [0.5, 10, 10, 10, 10, 10, 10],
+        [0.75, 2, 3, 4, 5, 6, 7],
+        [1.0, 3, 4, 5, 6, 7, 8],
+    ]
+
+    a = LoadCase(loads=loads)
+
+    assert a
+
+
+@pytest.mark.xfail(strict=True, raises=LoadCaseError)
+def test_LoadCase_init_error():
+
+    loads = [
+        [0.0, 0, 0, 0, 0, 0],
+        [0.25, 1, 2, 3, 4, 5, 6],
+        [0.5, 1.5, 2.5, 3.5, 4.5, 5.5, 6.5],
+        [0.5, 10, 10, 10, 10, 10, 10],
+        [0.75, 2, 3, 4, 5, 6, 7],
+        [1.0, 3, 4, 5, 6, 7, 8],
+    ]
+
+    a = LoadCase(loads=loads)
+
+    # should fail by this point
+    assert a
 
 
 def test_get_loads_1():
@@ -567,3 +611,80 @@ def test_get_load_multiple_positions4():
             ]
         ),
     )
+
+
+def test_get_load_min_positions():
+    """
+    Now test the get_load method with minimum no. of positions.
+    """
+
+    loads = [
+        [0.0, 0, 0, 0, 0, 0, 0],
+        [0.25, 1, 2, 3, 4, 5, 6],
+        [0.5, 1.5, 2.5, 3.5, 4.5, 5.5, 6.5],
+        [0.5, 10, 10, 10, 10, 10, 10],
+        [0.75, 2, 3, 4, 5, 6, 7],
+        [1.0, 3, 4, 5, 6, 7, 8],
+    ]
+
+    a = LoadCase(loads=loads)
+
+    assert np.allclose(
+        a.get_load(min_positions=5),
+        np.array(
+            [
+                [0.0, 0, 0, 0, 0, 0, 0],
+                [0.25, 1, 2, 3, 4, 5, 6],
+                [0.5, 1.5, 2.5, 3.5, 4.5, 5.5, 6.5],
+                [0.5, 10, 10, 10, 10, 10, 10],
+                [0.75, 2, 3, 4, 5, 6, 7],
+                [1.0, 3, 4, 5, 6, 7, 8],
+            ]
+        ),
+    )
+
+
+@pytest.mark.xfail(strict=True)
+def test_get_load_position_error():
+    """
+    Test the case where the user inputs a position and a minimum no. of positions -
+    this should raise an assertion error.
+    """
+
+    loads = [
+        [0.0, 0, 0, 0, 0, 0, 0],
+        [0.25, 1, 2, 3, 4, 5, 6],
+        [0.5, 1.5, 2.5, 3.5, 4.5, 5.5, 6.5],
+        [0.5, 10, 10, 10, 10, 10, 10],
+        [0.75, 2, 3, 4, 5, 6, 7],
+        [1.0, 3, 4, 5, 6, 7, 8],
+    ]
+
+    a = LoadCase(loads=loads)
+
+    a.get_load(position=0.5, min_positions=2)
+
+    assert True
+
+
+@pytest.mark.xfail(strict=True)
+def test_get_load_position_error1():
+    """
+    Test the case where the user doesn't provide a position or a no. of positions -
+    this should raise an assertion error.
+    """
+
+    loads = [
+        [0.0, 0, 0, 0, 0, 0, 0],
+        [0.25, 1, 2, 3, 4, 5, 6],
+        [0.5, 1.5, 2.5, 3.5, 4.5, 5.5, 6.5],
+        [0.5, 10, 10, 10, 10, 10, 10],
+        [0.75, 2, 3, 4, 5, 6, 7],
+        [1.0, 3, 4, 5, 6, 7, 8],
+    ]
+
+    a = LoadCase(loads=loads)
+
+    a.get_load()
+
+    assert True

@@ -84,15 +84,26 @@ class LoadCase:
         arr = np.array(loads)
 
         if len(arr.shape) == 1:
-            # if passed a single row list, reshape into a 2D numpy array
+            # if passed a single row list, see if we can reshape into a 2D numpy array
+
+            # first test if it has a position & 6 load components
+            if arr.shape[0] != 7:
+                raise LoadCaseError(
+                    f"Load cases must form an (n, 7) array. "
+                    f"Current array shape is {arr.shape}"
+                )
+
             arr = arr.reshape((1, 7))
 
-        # test if array has a position and FX, FY, FZ, MX, MY, MZ
-        if arr.shape[1] != 7:
-            raise LoadCaseError(
-                f"Load cases must form an (n, 7) array. "
-                f"Current array shape is {arr.shape}"
-            )
+        else:
+            # else if multi-row list, simply check that it has a
+            # position and 6x load components
+
+            if arr.shape[1] != 7:
+                raise LoadCaseError(
+                    f"Load cases must form an (n, 7) array. "
+                    f"Current array shape is {arr.shape}"
+                )
 
         # get a position array for use in further testing
         pos = arr[:, 0]
