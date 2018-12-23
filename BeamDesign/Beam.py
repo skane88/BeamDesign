@@ -221,17 +221,18 @@ class Beam:
 
         # first check that there is at least an element.
 
-        if elements == [] or elements == [None]:
+        if elements == None or elements == [] or elements == [None]:
             raise ElementError(
                 f"Expected at least one element to create the Beam. "
-                f"Was given the following elements {elements}"
+                f"Was given the following elements: {elements}"
             )
 
         # next check for any Nones
 
-        if any(e == None for e in elements):
+        if not all(isinstance(e, Element) for e in elements):
             raise ElementError(
-                f"At least one provided element in the elements list is " f"None."
+                f"At least one provided element in the elements list is not an "
+                f"Element object."
             )
 
         # next check that each element has a matching no of load cases.
@@ -242,7 +243,7 @@ class Beam:
         if not all(c == first_no_cases for c in no_cases):
             raise ElementCaseError(
                 f"No. of load cases should match across all Elements in a Beam. "
-                f"No. of cases for each element is {no_cases}"
+                f"No. of cases for each element is: {no_cases}"
             )
 
         # next check that the elements match.
@@ -256,6 +257,46 @@ class Beam:
                 f"all Elements in a Beam. At least one Element has non-matching cases."
             )
 
+    @property
+    def elements(self) -> List[Element]:
+        """
+        Return the elements that make up the ``Beam``.
+
+        :return: Returns the elements that make up the ``Beam``.
+        """
+
+        return self._elements
+
+    @property
+    def length(self) -> float:
+        """
+        Get the total length of the ``Beam`` object.
+
+        :return: Returns the length of the ``Beam`` object.
+        """
+
+        return sum([e.length for e in self._elements])
+
+    @property
+    def no_elements(self) -> int:
+        """
+        Get the no. of elements that make up the ``Beam``.
+
+        :return: The no. of elements.
+        """
+
+        return len(self._elements)
+
+    @property
+    def no_load_cases(self) -> int:
+        """
+        Get the no. of load cases available on the elements that make the ``Beam``.
+
+        :return: The no. of load cases.
+        """
+
+        return self.elements[0].no_load_case
+
     @classmethod
     def empty_beam(cls):
         """
@@ -268,3 +309,12 @@ class Beam:
         element = Element.empty_element()
 
         return cls(elements=element)
+
+    def __repr__(self):
+        return (
+            f"{self.__class__.__name__}("
+            + f"length={self.length}, "
+            + f"no. elements={self.no_elements}"
+            + f"no. load cases={self.no_load_cases}"
+            + f")"
+        )
