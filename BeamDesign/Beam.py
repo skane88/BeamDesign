@@ -42,12 +42,7 @@ class Element:
     """
 
     def __init__(
-        self,
-        *,
-        length=None,
-        section=None,
-        material=None,
-        loads: Dict[int, LoadCase]=None
+        self, *, loads: Dict[int, LoadCase], length=None, section=None, material=None
     ):
         """
         Constructor for an ``Element``.
@@ -63,10 +58,6 @@ class Element:
         self.length = length
         self.section = section
         self.material = material
-
-        if loads is None:
-            # if None, force into a LoadCase object.
-            loads = LoadCase()
 
         self._loads = loads
 
@@ -88,13 +79,23 @@ class Element:
         """
         return len(self.loads.keys())
 
+    @property
+    def load_cases(self) -> List[int]:
+        """
+        Returns a list of the load cases on the ``Element``.
+
+        :return: Returns a list of the load cases on the ``Element``. These are the keys
+            of the self.loads dictionary.
+        """
+        return list(self.loads.keys())
+
     def get_loads(
         self,
         *,
         load_case: int,
         position: Union[List[float], float] = None,
         min_positions: int = None,
-        component: Union[int, str, LoadComponents] = None
+        component: Union[int, str, LoadComponents] = None,
     ):
         """
         Gets the load in an ``Element`` in a given load case and at a given position.
@@ -145,4 +146,28 @@ class Element:
 
         return load.get_load(
             position=position, min_positions=min_positions, component=component
+        )
+
+    @classmethod
+    def empty_element(cls):
+        """
+        A constructor for an empty ``Element`` with no properties except an empty
+        ``LoadCase`` object at load case 0.
+
+        :return: An ``Element`` object.
+        """
+
+        loads = LoadCase()
+        loads = {0: loads}
+
+        return cls(loads=loads)
+
+    def __repr__(self):
+        return (
+            f"{self.__class__.__name__}("
+            + f"length={self.length}, "
+            + f"section={self.section}, "
+            + f"material={self.section}, "
+            + f"no. load cases={self.no_load_cases}"
+            + f")"
         )

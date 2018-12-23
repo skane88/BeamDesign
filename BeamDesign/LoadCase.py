@@ -409,4 +409,4 @@ class LoadCase:
         return ret_val
 
     def __repr__(self):
-        return f"{self.__class__.__name__}(" f"loads={self.loads}" f")"
+        return f"{self.__class__.__name__}(" + f"loads={self.loads}" + f")"

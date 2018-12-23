@@ -9,7 +9,7 @@ from BeamDesign.Beam import Beam, Element
 
 def test_Element_init():
 
-    a = Beam()
+    a = Element.empty_element()
 
     assert a
 
@@ -17,6 +17,8 @@ def test_Element_init():
 @mark.parametrize("length", [None, 1.000, 3.000, 4.532, 1, 3])
 def test_Element_get_length(length):
 
-    a = Element(length=length)
+    a = Element.empty_element()
+
+    a.length = length
 
     assert a.length == length
