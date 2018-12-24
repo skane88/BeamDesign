@@ -328,6 +328,40 @@ class Beam:
 
         return self.elements[0].load_cases
 
+    @property
+    def element_starts_ends(self) -> List[List[float]]:
+        """
+        Returns the ``Element`` starting & ending points as positions from the
+        start of the ``Beam``. ``Beam.elements[0]`` always starts at 0.0.
+        ``Beam.elements[n]`` (where n is the last element) always ends at
+        ``Beam.length``.
+
+        Return is a list of the form:
+
+        [[start_0, end_0]
+         [start_1, end_1]
+         ...
+         [start_n, end_n]
+         ]
+
+        :return: The element starting & ending points.
+        """
+
+        starts_ends = []
+
+        for i, e in enumerate(self.elements):
+
+            if i == 0:
+                starts_ends += [[0.0, e.length]]
+
+            else:
+
+                prev_end = starts_ends[i - 1][1]
+
+                starts_ends += [[prev_end, prev_end + e.length]]
+
+        return starts_ends
+
     @classmethod
     def empty_beam(cls) -> "Beam":
         """
@@ -396,11 +430,11 @@ class Beam:
         # first check for ambiguities in position / min_positions
 
         assert (
-                position is not None or min_positions is not None
+            position is not None or min_positions is not None
         ), "Expected either position or num_positions to be provided. Both were None."
 
         assert (
-                position is None or min_positions is None
+            position is None or min_positions is None
         ), "Expected only position or num_positions. Both were provided."
 
         # next build a list of positions.
@@ -419,8 +453,6 @@ class Beam:
 
             pass
 
-
-
         # TODO: work out where the positions are on each element
 
         # TODO: handle the case where the position is exactly on the start or end
@@ -432,7 +464,7 @@ class Beam:
         return (
             f"{self.__class__.__name__}("
             + f"length={self.length}, "
-            + f"no. elements={self.no_elements}"
+            + f"no. elements={self.no_elements}, "
             + f"no. load cases={self.no_load_cases}"
             + f")"
         )

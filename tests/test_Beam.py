@@ -96,3 +96,21 @@ def test_Beam_length(lengths):
     b = Beam(elements=elements)
 
     assert b.length == expected
+
+
+@mark.parametrize(
+    "lengths, expected",
+    [
+        ([1.0, 2.0], [[0.0, 1.0], [1.0, 3.0]]),
+        ([1.0, 2.3, 0.5], [[0.0, 1.0], [1.0, 3.3], [3.3, 3.8]]),
+        ([1.2345, 4.5678, 2.3456], [[0.0, 1.2345], [1.2345, 5.8023], [5.8023, 8.1479]]),
+    ],
+)
+def test_Beam_starts_ends(lengths, expected):
+
+    elements = [Element.empty_element(length=l) for l in lengths]
+
+    a = Beam(elements=elements)
+    starts_ends = a.element_starts_ends
+
+    assert starts_ends == expected
