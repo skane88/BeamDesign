@@ -492,7 +492,7 @@ class Beam:
                 + f"Position given was {position}"
             )
 
-        start = self.get_element_start_end(element=element)
+        start = self.get_element_start_end(element=element)[0]
         length = self.elements[element].length
 
         return start + position * length

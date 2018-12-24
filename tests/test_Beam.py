@@ -219,8 +219,61 @@ def test_Beam_element_local_error(position, element):
     assert True
 
 
+@mark.parametrize(
+    "position, element, expected",
+    [
+        (0.0, 0, 0.0),
+        (0.5, 0, 0.5),
+        (1.0, 0, 1.0),
+        (0.0, 1, 1.0),
+        (0.5, 1, 1.0),
+        (1.0, 1, 1.0),
+        (0.0, 2, 1.0),
+        (0.5, 2, 2.15),
+        (1.0, 2, 3.3),
+        (0.0, 3, 3.3),
+        (0.5, 3, 3.55),
+        (1.0, 3, 3.8),
+    ],
+)
+def test_Beam_element_real_position(position, element, expected):
+    """
+    Test for the Beam.element_real_position method.
+    """
+
+    length = [1.0, 0.0, 2.3, 0.5]
+
+    elements = [Element.empty_element(length=l) for l in length]
+
+    a = Beam(elements=elements)
+
+    actual = a.element_real_position(position=position, element=element)
+
+    assert actual == expected
+
+@mark.xfail(strict=True, raises=PositionNotInElementError)
+@mark.parametrize("position", [-1, -0.1, 1.1, 2.0])
+@mark.parametrize("element", [0, 1, 2, 3])
+def test_Beam_element_real_position_error(position, element):
+    """
+    Test for the Beam.element_real_position method errors.
+    """
+
+    length = [1.0, 0.0, 2.3, 0.5]
+
+    elements = [Element.empty_element(length=l) for l in length]
+
+    a = Beam(elements=elements)
+
+    actual = a.element_real_position(position=position, element=element)
+
+    assert True
+
 
 def test_Beam_get_loads():
+    """
+    Test for the Beam.get_loads method.
+    """
 
     length = [1.0, 0.0, 2.3, 0.5]
     loads = [0.5, 5.0, 2.5, 25.0]
@@ -242,9 +295,13 @@ def test_Beam_get_loads():
     assert np.allclose(actual, expected)
 
     actual = b.get_loads(load_case=0, position=1.0)
-    expected = np.array([[1.0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5],
-                         [1.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0],
-                         [1.0, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5]])
+    expected = np.array(
+        [
+            [1.0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5],
+            [1.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0],
+            [1.0, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5],
+        ]
+    )
 
     assert np.allclose(actual, expected)
 
@@ -254,12 +311,13 @@ def test_Beam_get_loads():
     assert np.allclose(actual, expected)
 
     actual = b.get_loads(load_case=0, position=3.3)
-    expected = np.array([[3.3, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5],
-                         [3.3, 25., 25., 25., 25., 25., 25.]])
+    expected = np.array(
+        [[3.3, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5], [3.3, 25.0, 25.0, 25.0, 25.0, 25.0, 25.0]]
+    )
 
     assert np.allclose(actual, expected)
 
-    actual = b.get_loads(load_case=0, position = 3.8)
-    expected = np.array([[3.8, 25., 25., 25., 25., 25., 25.]])
+    actual = b.get_loads(load_case=0, position=3.8)
+    expected = np.array([[3.8, 25.0, 25.0, 25.0, 25.0, 25.0, 25.0]])
 
     assert np.allclose(actual, expected)
