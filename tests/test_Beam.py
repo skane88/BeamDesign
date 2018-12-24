@@ -251,6 +251,7 @@ def test_Beam_element_real_position(position, element, expected):
 
     assert actual == expected
 
+
 @mark.xfail(strict=True, raises=PositionNotInElementError)
 @mark.parametrize("position", [-1, -0.1, 1.1, 2.0])
 @mark.parametrize("element", [0, 1, 2, 3])
