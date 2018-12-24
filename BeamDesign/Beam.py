@@ -194,6 +194,40 @@ class Element:
 
         return cls(loads=loads, length=length)
 
+    @classmethod
+    def constant_load_element(
+        cls,
+        FX: float = 0,
+        FY: float = 0,
+        FZ: float = 0,
+        MX: float = 0,
+        MY: float = 0,
+        MZ: float = 0,
+        length: float = 0,
+        section=None,
+        material=None,
+    ):
+        """
+        Creates an ``Element`` with a single ``LoadCase`` with constant load along its
+        length. Primarily intended to be used for testing purposes.
+
+        :param FX: The FX load component.
+        :param FY: The FY load component.
+        :param FZ: The FZ load component.
+        :param MX: The MX load component.
+        :param MY: The MY load component.
+        :param MZ: The MZ load component.
+        :param length: The length of the element.
+        :param section: The section of the element.
+        :param material: The material of the element.
+        :return: An ``Element`` with constant load along its length.
+        """
+
+        loads = LoadCase.constant_load(FX=FX, FY=FY, FZ=FZ, MX=MX, MY=MY, MZ=MZ)
+        loads = {0: loads}
+
+        return cls(loads=loads, length=length, section=section, material=material)
+
     def __repr__(self):
         return (
             f"{self.__class__.__name__}("
