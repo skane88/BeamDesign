@@ -5,7 +5,7 @@ Contains tests for the Beam and Elements classes
 from pytest import mark
 
 from BeamDesign.Beam import Beam, Element
-from BeamDesign.Utility.Exceptions import ElementError
+from BeamDesign.Utility.Exceptions import ElementError, ElementLengthError
 
 
 def test_Element_init():
@@ -16,6 +16,14 @@ def test_Element_init():
     a = Element.empty_element()
 
     assert a
+
+
+@mark.xfail(strict=True, raises=ElementLengthError)
+def test_Element_init_length_error():
+
+    a = Element.empty_element(length=-1.0)
+
+    assert True
 
 
 @mark.parametrize("length", [None, 1.000, 3.000, 4.532, 1, 3])
@@ -73,19 +81,18 @@ def test_Beam_init_element_errors2(elements):
     assert True
 
 
-def test_Beam_length():
+@mark.parametrize("lengths", [[0.5, 2.5], [1.0, 1.0, 1.0], [0.0, 5.0]])
+def test_Beam_length(lengths):
     """
     Test the ``Beam.length`` property.
     """
 
     # build some elements.
 
-    e1 = Element.empty_element()
-    e2 = Element.empty_element()
+    elements = [Element.empty_element(length=l) for l in lengths]
 
-    e1.length = 0.5
-    e2.length = 2.5
+    expected = sum(lengths)
 
-    b = Beam(elements=[e1, e2])
+    b = Beam(elements=elements)
 
-    assert b.length == e1.length + e2.length
+    assert b.length == expected

@@ -25,9 +25,15 @@ with multiple design codes.
 
 from typing import List, Dict, Union
 
+import numpy as np
+
 from BeamDesign.LoadCase import LoadCase
 from BeamDesign.const import LoadComponents
-from BeamDesign.Utility.Exceptions import ElementError, ElementCaseError
+from BeamDesign.Utility.Exceptions import (
+    ElementError,
+    ElementCaseError,
+    ElementLengthError,
+)
 
 
 class Element:
@@ -51,6 +57,12 @@ class Element:
         :param loads: The loads on the ``Element``. Must take the form of a dictionary
             of LoadCase objects mapped to a unique integer ID.
         """
+
+        if length is not None:
+            if length < 0.0:
+                raise ElementLengthError(
+                    f"Expected length to be +ve or None, actual length was {length}"
+                )
 
         self.length = length
         self.section = section
@@ -93,7 +105,7 @@ class Element:
         position: Union[List[float], float] = None,
         min_positions: int = None,
         component: Union[int, str, LoadComponents] = None,
-    ):
+    ) -> np.ndarray:
         """
         Gets the load in an ``Element`` in a given load case and at a given position.
         If there are multiple loads at a position it returns all of them. Returns in the
@@ -119,7 +131,7 @@ class Element:
         This is not done at this stage as real-world lengths will generally only be
         required on a ``Beam`` object which may consist of multiple elements.
 
-        :param load_case: The load case to get the loads in. If
+        :param load_case: The load case to get the loads in.
         :param position: The position at which to return the load. Position values
             should be entered as floats between 0.0 and 1.0 where 0.0 and 1.0 define
             the ends of the element on which the load case is being applied. Positions
@@ -151,20 +163,21 @@ class Element:
         )
 
     @classmethod
-    def empty_element(cls):
+    def empty_element(cls, length: float = None):
         """
         A constructor for an empty ``Element`` with no properties except an empty
         ``LoadCase`` object at load case 0.
 
         This is a helper method for easily instantiating ``Elements`` for testing etc.
 
+        :param length: An optional length for the empty ``Element``.
         :return: An ``Element`` object.
         """
 
         loads = LoadCase()
         loads = {0: loads}
 
-        return cls(loads=loads)
+        return cls(loads=loads, length=length)
 
     def __repr__(self):
         return (
@@ -327,6 +340,93 @@ class Beam:
         element = Element.empty_element()
 
         return cls(elements=element)
+
+    def get_loads(
+        self,
+        *,
+        load_case,
+        position: Union[List[float], float] = None,
+        min_positions: int = None,
+        component: Union[int, str, LoadComponents] = None,
+    ) -> np.ndarray:
+        """
+        Gets the load in a ``Beam`` in a given load case and at a given position.
+        If there are multiple loads at a position it returns all of them. Returns in the
+        form of a numpy array of the format:
+
+        [[pos, load_1]
+         [pos, load_2]
+         ...
+         [pos, load_n]
+        ]
+
+        If ``component`` is not provided, then an array of all loads at the given
+        position is returned:
+
+        [[pos, fx_1, fy_1, fz_1, mx_1, my_1, mz_1]
+         [pos, fx_2, fy_2, fz_2, mx_2, my_2, mz_2]
+         ...
+         [pos, fx_n, fy_n, fz_n, mx_n, my_n, mz_n]
+        ]
+
+        The values of position are 'real' positions along the beam.
+
+        :param load_case: The load case to get the loads in.
+        :param position: The position at which to return the load. Position values
+            should be entered as floats between 0.0 and ``Beam.length``
+
+            Positions can be a single position or a list of positions. If a list is
+            provided, any duplicate values will be ignored, and the order will be
+            ignored - return values will be at positions sorted ascending from 0.0 to
+            ``Beam.length``.
+
+            If ``position`` is provided, ``min_positions`` must be ``None`` to
+            avoid ambiguity.
+        :param min_positions: The minimum number of positions to return. Positions will
+            be returned such that loads are returned at equally spaced positions between
+            0.0 and ``Beam.length`` (inclusive). All stored load positions will also be
+            included to ensure that discontinuities are included.
+
+            If ``min_positions`` is provided,
+            ``position`` must be ``None`` to avoid ambiguity.
+        :param component: The component of load to return.
+        :return: A numpy array containing the loads at the specified position.
+        """
+
+        # first check for ambiguities in position / min_positions
+
+        assert (
+                position is not None or min_positions is not None
+        ), "Expected either position or num_positions to be provided. Both were None."
+
+        assert (
+                position is None or min_positions is None
+        ), "Expected only position or num_positions. Both were provided."
+
+        # next build a list of positions.
+
+        if position is not None:
+            # if position is the provided value then use it.
+
+            if isinstance(position, float):
+                # if position is just a float, wrap it in a list for consistency with
+                # following code.
+                position = [position]
+
+        else:
+            # else if min_positions is provided we need to build a list of positions to
+            # get the loads at.
+
+            pass
+
+
+
+        # TODO: work out where the positions are on each element
+
+        # TODO: handle the case where the position is exactly on the start or end
+        #  of a beam element
+
+        raise NotImplementedError
 
     def __repr__(self):
         return (

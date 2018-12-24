@@ -349,6 +349,8 @@ class LoadCase:
         :return: A numpy array containing the loads at the specified position.
         """
 
+        # first check for ambiguities in position / min_positions
+
         assert (
             position is not None or min_positions is not None
         ), "Expected either position or num_positions to be provided. Both were None."

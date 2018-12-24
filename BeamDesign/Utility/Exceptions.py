@@ -35,6 +35,14 @@ class ElementError(BeamError):
     pass
 
 
+class ElementLengthError(ElementError):
+    """
+    Error thrown if the beam length is <0.
+    """
+
+    pass
+
+
 class ElementCaseError(ElementError):
     """
     Error to throw while checking the element cases that make up a beam object.
