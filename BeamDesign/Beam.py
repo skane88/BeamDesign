@@ -631,9 +631,14 @@ class Beam:
             e_id = e[1]
             local_pos = self.element_local_position(position=pos, element=e_id)
 
-            val = elements[e[1]].get_loads(
+            val = elements[e_id].get_loads(
                 load_case=load_case, position=local_pos, component=component
             )
+
+            # now we need to get the beam_position of the element and replace with the
+            # real position
+
+            val[0, 0] = pos
 
             if i == 0:
                 ret_val = val

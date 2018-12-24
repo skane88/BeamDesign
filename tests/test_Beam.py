@@ -4,6 +4,8 @@ Contains tests for the Beam and Elements classes
 
 from pytest import mark
 
+import numpy as np
+
 from BeamDesign.Beam import Beam, Element
 from BeamDesign.Utility.Exceptions import (
     ElementError,
@@ -217,11 +219,47 @@ def test_Beam_element_local_error(position, element):
     assert True
 
 
-def test_Beam_element_real_position():
+
+def test_Beam_get_loads():
 
     length = [1.0, 0.0, 2.3, 0.5]
     loads = [0.5, 5.0, 2.5, 25.0]
 
     ll = list(zip(length, loads))
 
-    assert False
+    elements = [
+        Element.constant_load_element(
+            FX=lo, FY=lo, FZ=lo, MX=lo, MY=lo, MZ=lo, length=le
+        )
+        for le, lo in ll
+    ]
+
+    b = Beam(elements=elements)
+
+    actual = b.get_loads(load_case=0, position=0.0)
+    expected = np.array([[0.0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5]])
+
+    assert np.allclose(actual, expected)
+
+    actual = b.get_loads(load_case=0, position=1.0)
+    expected = np.array([[1.0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5],
+                         [1.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0],
+                         [1.0, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5]])
+
+    assert np.allclose(actual, expected)
+
+    actual = b.get_loads(load_case=0, position=2.0)
+    expected = np.array([[2.0, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5]])
+
+    assert np.allclose(actual, expected)
+
+    actual = b.get_loads(load_case=0, position=3.3)
+    expected = np.array([[3.3, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5],
+                         [3.3, 25., 25., 25., 25., 25., 25.]])
+
+    assert np.allclose(actual, expected)
+
+    actual = b.get_loads(load_case=0, position = 3.8)
+    expected = np.array([[3.8, 25., 25., 25., 25., 25., 25.]])
+
+    assert np.allclose(actual, expected)
