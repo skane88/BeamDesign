@@ -688,3 +688,18 @@ def test_get_load_position_error1():
     a.get_load()
 
     assert True
+
+
+def test_constant_load():
+    """
+    Test the class method that generates a constant load case.
+    """
+
+    a = LoadCase.constant_load()
+
+    pos = 0.25
+
+    expected = np.array([[0.25, 0, 0, 0, 0, 0, 0]])
+    actual = a.get_load(position=pos)
+
+    assert np.allclose(expected, actual)

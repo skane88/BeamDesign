@@ -408,5 +408,33 @@ class LoadCase:
 
         return ret_val
 
+    @classmethod
+    def constant_load(
+        cls,
+        FX: float = 0.0,
+        FY: float = 0.0,
+        FZ: float = 0.0,
+        MX: float = 0.0,
+        MY: float = 0.0,
+        MZ: float = 0.0,
+    ) -> "LoadCase":
+        """
+        Constructor for a ``LoadCase`` object with a constant load along its length.
+
+        :param FX: The FX load component.
+        :param FY: The FY load component.
+        :param FZ: The FZ load component.
+        :param MX: The MX load component.
+        :param MY: The MY load component.
+        :param MZ: The MZ load component.
+        :return: Returns a ``LoadCase`` object.
+        """
+
+        pos = 0.0
+
+        loads = [pos, FX, FY, FZ, MX, MY, MZ]
+
+        return cls(loads=loads)
+
     def __repr__(self):
         return f"{self.__class__.__name__}(" + f"loads={self.loads}" + f")"
