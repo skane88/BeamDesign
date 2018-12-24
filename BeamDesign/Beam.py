@@ -33,6 +33,7 @@ from BeamDesign.Utility.Exceptions import (
     ElementError,
     ElementCaseError,
     ElementLengthError,
+    PositionNotInElementError,
 )
 
 
@@ -50,12 +51,12 @@ class Element:
         """
         Constructor for an ``Element``.
 
+        :param loads: The loads on the ``Element``. Must take the form of a dictionary
+            of LoadCase objects mapped to a unique integer ID.
         :param length: The length of the ``Element``, corresponding to its real world
             length.
         :param section: The section of the ``Element``.
         :param material: The material of the ``Element``.
-        :param loads: The loads on the ``Element``. Must take the form of a dictionary
-            of LoadCase objects mapped to a unique integer ID.
         """
 
         if length is not None:
@@ -161,6 +162,20 @@ class Element:
         return load.get_load(
             position=position, min_positions=min_positions, component=component
         )
+
+    def get_load_positions(self, *, load_case: int):
+        """
+        Returns all the stored load positions in a given load case. The load case must
+        be specified because it is possible that different load cases would have
+        different stored positions.
+
+        :param load_case: The load case to return the positions from, as an int that
+            can be used to index into the LoadCase Dict.
+        :return: Returns all the positions that loads are stored in the given
+            ``LoadCase``.
+        """
+
+        return self.loads[load_case].load_positions
 
     @classmethod
     def empty_element(cls, length: float = None):
@@ -362,18 +377,89 @@ class Beam:
 
         return starts_ends
 
-    @classmethod
-    def empty_beam(cls) -> "Beam":
+    def get_element_start_end(self, *, element: int) -> List[float]:
         """
-        Helper constructor to build an empty Beam object with an empty element object,
-        primarly for testing purposes.
+        Gets the start & end positions of a given ``Element`` in the ``Beam``.
 
-        :return: Returns a ``Beam`` object.
+        :param element: The id of the ``Element`` to get the start & end positions of.
+        :return: Returns a List of the start & end postions [start, end]
         """
 
-        element = Element.empty_element()
+        return self.element_starts_ends[element]
 
-        return cls(elements=element)
+    def in_elements(self, *, position: float) -> List[int]:
+        """
+        Returns a list of all elements that a given position along the beam fits into.
+
+        If the position is part-way along the length of an ``Element`` only a single
+        value will be returned. If exactly at the boundary between 2x or more elements
+        multiple element ids will be returned. The list takes the following format:
+
+        [element_id_n, element_id_n+1, ..., element_id_n+o]
+
+        NOTE: if position is > ``Beam.Length`` or < 0.0, returns an empty list []
+
+        :param position: The position to test.
+        :return: A list of elements that the position overlaps.
+        """
+
+        ret_list = []
+
+        for i in range(0, len(self.elements)):
+
+            start_end = self.get_element_start_end(element=i)
+
+            if position >= start_end[0] and position <= start_end[1]:
+                ret_list += [i]
+
+        return ret_list
+
+    def element_local_position(self, *, position: float, element: int) -> float:
+        """
+        Gets the local position of a *real* position normalised onto an ``Element``.
+
+        :param position: The position to test.
+        :param element: The element to get the local position on.
+        :return: The local position of the *real* position as a value between 0.0 and
+            1.0
+        """
+
+        start = self.get_element_start_end(element=element)[0]
+        length = self.elements[element].length
+
+        overlap = position - start
+
+        if overlap < 0 or overlap > length:
+            raise PositionNotInElementError(
+                "Expected position to be within element {element}."
+            )
+
+        if length == 0.0:
+            return 0.0
+        else:
+            return (position - start) / length
+
+    def element_real_position(self, *, position: float, element: int) -> float:
+        """
+        Gets the *real* position of an ``Element`` local position on the ``Beam``
+        object.
+
+        :param position: The local position between 0.0 and 1.0 to convert to a *real*
+            position on the ``Beam``.
+        :param element: The element on which the position applies.
+        :return: Returns the real position of the local element position.
+        """
+
+        if position < 0 or position > 1.0:
+            raise PositionNotInElementError(
+                f"Expected position to be between 0.0 and 1.0. "
+                + f"Position given was {position}"
+            )
+
+        start = self.get_element_start_end(element=element)
+        length = self.elements[element].length
+
+        return start + position * length
 
     def get_loads(
         self,
@@ -439,6 +525,8 @@ class Beam:
 
         # next build a list of positions.
 
+        elements = self.elements  # call now to prevent having to call it multiple times
+
         if position is not None:
             # if position is the provided value then use it.
 
@@ -447,18 +535,89 @@ class Beam:
                 # following code.
                 position = [position]
 
+            # convert to a numpy array for use later.
+            position = np.array(position)
+            position = np.unique(position)
+
         else:
             # else if min_positions is provided we need to build a list of positions to
             # get the loads at.
 
-            pass
+            lin_pos = np.linspace(0.0, self.length, min_positions)
 
-        # TODO: work out where the positions are on each element
+            # next concatenate with all the load positions in the elements.
+            # to do this we need to get all the load positions on the elements and
+            # convert them to real positions. They will be converted back later into
+            # element local positions, which may be some double handling, but keeps the
+            # logic easier to follow.
 
-        # TODO: handle the case where the position is exactly on the start or end
-        #  of a beam element
+            position = []
 
-        raise NotImplementedError
+            for i, e in enumerate(elements):
+
+                element_pos = e.get_load_positions(load_case=load_case)
+
+                # now convert to *real* positions
+
+                real_pos = [
+                    self.element_real_position(position=p, element=i)
+                    for p in element_pos
+                ]
+
+                # now add to the collecting list.
+                position += real_pos
+
+            position = np.array(position)
+            position = np.concatenate((lin_pos, position))
+
+            position = np.unique(position)  # get rid of duplicate positions
+
+        # we now have a list of all the positions at which we intend to get the loads.
+        # next step is to figure out which elements each position maps to.
+
+        element_map = []
+
+        for p in position:
+
+            containing_elements = self.in_elements(position=p)
+
+            for e in containing_elements:
+                element_map += [[p, e]]
+
+        # we now have a list which contains all the positions and all the elements that
+        # they map to.
+        # then start from the lowest position and working to the highest, get all
+        # the loads at these positions.
+
+        for i, e in enumerate(element_map):
+
+            pos = e[0]
+            e_id = e[1]
+            local_pos = self.element_local_position(position=pos, element=e_id)
+
+            val = elements[e[1]].get_loads(
+                load_case=load_case, position=local_pos, component=component
+            )
+
+            if i == 0:
+                ret_val = val
+            else:
+                ret_val = np.vstack((ret_val, val))
+
+        return ret_val
+
+    @classmethod
+    def empty_beam(cls) -> "Beam":
+        """
+        Helper constructor to build an empty Beam object with an empty element object,
+        primarly for testing purposes.
+
+        :return: Returns a ``Beam`` object.
+        """
+
+        element = Element.empty_element()
+
+        return cls(elements=element)
 
     def __repr__(self):
         return (

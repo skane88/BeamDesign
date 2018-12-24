@@ -40,7 +40,7 @@ class LoadCase:
         return self._loads
 
     @property
-    def positions(self) -> np.ndarray:
+    def load_positions(self) -> np.ndarray:
         """
         Returns an array of the positions that loads are available in. Position values
         are stored as a float between 0.0 and 1.0 where 0.0 and 1.0 define the ends of
@@ -61,7 +61,7 @@ class LoadCase:
         :return:
         """
 
-        return len(self.positions)
+        return len(self.load_positions)
 
     def _set_loads(self, *, loads):
         """
@@ -197,7 +197,7 @@ class LoadCase:
         # position in the table.
 
         unique, idxs, counts = np.unique(
-            self.positions, return_index=True, return_counts=True
+            self.load_positions, return_index=True, return_counts=True
         )
         counts_dict = dict(zip(unique, counts))
         idx_dict = dict(zip(unique, idxs))
@@ -378,7 +378,7 @@ class LoadCase:
             # - we will start from the positions already in the loads document so that
             # we don't miss anything.
 
-            position = self.positions
+            position = self.load_positions
 
             # now we get an array of positions
 

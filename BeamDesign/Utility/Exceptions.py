@@ -49,3 +49,11 @@ class ElementCaseError(ElementError):
     """
 
     pass
+
+
+class PositionNotInElementError(BeamError):
+    """
+    Error to throw when trying to find the local position of a *real* position in an Element
+    """
+
+    pass
