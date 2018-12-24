@@ -411,6 +411,7 @@ class LoadCase:
     @classmethod
     def constant_load(
         cls,
+        *,
         FX: float = 0.0,
         FY: float = 0.0,
         FZ: float = 0.0,

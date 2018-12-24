@@ -699,7 +699,30 @@ def test_constant_load():
 
     pos = 0.25
 
-    expected = np.array([[0.25, 0, 0, 0, 0, 0, 0]])
+    expected = np.array([[pos, 0, 0, 0, 0, 0, 0]])
+    actual = a.get_load(position=pos)
+
+    assert np.allclose(expected, actual)
+
+    pos = 0.75
+
+    expected = np.array([[pos, 0, 0, 0, 0, 0, 0]])
+    actual = a.get_load(position=pos)
+
+    assert np.allclose(expected, actual)
+
+    a = LoadCase.constant_load(FY=3.0, MZ=5.0)
+
+    pos = 0.25
+
+    expected = np.array([[pos, 0, 3.0, 0, 0, 0, 5.0]])
+    actual = a.get_load(position=pos)
+
+    assert np.allclose(expected, actual)
+
+    pos = 0.75
+
+    expected = np.array([[pos, 0, 3.0, 0, 0, 0, 5.0]])
     actual = a.get_load(position=pos)
 
     assert np.allclose(expected, actual)
