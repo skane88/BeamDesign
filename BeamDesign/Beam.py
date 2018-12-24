@@ -197,6 +197,7 @@ class Element:
     @classmethod
     def constant_load_element(
         cls,
+        case_id: int = 0,
         FX: float = 0,
         FY: float = 0,
         FZ: float = 0,
@@ -206,11 +207,12 @@ class Element:
         length: float = 0,
         section=None,
         material=None,
-    ):
+    ) -> "Element":
         """
         Creates an ``Element`` with a single ``LoadCase`` with constant load along its
         length. Primarily intended to be used for testing purposes.
 
+        :param case_id: The ID to use for the LoadCase.
         :param FX: The FX load component.
         :param FY: The FY load component.
         :param FZ: The FZ load component.
@@ -224,7 +226,7 @@ class Element:
         """
 
         loads = LoadCase.constant_load(FX=FX, FY=FY, FZ=FZ, MX=MX, MY=MY, MZ=MZ)
-        loads = {0: loads}
+        loads = {case_id: loads}
 
         return cls(loads=loads, length=length, section=section, material=material)
 
