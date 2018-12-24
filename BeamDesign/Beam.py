@@ -290,15 +290,33 @@ class Beam:
     @property
     def no_load_cases(self) -> int:
         """
-        Get the no. of load cases available on the elements that make the ``Beam``.
+        Get the no. of load cases available on the ``Element`` objects that make the
+        ``Beam``.
 
         :return: The no. of load cases.
         """
 
-        return self.elements[0].no_load_case
+        # Relies on the fact that the elements are checked for consistency when the
+        # ``Beam`` to ensure that a correct no. of load cases is returned.
+
+        return self.elements[0].no_load_cases
+
+    @property
+    def load_cases(self) -> List[int]:
+        """
+        Gets a list of the load cases that are available on the ``Element`` objects that
+        make up the ``Beam``.
+
+        :return: A list of the load cases.
+        """
+
+        # Relies on the fact that the elements are checked for consistency when the
+        # ``Beam`` to ensure that a correct no. of load cases is returned.
+
+        return self.elements[0].load_cases
 
     @classmethod
-    def empty_beam(cls):
+    def empty_beam(cls) -> "Beam":
         """
         Helper constructor to build an empty Beam object with an empty element object,
         primarly for testing purposes.
