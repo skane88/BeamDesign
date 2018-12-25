@@ -23,6 +23,7 @@ The intent here is to make the ``Beam`` class as generic as possible for use
 with multiple design codes.
 """
 
+import itertools
 from typing import List, Dict, Union
 
 import numpy as np
@@ -534,14 +535,16 @@ class Beam:
             Positions can be a single position or a list of positions. If a list is
             provided, any duplicate values will be ignored, and the order will be
             ignored - return values will be at positions sorted ascending from 0.0 to
-            ``Beam.length``.
+            ``Beam.length``. If the specified position is at an element or load
+            discontinuity multiple values may be returned.
 
             If ``position`` is provided, ``min_positions`` must be ``None`` to
             avoid ambiguity.
         :param min_positions: The minimum number of positions to return. Positions will
             be returned such that loads are returned at equally spaced positions between
-            0.0 and ``Beam.length`` (inclusive). All stored load positions will also be
-            included to ensure that discontinuities are included.
+            0.0 and ``Beam.length`` (inclusive). All stored load positions and element
+            start / end positions will also be included to ensure that discontinuities
+            are included.
 
             If ``min_positions`` is provided,
             ``position`` must be ``None`` to avoid ambiguity.
@@ -581,13 +584,14 @@ class Beam:
 
             lin_pos = np.linspace(0.0, self.length, min_positions)
 
-            # next concatenate with all the load positions in the elements.
-            # to do this we need to get all the load positions on the elements and
-            # convert them to real positions. They will be converted back later into
+            # next concatenate with all the starts & ends and the load positions on the
+            # elements to do this we need to get all the load positions on the elements
+            # and convert them to real positions. They will be converted back later into
             # element local positions, which may be some double handling, but keeps the
             # logic easier to follow.
 
-            position = []
+            start_ends = self.element_starts_ends
+            position = list(itertools.chain.from_iterable(start_ends))
 
             for i, e in enumerate(elements):
 
@@ -627,9 +631,9 @@ class Beam:
 
         for i, e in enumerate(element_map):
 
-            pos = e[0]
+            real_pos = e[0]
             e_id = e[1]
-            local_pos = self.element_local_position(position=pos, element=e_id)
+            local_pos = self.element_local_position(position=real_pos, element=e_id)
 
             val = elements[e_id].get_loads(
                 load_case=load_case, position=local_pos, component=component
@@ -638,7 +642,7 @@ class Beam:
             # now we need to get the beam_position of the element and replace with the
             # real position
 
-            val[0, 0] = pos
+            val[0, 0] = real_pos
 
             if i == 0:
                 ret_val = val

@@ -271,7 +271,7 @@ def test_Beam_element_real_position_error(position, element):
     assert True
 
 
-def test_Beam_get_loads():
+def test_Beam_get_loads_position():
     """
     Test for the Beam.get_loads method.
     """
@@ -322,3 +322,127 @@ def test_Beam_get_loads():
     expected = np.array([[3.8, 25.0, 25.0, 25.0, 25.0, 25.0, 25.0]])
 
     assert np.allclose(actual, expected)
+
+
+def test_Beam_get_loads_positions2():
+    """
+    Test for the Beam.get_loads method. Test multiple positions.
+    """
+
+    length = [1.0, 0.0, 2.3, 0.5]
+    loads = [0.5, 5.0, 2.5, 25.0]
+
+    ll = list(zip(length, loads))
+
+    elements = [
+        Element.constant_load_element(
+            FX=lo, FY=lo, FZ=lo, MX=lo, MY=lo, MZ=lo, length=le
+        )
+        for le, lo in ll
+    ]
+
+    b = Beam(elements=elements)
+
+    actual = b.get_loads(load_case=0, position=[0.5, 1.5, 2.5, 3.5])
+
+    expected = np.array(
+        [
+            [0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5],
+            [1.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5],
+            [2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5],
+            [3.5, 25.0, 25.0, 25.0, 25.0, 25.0, 25.0],
+        ]
+    )
+
+    assert np.allclose(actual, expected)
+
+
+def test_Beam_get_loads_min_positions():
+    """
+    Test for the Beam.get_loads method. Test the min_positions argument.
+    """
+
+    length = [1.0, 0.0, 2.3, 0.5]
+    loads = [0.5, 5.0, 2.5, 25.0]
+
+    ll = list(zip(length, loads))
+
+    elements = [
+        Element.constant_load_element(
+            FX=lo, FY=lo, FZ=lo, MX=lo, MY=lo, MZ=lo, length=le
+        )
+        for le, lo in ll
+    ]
+
+    b = Beam(elements=elements)
+
+    actual = b.get_loads(load_case=0, min_positions=5)
+
+    expected = np.array(
+        [
+            [0.00, 0.50, 0.50, 0.50, 0.50, 0.50, 0.50],
+            [0.95, 0.50, 0.50, 0.50, 0.50, 0.50, 0.50],
+            [1.00, 0.50, 0.50, 0.50, 0.50, 0.50, 0.50],
+            [1.00, 5.00, 5.00, 5.00, 5.00, 5.00, 5.00],
+            [1.00, 2.50, 2.50, 2.50, 2.50, 2.50, 2.50],
+            [1.90, 2.50, 2.50, 2.50, 2.50, 2.50, 2.50],
+            [2.85, 2.50, 2.50, 2.50, 2.50, 2.50, 2.50],
+            [3.30, 2.50, 2.50, 2.50, 2.50, 2.50, 2.50],
+            [3.30, 25.0, 25.0, 25.0, 25.0, 25.0, 25.0],
+            [3.80, 25.0, 25.0, 25.0, 25.0, 25.0, 25.0],
+        ]
+    )
+
+    assert np.allclose(actual, expected)
+
+
+def test_Beam_get_loads_min_positions2():
+    """
+    Test the beam.get_loads method when there is a 0 length element with multiple
+    defined load positions
+    """
+
+    assert False
+
+
+def test_Beam_get_loads_min_positions3():
+    """
+    Test the beam.get_loads method when there is a discontinuity in the load mid-element
+    """
+
+    assert False
+
+
+def test_Beam_get_loads_multiple_load_cases():
+    """
+    Test the beam.get_loads method when there is more than 1x load case on an element.
+    """
+
+    assert False
+
+
+@mark.xfail(strict=True)
+@mark.parametrize("position, min_positions", [(0.5, 10), (None, None)])
+def test_Beam_get_loads_error(position, min_positions):
+    """
+    Test the Beam.get_loads method to ensure that it throws errors if position and
+    min_position are both passed or neither is passed.
+    """
+
+    length = [1.0, 0.0, 2.3, 0.5]
+    loads = [0.5, 5.0, 2.5, 25.0]
+
+    ll = list(zip(length, loads))
+
+    elements = [
+        Element.constant_load_element(
+            FX=lo, FY=lo, FZ=lo, MX=lo, MY=lo, MZ=lo, length=le
+        )
+        for le, lo in ll
+    ]
+
+    b = Beam(elements=elements)
+
+    actual = b.get_loads(load_case=0, position=position, min_positions=min_positions)
+
+    assert True
