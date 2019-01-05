@@ -7,12 +7,14 @@ such as:
 * Length
 * Cross section
 * Material Properties
-* Internal loads (i.e. bending moments etc.). At this point in time it is NOT
-intended to include descriptions of applied loads and / or to calculate
-load diagrams directly, although a sub-class may be created eventually to allow
-this.
+* Internal loads (i.e. bending moments etc.).
 
-Information that is design code specific will not be stored. This includes
+At this point in time it is NOT intended to include descriptions of applied loads (i.e.
+point load of x at position y) and / or to calculate load diagrams directly (i.e.
+through basic statics such as BM=PL/4 or a more advanced FEA method), although a
+sub-class may / could be created to allow this.
+
+Information that is design code specific will NOT be stored. This includes
 (but is not limited to):
 
 * Capacity reduction factors, safety factors
