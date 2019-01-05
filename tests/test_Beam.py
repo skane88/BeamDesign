@@ -568,19 +568,18 @@ def test_Beam_get_loads_multiple_load_cases():
     load_0 = LoadCase.constant_load(FX=2.5, FY=2.5, FZ=2.5, MX=2.5, MY=2.5, MZ=2.5)
     load_1 = LoadCase.constant_load(FX=5.0, FY=5.0, FZ=5.0, MX=5.0, MY=5.0, MZ=5.0)
 
-    load_dict = {0: load_0,
-                 1: load_1}
+    load_dict = {0: load_0, 1: load_1}
 
     element_0 = Element(loads=load_dict, length=1.0)
 
     beam = Beam(elements=element_0)
 
     actual = beam.get_loads(load_case=0, position=0.5)
-    expected = np.array([[0.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5,]])
+    expected = np.array([[0.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5]])
 
     assert np.allclose(actual, expected)
 
-    actual = beam.get_loads(load_case=1 ,position = 0.5)
+    actual = beam.get_loads(load_case=1, position=0.5)
     expected = np.array([[0.5, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0]])
 
     assert np.allclose(actual, expected)
