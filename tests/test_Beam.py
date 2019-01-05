@@ -376,6 +376,53 @@ def test_Beam_get_loads_positions2():
     assert np.allclose(actual, expected)
 
 
+def test_Beam_get_loads_position3():
+    """
+    Handle the case of getting the position where a 0 length element is present with
+    multiple loads on it.
+    """
+
+    zero_length_load = {
+        0: LoadCase(
+            loads=[
+                [0.0, 5.00, 5.00, 5.00, 5.00, 5.00, 5.00],
+                [0.5, -10.00, -10.00, -10.00, -10.00, -10.00, -10.00],
+                [1.0, 5.00, 5.00, 5.00, 5.00, 5.00, 5.00],
+            ]
+        )
+    }
+
+    length = [1.0, 2.3, 0.5]
+    loads = [0.5, 2.5, 25.0]
+
+    ll = list(zip(length, loads))
+
+    elements = [
+        Element.constant_load_element(
+            FX=lo, FY=lo, FZ=lo, MX=lo, MY=lo, MZ=lo, length=le
+        )
+        for le, lo in ll
+    ]
+
+    elements.insert(1, Element(loads=zero_length_load, length=0))
+
+    b = Beam(elements=elements)
+
+    actual = b.get_loads(load_case=0, position=1.0)
+
+    expected = np.array(
+        [
+            [1.00, 0.50, 0.50, 0.50, 0.50, 0.50, 0.50],
+            [1.00, 5.00, 5.00, 5.00, 5.00, 5.00, 5.00],
+            [1.00, -10.00, -10.00, -10.00, -10.00, -10.00, -10.00],
+            [1.00, 5.00, 5.00, 5.00, 5.00, 5.00, 5.00],
+            [1.00, 2.50, 2.50, 2.50, 2.50, 2.50, 2.50],
+        ]
+    )
+
+    assert np.allclose(actual, expected)
+
+
 def test_Beam_get_loads_min_positions():
     """
     Test for the Beam.get_loads method. Test the min_positions argument.
@@ -467,8 +514,6 @@ def test_Beam_get_loads_min_positions2():
     )
 
     assert np.allclose(actual, expected)
-
-    assert False
 
 
 def test_Beam_get_loads_min_positions3():
