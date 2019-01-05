@@ -472,7 +472,8 @@ class Beam:
             )
 
         if length == 0.0:
-            return 0.0
+            raise ElementLengthError('Local position on an element with zero length is'
+                                      + ' ambiguous')
         else:
             return (position - start) / length
 

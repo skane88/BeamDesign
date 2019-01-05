@@ -179,7 +179,6 @@ def test_Beam_in_element(position, expected):
     [
         (0.5, 0, 0.5),
         (1.0, 0, 1.0),
-        (1.0, 1, 0.0),
         (1.0, 2, 0.0),
         (1.5, 2, 0.5 / 2.3),
         (3.3, 2, 1.0),
@@ -202,11 +201,30 @@ def test_Beam_element_local(position, element, expected):
     assert actual == expected
 
 
+@mark.xfail(strict=True, raises=ElementLengthError)
+def test_Beam_element_local_error():
+    """
+    Test the ``Beam.element_local_position`` method.
+    """
+
+    length = [1.0, 0.0, 2.3, 0.5]
+
+    elements = [Element.empty_element(length=l) for l in length]
+
+    position = 1.0
+    element = 1
+
+    a = Beam(elements=elements)
+    actual = a.element_local_position(position=position, element=element)
+
+    assert True
+
+
 @mark.xfail(strict=True, raises=PositionNotInElementError)
 @mark.parametrize(
     "position, element", [(-0.5, 0), (0.5, 1), (1.1, 0), (1.1, 1), (3.9, 3)]
 )
-def test_Beam_element_local_error(position, element):
+def test_Beam_element_local_error2(position, element):
     """
     Test for expected errors in the ``Beam.element_local_position`` method.
     """
