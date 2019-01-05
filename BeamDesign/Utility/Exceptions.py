@@ -37,7 +37,8 @@ class ElementError(BeamError):
 
 class ElementLengthError(ElementError):
     """
-    Error thrown if the beam length is <0.
+    Error thrown if the beam length is <0, or when requesting local positions on a zero
+    length element.
     """
 
     pass

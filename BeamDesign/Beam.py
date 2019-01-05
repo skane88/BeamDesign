@@ -472,7 +472,9 @@ class Beam:
             )
 
         if length == 0.0:
-            return 0.0
+            raise ElementLengthError(
+                "Local position on an element with zero length is" + " ambiguous"
+            )
         else:
             return (position - start) / length
 
@@ -633,16 +635,24 @@ class Beam:
 
             real_pos = e[0]
             e_id = e[1]
-            local_pos = self.element_local_position(position=real_pos, element=e_id)
+
+            if elements[e_id].length > 0:
+                local_pos = self.element_local_position(position=real_pos, element=e_id)
+            else:
+                # handle the case of a zero length element. Determining the local
+                # position of a real world position on a zero length element is
+                # ambiguous - it can be anywhere along the element. Therefore need to
+                # return all load positions.
+                local_pos = elements[e_id].get_load_positions(load_case=load_case)
 
             val = elements[e_id].get_loads(
                 load_case=load_case, position=local_pos, component=component
             )
 
             # now we need to get the beam_position of the element and replace with the
-            # real position
+            # real position.
 
-            val[0, 0] = real_pos
+            val[..., 0] = real_pos
 
             if i == 0:
                 ret_val = val
