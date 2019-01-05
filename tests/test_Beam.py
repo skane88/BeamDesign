@@ -521,7 +521,43 @@ def test_Beam_get_loads_min_positions3():
     Test the beam.get_loads method when there is a discontinuity in the load mid-element
     """
 
-    assert False
+    load = 2.5
+    element_0 = Element.constant_load_element(
+        FX=load, FY=load, FZ=load, MX=load, MY=load, MZ=load, length=1.0
+    )
+
+    load_1 = [
+        [0.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0],
+        [0.5, -3.0, -3.0, -3.0, -3.0, -3.0, -3.0],
+        [0.5, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0],
+        [0.5, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0],
+        [1.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0],
+    ]
+    load_dict = {0: LoadCase(loads=load_1)}
+
+    element_1 = Element(loads=load_dict, length=1.0)
+
+    elements = [element_0, element_1]
+
+    beam = Beam(elements=elements)
+
+    actual = beam.get_loads(load_case=0, min_positions=4)
+
+    expected = np.array(
+        [
+            [0.0, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5],
+            [2 / 3, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5],
+            [1.0, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5],
+            [1.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0],
+            [4 / 3, -1 / 3, -1 / 3, -1 / 3, -1 / 3, -1 / 3, -1 / 3],
+            [1.5, -3.0, -3.0, -3.0, -3.0, -3.0, -3.0],
+            [1.5, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0],
+            [1.5, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0],
+            [2.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0],
+        ]
+    )
+
+    assert np.allclose(actual, expected)
 
 
 def test_Beam_get_loads_multiple_load_cases():
