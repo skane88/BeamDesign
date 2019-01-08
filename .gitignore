@@ -90,6 +90,9 @@ ENV/
 # Pycharm files / folders
 .idea/
 
+# VS Code files / folders
+.vscode
+
 # =========================
 # Operating System Files
 # =========================
