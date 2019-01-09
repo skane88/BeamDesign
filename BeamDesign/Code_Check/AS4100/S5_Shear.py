@@ -23,14 +23,7 @@ However conversion is simple in most cases because the formulas are written
 in consistent systems of units.
 """
 
-import math
 from typing import List, Union, Dict, Any
-
-from BeamDesign.Sections.HollowCircle import HollowCircle
-
-# shear capacity methods
-
-# region
 
 
 def s5_11_4_V_w_Generic(
