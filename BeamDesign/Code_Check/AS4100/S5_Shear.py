@@ -23,7 +23,7 @@ However conversion is simple in most cases because the formulas are written
 in consistent systems of units.
 """
 
-from typing import List, Union, Dict, Any
+from typing import List, Union, Dict
 
 
 def s5_11_4_V_w_Generic(
