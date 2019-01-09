@@ -6,7 +6,6 @@ from abc import ABC, abstractmethod
 
 
 class CodeCheck(ABC):
-
     @abstractmethod
     def tension_capacity(self) -> float:
         """
@@ -15,4 +14,4 @@ class CodeCheck(ABC):
         :return: the limiting tension capacity of the member being checked.
         """
 
-        pass
+        raise NotImplementedError()
