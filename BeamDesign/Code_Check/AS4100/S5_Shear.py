@@ -32,8 +32,10 @@ from BeamDesign.Sections.HollowCircle import HollowCircle
 
 # region
 
-def s5_11_4_V_w_Generic(*, A_w: float, f_y: float,
-                        shear_to_axial: float = 0.6) -> float:
+
+def s5_11_4_V_w_Generic(
+    *, A_w: float, f_y: float, shear_to_axial: float = 0.6
+) -> float:
     """
     Determines the shear yielding capacity of a flat web section to
     AS4100 S5.11.4.
@@ -57,14 +59,14 @@ def s5_11_4_V_w_Generic(*, A_w: float, f_y: float,
     :return: The web shear yield strength in N.
     """
 
-    #shear yield stress
-    f_y_v = shear_to_axial * f_y
+    f_y_v = shear_to_axial * f_y  # shear yield stress
 
     return f_y_v * A_w
 
-def s5_11_4_V_w_CHS(*, A_e: float, f_y: float,
-                    shear_to_axial: float = 0.6,
-                    CHS_shear_area: float = 0.6) -> float:
+
+def s5_11_4_V_w_CHS(
+    *, A_e: float, f_y: float, shear_to_axial: float = 0.6, CHS_shear_area: float = 0.6
+) -> float:
     """
     Determine the shear yielding capacity of a CHS section to AS4100 S5.11.4.
 
@@ -84,15 +86,20 @@ def s5_11_4_V_w_CHS(*, A_e: float, f_y: float,
     :return: The shear yield strength of the section in N.
     """
 
-    #Shear yield stress
+    # Shear yield stress
     f_y_v = shear_to_axial * f_y
 
     return CHS_shear_area * f_y_v * A_e
 
 
-def s5_11_5_α_v(*, d_p: float, t_w: float, f_y: float,
-                slenderness_limit: float = 82.0,
-                f_y_ref: float = 250e6) -> float:
+def s5_11_5_α_v(
+    *,
+    d_p: float,
+    t_w: float,
+    f_y: float,
+    slenderness_limit: float = 82.0,
+    f_y_ref: float = 250e6
+) -> float:
     """
     Determines the shear buckling coefficient α_v, which reduces the shear
     yielding load as per AS4100 section 5.11.5
@@ -113,12 +120,13 @@ def s5_11_5_α_v(*, d_p: float, t_w: float, f_y: float,
         final shear capacity is limited to the shear yield capacity.
     """
 
-    α_v = 0.0 #place holder for α_v
+    α_v = 0.0  # place holder for α_v
 
-    if d_p / t_w > ((slenderness_limit) / ((f_y / f_y_ref ) **0.5)):
-        α_v = ((slenderness_limit) / ((d_p / t_w ) *((f_y / f_y_ref ) **0.5)) ) **2
+    if d_p / t_w > ((slenderness_limit) / ((f_y / f_y_ref) ** 0.5)):
+        α_v = ((slenderness_limit) / ((d_p / t_w) * ((f_y / f_y_ref) ** 0.5))) ** 2
 
     return α_v
+
 
 def s5_11_3_Non_uniform_shear_factor(*, f_vm: float, f_va: float) -> float:
     """
@@ -137,8 +145,7 @@ def s5_11_3_Non_uniform_shear_factor(*, f_vm: float, f_va: float) -> float:
     return min(2 / (0.9 + (f_vm / f_va)), 1.0)
 
 
-def s5_11_4_V_w_Weld(*, v_w: Union[List[float], float], Q: float,
-                     I: float) -> float:
+def s5_11_4_V_w_Weld(*, v_w: Union[List[float], float], Q: float, I: float) -> float:
     """
     Calculates the capacity of section in shear according to AS4100 S5.11.4
     where the capacity is limited by a weld, as is the case with some welded
@@ -166,7 +173,7 @@ def s5_11_4_V_w_Weld(*, v_w: Union[List[float], float], Q: float,
     :return: Returns the shear capacity as limited by welds in N.
     """
 
-    #first convert v_w to a list if required so that it can be summed
+    # first convert v_w to a list if required so that it can be summed
 
     if type(v_w) == float:
         v_w = [v_w]
@@ -175,10 +182,16 @@ def s5_11_4_V_w_Weld(*, v_w: Union[List[float], float], Q: float,
 
     return v_w * I / Q
 
-def s5_11_4_V_w_Interface(*, t1: Union[List[float], float],
-                          t2: Union[List[float], float], f_y_min: float,
-                          Q: float, I: float,
-                          shear_to_axial: float = 0.6) -> Dict:
+
+def s5_11_4_V_w_Interface(
+    *,
+    t1: Union[List[float], float],
+    t2: Union[List[float], float],
+    f_y_min: float,
+    Q: float,
+    I: float,
+    shear_to_axial: float = 0.6
+) -> Dict:
     """
     Calculates the capacity of a section in shear based on local shear
     yielding of an interface such as the connection between a flange and a web.
@@ -226,17 +239,16 @@ def s5_11_4_V_w_Interface(*, t1: Union[List[float], float],
 
     if t1 < t2:
         t = t1
-        results = {'Intermediate': {'min_t': 0}}
+        results = {"Intermediate": {"min_t": 0}}
     else:
         t = t2
-        results = {'Intermediate': {'min_t': 1}}
+        results = {"Intermediate": {"min_t": 1}}
 
     f_y_v = f_y_min * shear_to_axial  # shear yield stress
 
     V_w = f_y_v * t * I / Q  # shear capacity of interface
 
-    #Add the shear capacity into the results.
-    results.update({'V_i': V_w})
+    # Add the shear capacity into the results.
+    results.update({"V_i": V_w})
 
     return results
-
