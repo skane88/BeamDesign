@@ -10,28 +10,45 @@ import pandas as pd
 import BeamDesign.Code_Check.AS4100.S5_Shear as S5_Shear
 
 
-def data_WB():
+def data_Is():
 
     df = pd.read_excel(
         r"Excel\AS4100_5_Shear Verification.xlsx",
-        sheet_name="Welded Beams",
+        sheet_name="Is",
         index_col=0,
-        usecols="B:AA",
+        usecols="B:AD",
     )
 
     return [(row.Index, row) for row in df.itertuples()]
 
 
-@pytest.mark.parametrize("name, data", data_WB())
+def data_PFCs():
+
+    df = pd.read_excel(
+        r"Excel\AS4100_5_Shear Verification.xlsx",
+        sheet_name="PFCs",
+        index_col=0,
+        usecols="B:AG",
+    )
+
+    return [(row.Index, row) for row in df.itertuples()]
+
+
+def data_Is_PFCs():
+
+    return data_Is() + data_PFCs()
+
+
+@pytest.mark.parametrize("name, data", data_Is_PFCs())
 def test_s5_11_4_V_w_Generic(name, data):
 
     Aw = data.Aw
     fy = data.fy
 
-    expected = data.φVyield
+    expected = data.Vyield
     actual = S5_Shear.s5_11_4_V_w_Generic(A_w=Aw, f_y=fy)
 
-    assert isclose(expected, actual)
+    assert isclose(expected, actual)  # use default tolerances (rel_tol of 1e-9)
 
 
 def test_s5_11_4_V_w_CHS():
