@@ -39,6 +39,18 @@ def data_Is_PFCs():
     return data_Is() + data_PFCs()
 
 
+def data_CHSs():
+
+    df = pd.read_excel(
+        r"Excel\AS4100_5_Shear Verification.xlsx",
+        sheet_name="CHSs",
+        index_col=0,
+        usecols="B:V",
+    )
+
+    return [(row.Index, row) for row in df.itertuples()]
+
+
 @pytest.mark.parametrize("name, data", data_Is_PFCs())
 def test_s5_11_4_V_w_Generic(name, data):
 
@@ -48,12 +60,19 @@ def test_s5_11_4_V_w_Generic(name, data):
     expected = data.Vyield
     actual = S5_Shear.s5_11_4_V_w_Generic(A_w=Aw, f_y=fy)
 
-    assert isclose(expected, actual)  # use default tolerances (rel_tol of 1e-9)
+    assert isclose(expected, actual)  # use default isclose tolerance (rel_tol of 1e-9)
 
 
-def test_s5_11_4_V_w_CHS():
+@pytest.mark.parametrize("name, data", data_CHSs())
+def test_s5_11_4_V_w_CHS(name, data):
 
-    assert False
+    Ae = data.Ag
+    fy = data.fy
+
+    expected = data.Vyield
+    actual = S5_Shear.s5_11_4_V_w_CHS(A_e=Ae, f_y=fy)
+
+    assert isclose(expected, actual)  # use default isclose tolerance (rel_tol of 1e-9)
 
 
 def test_s5_11_5_α_v():
