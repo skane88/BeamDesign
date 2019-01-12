@@ -16,7 +16,7 @@ def data_Is():
         r"Excel\AS4100_5_Shear Verification.xlsx",
         sheet_name="Is",
         index_col=0,
-        usecols="B:AF",
+        usecols="B:AL",
     )
 
     return [(row.Index, row) for row in df.itertuples()]
@@ -42,6 +42,20 @@ def data_CHSs():
         index_col=0,
         usecols="B:V",
     )
+
+    return [(row.Index, row) for row in df.itertuples()]
+
+
+def data_Welds():
+
+    df = pd.read_excel(
+        r"Excel\AS4100_5_Shear Verification.xlsx",
+        sheet_name="Is",
+        index_col=0,
+        usecols="B:AL",
+    )
+
+    df = df.drop(df[df["Fabrication Type"] != "Welded"].index)
 
     return [(row.Index, row) for row in df.itertuples()]
 
@@ -109,8 +123,17 @@ def test_s5_11_3_α_vma(name, data):
     assert isclose(expected, actual)  # use default isclose tolerance (rel_tol of 1e-9)
 
 
-def test_s5_11_4_V_w_Weld():
-    assert False
+@pytest.mark.parametrize("name, data", data_Welds())
+def test_s5_11_4_V_w_Weld(name, data):
+
+    v_w = data.vw
+    Q = data.Qflange
+    Ix = data.Ix
+
+    expected = data.Vweld
+    actual = S5_Shear.s5_11_4_V_w_Weld(v_w=v_w, Q=Q, I=Ix)
+
+    assert isclose(expected, actual)  # use default isclose tolerance (rel_tol of 1e-9)
 
 
 def test_s5_11_4_V_w_Interface():

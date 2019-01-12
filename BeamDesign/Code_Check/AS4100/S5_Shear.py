@@ -156,7 +156,7 @@ def s5_11_4_V_w_Weld(*, v_w: Union[List[float], float], Q: float, I: float) -> f
     This is only intended to apply to regular sections (fabricated channel,
     I and box sections) where the webs share the shear stress equally. For
     irregular sections where the webs may share the shear stress in an
-    un-equal manner this equation will not apply and further analysis will be
+    un-equal manner this equation may not (directly) apply and further analysis will be
     required.
 
     NOTE: where welds are critical, the value of φ used with the results from
