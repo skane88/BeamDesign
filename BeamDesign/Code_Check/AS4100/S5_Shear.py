@@ -23,7 +23,7 @@ However conversion is simple in most cases because the formulas are written
 in consistent systems of units.
 """
 
-from typing import List, Union, Dict
+from typing import List, Union, Dict, Tuple
 
 
 def s5_11_4_V_w_Generic(
@@ -187,25 +187,18 @@ def s5_11_4_V_w_Weld(*, v_w: Union[List[float], float], Q: float, I: float) -> f
 
 def s5_11_4_V_w_Interface(
     *,
-    t1: Union[List[float], float],
-    t2: Union[List[float], float],
-    f_y_min: float,
+    t_interface: float,
+    f_y_interface: float,
     Q: float,
     I: float,
     shear_to_axial: float = 0.6
-) -> Dict:
+) -> float:
     """
     Calculates the capacity of a section in shear based on local shear
     yielding of an interface such as the connection between a flange and a web.
 
-    :param t2: A list or float of all the thicknesses of components on one side
-        of the interface, with thicknesses in m.
-    :param t2: A list or float of all the thicknesses of components on the other
-        side of the interface, with thicknesses in m.
-    :param f_y_min: The minimum yield strength of the connected parts in Pa.
-        The minimum value is used because in most realistic structures there
-        is little benefit gained in ultimate capacity from different yield
-        strengths, as effects such as buckling tend to be more important.
+    :param t_interface: the thickness of the interface, in m.
+    :param f_y_interface: The yield strength of the interface in Pa.
     :param Q: The first moment of area of the connected component relative
         to the centroid of the section as a whole, in m³.
     :param I: The moment of area / inertia of the section as a whole, in m⁴.
@@ -214,43 +207,11 @@ def s5_11_4_V_w_Interface(
         an approximation of the the value 1 / √3 ≈ 0.577 ≈ 0.6.
     :return: Returns the shear capacity as limited by interface shear of the
         connected components, in N.
-        Results are returned as a dictionary for future use in a calculation
-        report:
-
-        {
-            'V_w_interface': Strength (N),
-            'Intermediate':
-                {
-                'min_t': 0 or 1
-                }
-        }
-
-        The value of min_t is either 0 (if t1 is critical) or 1
-        (if t2 is critical)
     """
 
-    # if t1 or t2 are not lists make them into lists, so the sum function below
-    # will work.
-    if type(t1) == float:
-        t1 = [t1]
-    if type(t2) == float:
-        t2 = [t2]
+    f_y_v = f_y_interface * shear_to_axial  # shear yield stress
 
-    t1 = sum(t1)
-    t2 = sum(t2)
-
-    if t1 < t2:
-        t = t1
-        results = {"Intermediate": {"min_t": 0}}
-    else:
-        t = t2
-        results = {"Intermediate": {"min_t": 1}}
-
-    f_y_v = f_y_min * shear_to_axial  # shear yield stress
-
-    V_w = f_y_v * t * I / Q  # shear capacity of interface
+    V_i = f_y_v * t_interface * I / Q  # shear capacity of interface
 
     # Add the shear capacity into the results.
-    results.update({"V_i": V_w})
-
-    return results
+    return V_i
