@@ -115,8 +115,12 @@ def s5_11_5_α_v(
 
     α_v = 0.0  # place holder for α_v
 
-    if d_p / t_w > ((slenderness_limit) / ((f_y / f_y_ref) ** 0.5)):
-        α_v = ((slenderness_limit) / ((d_p / t_w) * ((f_y / f_y_ref) ** 0.5))) ** 2
+    limiting_slenderness = (slenderness_limit) / ((f_y / f_y_ref) ** 0.5)
+
+    if d_p / t_w > limiting_slenderness:
+        α_v = (limiting_slenderness / (d_p / t_w)) ** 2
+    else:
+        α_v = 1.0
 
     return α_v
 

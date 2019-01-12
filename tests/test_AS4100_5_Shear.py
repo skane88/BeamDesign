@@ -16,7 +16,7 @@ def data_Is():
         r"Excel\AS4100_5_Shear Verification.xlsx",
         sheet_name="Is",
         index_col=0,
-        usecols="B:AD",
+        usecols="B:AF",
     )
 
     return [(row.Index, row) for row in df.itertuples()]
@@ -28,7 +28,7 @@ def data_PFCs():
         r"Excel\AS4100_5_Shear Verification.xlsx",
         sheet_name="PFCs",
         index_col=0,
-        usecols="B:AG",
+        usecols="B:AI",
     )
 
     return [(row.Index, row) for row in df.itertuples()]
@@ -70,9 +70,17 @@ def test_s5_11_4_V_w_CHS(name, data):
     assert isclose(expected, actual)  # use default isclose tolerance (rel_tol of 1e-9)
 
 
-def test_s5_11_5_α_v():
+@pytest.mark.parametrize("name, data", data_Is() + data_PFCs())
+def test_s5_11_5_α_v(name, data):
 
-    assert False
+    d_p = data.d1
+    t_w = data.tw
+    f_y = data.fy
+
+    expected = data.αv
+    actual = S5_Shear.s5_11_5_α_v(d_p=d_p, t_w=t_w, f_y=f_y)
+
+    assert isclose(expected, actual)  # use default isclose tolerance (rel_tol of 1e-9)
 
 
 def test_s5_11_3_Non_uniform_shear_factor():
