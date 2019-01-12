@@ -34,11 +34,6 @@ def data_PFCs():
     return [(row.Index, row) for row in df.itertuples()]
 
 
-def data_Is_PFCs():
-
-    return data_Is() + data_PFCs()
-
-
 def data_CHSs():
 
     df = pd.read_excel(
@@ -51,7 +46,7 @@ def data_CHSs():
     return [(row.Index, row) for row in df.itertuples()]
 
 
-@pytest.mark.parametrize("name, data", data_Is_PFCs())
+@pytest.mark.parametrize("name, data", data_Is() + data_PFCs())
 def test_s5_11_4_V_w_Generic(name, data):
 
     Aw = data.Aw
