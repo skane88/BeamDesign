@@ -125,11 +125,16 @@ def s5_11_5_α_v(
     return α_v
 
 
-def s5_11_3_Non_uniform_shear_factor(*, f_vm: float, f_va: float) -> float:
+def s5_11_3_α_vma(*, f_vm: float, f_va: float) -> float:
     """
     Determines the non-uniform shear modification factor as per
     AS4100 S5.11.3. This applies for sections such as PFCs, Mono-symmetric
     I sections, angle sections etc.
+
+    Note that AS4100 does not provide this factor a variable name but includes it in
+    the equation - for a simpler formula name α_vma has been used here, based on the
+    general use of α as a variable in AS4100, v for shear, and m & a in the max &
+    average stress input for this equation.
 
     :param f_vm: The maximum shear stress in the section from an elastic
         analysis. In Pa.

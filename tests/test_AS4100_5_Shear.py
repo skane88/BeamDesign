@@ -46,6 +46,20 @@ def data_CHSs():
     return [(row.Index, row) for row in df.itertuples()]
 
 
+def data_α_vma():
+
+    df = pd.read_excel(
+        r"Excel\AS4100_5_Shear Verification.xlsx",
+        sheet_name="Non-Uniform Shear Factor",
+        index_col=0,
+        usecols="B:E",
+    )
+
+    return [(row.Index, row) for row in df.itertuples()]
+
+    return False
+
+
 @pytest.mark.parametrize("name, data", data_Is() + data_PFCs())
 def test_s5_11_4_V_w_Generic(name, data):
 
@@ -83,9 +97,16 @@ def test_s5_11_5_α_v(name, data):
     assert isclose(expected, actual)  # use default isclose tolerance (rel_tol of 1e-9)
 
 
-def test_s5_11_3_Non_uniform_shear_factor():
+@pytest.mark.parametrize("name, data", data_α_vma())
+def test_s5_11_3_α_vma(name, data):
 
-    assert False
+    f_vm = data.fvm
+    f_va = data.fva
+
+    expected = data.αvma
+    actual = S5_Shear.s5_11_3_α_vma(f_vm=f_vm, f_va=f_va)
+
+    assert isclose(expected, actual)  # use default isclose tolerance (rel_tol of 1e-9)
 
 
 def test_s5_11_4_V_w_Weld():
