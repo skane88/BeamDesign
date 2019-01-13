@@ -16,7 +16,7 @@ def data_Is():
         r"Excel\AS4100_5_Shear Verification.xlsx",
         sheet_name="Is",
         index_col=0,
-        usecols="B:AL",
+        usecols="B:AM",
     )
 
     return [(row.Index, row) for row in df.itertuples()]
@@ -28,7 +28,7 @@ def data_PFCs():
         r"Excel\AS4100_5_Shear Verification.xlsx",
         sheet_name="PFCs",
         index_col=0,
-        usecols="B:AI",
+        usecols="B:AN",
     )
 
     return [(row.Index, row) for row in df.itertuples()]
@@ -71,14 +71,24 @@ def data_α_vma():
 
     return [(row.Index, row) for row in df.itertuples()]
 
-    return False
+
+def data_Boxes():
+
+    df = pd.read_excel(
+        r"Excel\AS4100_5_Shear Verification.xlsx",
+        sheet_name="CustomBoxes",
+        index_col=0,
+        usecols="B:Z",
+    )
+
+    return [(row.Index, row) for row in df.itertuples()]
 
 
-@pytest.mark.parametrize("name, data", data_Is() + data_PFCs())
+@pytest.mark.parametrize("name, data", data_Is() + data_PFCs() + data_Boxes())
 def test_s5_11_4_V_w_Generic(name, data):
 
     Aw = data.Aw
-    fy = data.fy
+    fy = data.fy_web
 
     expected = data.Vyield
     actual = S5_Shear.s5_11_4_V_w_Generic(A_w=Aw, f_y=fy)
@@ -98,12 +108,12 @@ def test_s5_11_4_V_w_CHS(name, data):
     assert isclose(expected, actual)  # use default isclose tolerance (rel_tol of 1e-9)
 
 
-@pytest.mark.parametrize("name, data", data_Is() + data_PFCs())
+@pytest.mark.parametrize("name, data", data_Is() + data_PFCs() + data_Boxes())
 def test_s5_11_5_α_v(name, data):
 
     d_p = data.d1
     t_w = data.tw
-    f_y = data.fy
+    f_y = data.fy_web
 
     expected = data.αv
     actual = S5_Shear.s5_11_5_α_v(d_p=d_p, t_w=t_w, f_y=f_y)
@@ -136,6 +146,32 @@ def test_s5_11_4_V_w_Weld(name, data):
     assert isclose(expected, actual)  # use default isclose tolerance (rel_tol of 1e-9)
 
 
-def test_s5_11_4_V_w_Interface():
+@pytest.mark.parametrize("name, data", data_Is() + data_PFCs())
+def test_s5_11_4_V_w_Interface(name, data):
 
-    assert False
+    tw = data.tw  # web side of interface
+    fy = min(data.fy_web, data.fy_flange)
+    Q = data.Qflange
+    Ix = data.Ix
+
+    expected = data.Vinterface
+    actual = S5_Shear.s5_11_4_V_w_Interface(t_interface=tw, f_y_interface=fy, Q=Q, I=Ix)
+
+    assert isclose(expected, actual)  # use default isclose tolerance
+
+
+@pytest.mark.parametrize("name, data", data_Boxes())
+def test_s5_11_4_V_w_Interface_2(name, data):
+
+    tw = data.tw * 2
+
+    fy = min(data.fy_flange, data.fy_web)
+
+    Q = data.Qflange
+    Ix = data.Ix
+
+    expected = data.Vinterface
+
+    actual = S5_Shear.s5_11_4_V_w_Interface(t_interface=tw, f_y_interface=fy, Q=Q, I=Ix)
+
+    assert isclose(expected, actual)  # use default isclose tolerance
