@@ -33,7 +33,7 @@ class CodeCheck(ABC):
         raise NotImplementedError()
 
     @abstractmethod
-    def section(self, position: float=None):
+    def section(self, position: float = None):
 
         if self.beam is None:
             return self.section
