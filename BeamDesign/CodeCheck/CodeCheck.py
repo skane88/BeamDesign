@@ -8,7 +8,7 @@ from BeamDesign.Beam import Beam
 
 
 class CodeCheck(ABC):
-    def __init__(self, beam: Beam = None, section=None):
+    def __init__(self, *, beam: Beam = None, section=None):
 
         self._beam = beam
         self._section = section

@@ -7,7 +7,7 @@ from BeamDesign.CodeCheck.CodeCheck import CodeCheck
 
 
 class AS4100(CodeCheck):
-    def __init__(self, beam: Beam = None, section=None):
+    def __init__(self, *, beam: Beam = None, section=None, **kwargs):
 
         super().__init__(beam=beam, section=section)
 
