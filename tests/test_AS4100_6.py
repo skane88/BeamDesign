@@ -1,5 +1,5 @@
 import unittest
-import BeamDesign.Code_Check.AS4100.S6 as S6
+import BeamDesign.CodeCheck.AS4100.S6 as S6
 from BeamDesign.Utility.Symmetry import Symmetry
 
 

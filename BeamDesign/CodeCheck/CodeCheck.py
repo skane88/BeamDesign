@@ -8,7 +8,7 @@ from BeamDesign.Beam import Beam
 
 
 class CodeCheck(ABC):
-    def __init__(self, beam: Beam, section):
+    def __init__(self, beam: Beam = None, section=None):
 
         self._beam = beam
         self._section = section
@@ -33,7 +33,7 @@ class CodeCheck(ABC):
         raise NotImplementedError()
 
     @abstractmethod
-    def section(self, position: float = None):
+    def get_section(self, position: float = None):
 
         if self.beam is None:
             return self.section

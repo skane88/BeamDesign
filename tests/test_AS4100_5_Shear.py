@@ -7,7 +7,7 @@ from math import isclose
 import pytest
 import pandas as pd
 
-import BeamDesign.Code_Check.AS4100.S5_Shear as S5_Shear
+import BeamDesign.CodeCheck.AS4100.S5_Shear as S5_Shear
 
 
 def data_Is():
