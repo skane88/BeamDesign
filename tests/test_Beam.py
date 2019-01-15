@@ -611,6 +611,7 @@ def test_Beam_get_loads_error(position, min_positions):
 
     assert True
 
+
 def test_Beam_get_section_none():
     """
     Test the beam get_section method.
@@ -624,9 +625,26 @@ def test_Beam_get_section_none():
     assert b.get_section() == [None]
     assert b.get_section(position=0.5) == [None]
 
+
 def test_Beam_get_section():
     """
     Test the beam get_section method with actual sections.
     """
 
     assert False  # no sections defined for use yet.
+
+
+def test_Beam_get_section_on_element_boundary():
+    """
+    Test the beam get_section method on the boundary of elements
+    """
+
+    assert False
+
+
+def test_Beam_get_section_on_zero_length_element():
+    """
+    Test the beam get_section at a zero length element.
+    """
+
+    assert False

@@ -667,9 +667,15 @@ class Beam:
 
     def get_section(self, position: float = None):
         """
+        Returns the section from the elements that make up the ``Beam`` object. If
+        position is not provided, the return is a list of all the sections from every
+        element. If position is provided, only the element/s at the provided position
+        are returned.
 
-        :param position:
-        :return:
+        :param position: The position at which to get the section type. If ``None`` all
+            sections are returned.
+        :return: Returns a list of section properties:
+            [section_element_1, section_element_2, ..., section_element_n]
         """
 
         # first check if position is None, if so we can simply return a list of all
