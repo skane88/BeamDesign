@@ -144,6 +144,23 @@ def test_Beam_get_element_start_end():
         assert actual == expected[i]
 
 
+def test_Beam_get_element_start_end_zero_length():
+    """
+    Test the get_element_start_end method with a 0 length element.
+    """
+
+    length = [0.0]
+    expected = [0.0, 0.0]
+
+    elements = [Element.empty_element(length=l) for l in length]
+
+    b = Beam(elements=elements)
+
+    actual = b.get_element_start_end(element=0)
+
+    assert actual == expected
+
+
 @mark.parametrize(
     "position, expected",
     [
@@ -647,4 +664,22 @@ def test_Beam_get_section_on_zero_length_element():
     Test the beam get_section at a zero length element.
     """
 
-    assert False
+    # create an element with no specified section
+    e = Element.empty_element(length=0.0, section=None)
+
+    b = Beam(elements=e)
+
+    assert b.get_section() == [None]
+    assert b.get_section(position=0.0) == [None]
+
+
+def test_Beam_get_section_on_empty_element():
+    """
+    Test written after a bug discovered while trying to test the AS4100 class.
+    """
+
+    b = Beam.empty_beam()
+
+    assert b.get_section() == [None]  # passes as expected
+
+    assert b.get_section(position=0.0) == [None]  # test originally failed.

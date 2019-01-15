@@ -181,7 +181,7 @@ class Element:
         return self.loads[load_case].load_positions
 
     @classmethod
-    def empty_element(cls, length: float = None, section=None, material=None):
+    def empty_element(cls, length: float = 0.0, section=None, material=None):
         """
         A constructor for an empty ``Element`` with an empty  ``LoadCase`` object at
         load case 0.

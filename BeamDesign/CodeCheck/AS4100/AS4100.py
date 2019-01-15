@@ -17,4 +17,4 @@ class AS4100(CodeCheck):
 
     def get_section(self, position: float = None):
 
-        raise NotImplementedError
+        return super().get_section(position=position)

@@ -38,4 +38,4 @@ class CodeCheck(ABC):
         if self.beam is None:
             return self.section
         else:
-            raise self.beam.get_section(position=position)
+            return self.beam.get_section(position=position)
