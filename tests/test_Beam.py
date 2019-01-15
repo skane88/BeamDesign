@@ -610,3 +610,23 @@ def test_Beam_get_loads_error(position, min_positions):
     actual = b.get_loads(load_case=0, position=position, min_positions=min_positions)
 
     assert True
+
+def test_Beam_get_section_none():
+    """
+    Test the beam get_section method.
+    """
+
+    # create an element with no specified section
+    e = Element.empty_element(length=1.0, section=None)
+
+    b = Beam(elements=e)
+
+    assert b.get_section() == [None]
+    assert b.get_section(position=0.5) == [None]
+
+def test_Beam_get_section():
+    """
+    Test the beam get_section method with actual sections.
+    """
+
+    assert False  # no sections defined for use yet.

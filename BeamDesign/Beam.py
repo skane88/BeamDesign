@@ -181,21 +181,23 @@ class Element:
         return self.loads[load_case].load_positions
 
     @classmethod
-    def empty_element(cls, length: float = None):
+    def empty_element(cls, length: float = None, section=None, material=None):
         """
-        A constructor for an empty ``Element`` with no properties except an empty
-        ``LoadCase`` object at load case 0.
+        A constructor for an empty ``Element`` with an empty  ``LoadCase`` object at
+        load case 0.
 
         This is a helper method for easily instantiating ``Elements`` for testing etc.
 
         :param length: An optional length for the empty ``Element``.
+        :param section: The section type of the element.
+        :param material: The material of the element.
         :return: An ``Element`` object.
         """
 
         loads = LoadCase()
         loads = {0: loads}
 
-        return cls(loads=loads, length=length)
+        return cls(loads=loads, length=length, section=section, material=material)
 
     @classmethod
     def constant_load_element(
@@ -662,6 +664,30 @@ class Beam:
                 ret_val = np.vstack((ret_val, val))
 
         return ret_val
+
+    def get_section(self, position: float = None):
+        """
+
+        :param position:
+        :return:
+        """
+
+        # first check if position is None, if so we can simply return a list of all
+        # sections
+
+        if position is None:
+            return [e.section for e in self.elements]
+
+        # else we now have to get the element at a specified position
+
+        in_elements = self.in_elements(position=position)
+
+        ret_list = []
+
+        for i in in_elements:
+            ret_list += [self.elements[i].section]
+
+        return ret_list
 
     @classmethod
     def empty_beam(cls) -> "Beam":
