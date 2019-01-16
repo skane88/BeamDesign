@@ -3307,7 +3307,7 @@ class Test_S7_Test(unittest.TestCase):
                     f_u=fui,
                     k_t=kti,
                     φ=φi,
-                    ultimate_uncertainty=UUi,
+                    α_u=UUi,
                 )
 
                 self.assertAlmostEqual(
@@ -4352,7 +4352,7 @@ class Test_S7_Test(unittest.TestCase):
 
             with self.subTest(f"{i} Area Req'd"):
                 results = S7.s7_1_A_reqd(
-                    N_t=Fi, f_y=fyi, f_u=fui, k_t=kti, φ=φi, ultimate_uncertainty=UUi
+                    N_t=Fi, f_y=fyi, f_u=fui, k_t=kti, φ=φi, α_u=UUi
                 )
 
                 self.assertAlmostEqual(

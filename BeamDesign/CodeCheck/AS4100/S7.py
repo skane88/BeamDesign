@@ -140,7 +140,7 @@ def s7_5_c_A_perp(*, A_reqd: float, safety_factor: float = 1.33) -> float:
 
 def s7_1_A_reqd(*, N_t: float, f_y: float, f_u: float,
                 k_t: float, φ: float = 0.9,
-                ultimate_uncertainty: float = 0.85) -> Dict[str, float]:
+                α_u: float = 0.85) -> Dict[str, float]:
     '''
     Calculates the area required for a member to AS4100 section 7.1
     
@@ -150,7 +150,7 @@ def s7_1_A_reqd(*, N_t: float, f_y: float, f_u: float,
     :param k_t: The connection efficiency factor / eccentric connection factor
         as per AS4100.
     :param φ: The capacity reduction factor, by default 0.9.
-    :param ultimate_uncertainty: A factor for the uncertainty in ultimate
+    :param α_u: A factor for the uncertainty in ultimate
         strength as per AS4100 S7.2. By default 0.85.
     :return: Returns the area required to carry the applied load without yield
         or fracture as per A4100, in m².
@@ -177,7 +177,7 @@ def s7_1_A_reqd(*, N_t: float, f_y: float, f_u: float,
 
     results = {'A_g': s7_2_Ag(N_t=N_t, f_y=f_y),
                'A_n': s7_2_An(N_t=N_t, f_u=f_u, k_t=k_t,
-                              ultimate_uncertainty=ultimate_uncertainty)}
+                              ultimate_uncertainty=α_u)}
 
     results['A'] = max(results.values())
 
@@ -190,7 +190,7 @@ def s7_1_A_reqd(*, N_t: float, f_y: float, f_u: float,
 
 def s7_1_N_t(*, A_g: float, A_n: float, f_y: float, f_u: float,
              k_t: float, φ: float = 0.9,
-             ultimate_uncertainty: float = 0.85) -> Dict[str, float]:
+             α_u: float = 0.85) -> Dict[str, float]:
     """
     Calculates the tension capacity of a section according to AS4100 S7.1.
 
@@ -207,7 +207,7 @@ def s7_1_N_t(*, A_g: float, A_n: float, f_y: float, f_u: float,
     :param k_t: The connection efficiency factor / eccentric connection factor
         as per AS4100.
     :param φ: The capacity reduction factor, by default 0.9.
-    :param ultimate_uncertainty: A factor for the uncertainty in ultimate
+    :param α_u: A factor for the uncertainty in ultimate
         strength as per AS4100 S7.2. By default 0.85.
     :return: Returns the tensile strength of the section as per AS4100 S7.1,
         in N.
@@ -234,7 +234,7 @@ def s7_1_N_t(*, A_g: float, A_n: float, f_y: float, f_u: float,
 
     results = {'N_ty': s7_2_N_t_yield(A_g=A_g, f_y=f_y),
                'N_tu': s7_2_N_t_ultimate(A_n=A_n, f_u=f_u, k_t=k_t,
-                                         ultimate_uncertainty=ultimate_uncertainty)}
+                                         ultimate_uncertainty=α_u)}
     results['N'] = min(results.values())
 
     results['φN_ty'] = results['N_ty'] * φ
