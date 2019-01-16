@@ -2,8 +2,11 @@
 Tests for the AS4100 class
 """
 
-from BeamDesign.CodeCheck.AS4100.AS4100 import AS4100
+from math import isclose
+
+from BeamDesign.CodeCheck.AS4100.AS4100 import *
 from BeamDesign.Beam import Beam, Element
+from BeamDesign.Sections.Circle import Circle
 
 
 def test_AS4100():
@@ -41,3 +44,17 @@ def test_AS4100_get_section():
     """
 
     assert False
+
+def test_AS4100_tension_check():
+
+    s = Circle(radius=0.02).area
+
+    fy = 250e6  # yield strength
+    fu = 410e6  # ultimate strength
+    kt = 1.0  # end connection factor
+
+    expected = 314159.3  # approximate expected capacity, probably has more decimals...
+
+    actual = AS4100.S7_tension(Ag=s.area, An=s.area, fy=fy, fu=fu, kt=kt)
+
+    assert isclose(actual, expected)

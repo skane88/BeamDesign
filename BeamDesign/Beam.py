@@ -6,7 +6,7 @@ such as:
 
 * Length
 * Cross section
-* Material Properties
+* Material.py Properties
 * Internal loads (i.e. bending moments etc.).
 
 At this point in time it is NOT intended to include descriptions of applied loads (i.e.
