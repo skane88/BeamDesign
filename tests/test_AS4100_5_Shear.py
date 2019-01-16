@@ -13,7 +13,7 @@ import BeamDesign.CodeCheck.AS4100.S5_Shear as S5_Shear
 def data_Is():
 
     df = pd.read_excel(
-        r"Excel\AS4100_5_Shear Verification.xlsx",
+        r"Excel\AS4100 Verification.xlsx",
         sheet_name="Is",
         index_col=0,
         usecols="B:AM",
@@ -25,7 +25,7 @@ def data_Is():
 def data_PFCs():
 
     df = pd.read_excel(
-        r"Excel\AS4100_5_Shear Verification.xlsx",
+        r"Excel\AS4100 Verification.xlsx",
         sheet_name="PFCs",
         index_col=0,
         usecols="B:AN",
@@ -37,7 +37,7 @@ def data_PFCs():
 def data_CHSs():
 
     df = pd.read_excel(
-        r"Excel\AS4100_5_Shear Verification.xlsx",
+        r"Excel\AS4100 Verification.xlsx",
         sheet_name="CHSs",
         index_col=0,
         usecols="B:V",
@@ -49,7 +49,7 @@ def data_CHSs():
 def data_Welds():
 
     df = pd.read_excel(
-        r"Excel\AS4100_5_Shear Verification.xlsx",
+        r"Excel\AS4100 Verification.xlsx",
         sheet_name="Is",
         index_col=0,
         usecols="B:AL",
@@ -63,7 +63,7 @@ def data_Welds():
 def data_α_vma():
 
     df = pd.read_excel(
-        r"Excel\AS4100_5_Shear Verification.xlsx",
+        r"Excel\AS4100 Verification.xlsx",
         sheet_name="Non-Uniform Shear Factor",
         index_col=0,
         usecols="B:E",
@@ -75,7 +75,7 @@ def data_α_vma():
 def data_Boxes():
 
     df = pd.read_excel(
-        r"Excel\AS4100_5_Shear Verification.xlsx",
+        r"Excel\AS4100 Verification.xlsx",
         sheet_name="CustomBoxes",
         index_col=0,
         usecols="B:Z",
