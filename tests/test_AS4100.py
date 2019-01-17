@@ -71,21 +71,21 @@ def test_AS4100_s7_Nt(name, data):
 
     fy = data.fy
     fu = data.fu
-    kt = data.kt  # end connection factor
+    kt = data.kt
 
     αu = data.αu
 
-    expected = data.Nty  # approximate expected capacity, probably has more decimals...
+    expected = data.Nty
     actual = AS4100.s7_2_Nty(Ag=Ag, fy=fy)
 
     assert isclose(actual, expected)
 
-    expected = data.Ntu  # approximate expected capacity, probably has more decimals...
+    expected = data.Ntu
     actual = AS4100.s7_2_Ntu(An=An, fu=fu, kt=kt, αu=αu)
 
     assert isclose(actual, expected)
 
-    expected = data.Nt  # approximate expected capacity, probably has more decimals...
+    expected = data.Nt
     actual = AS4100.s7_1_Nt(Ag=Ag, An=An, fy=fy, fu=fu, kt=kt, αu=αu)
 
     assert isclose(actual, expected)
