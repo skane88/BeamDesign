@@ -696,15 +696,16 @@ class Beam:
         return ret_list
 
     @classmethod
-    def empty_beam(cls) -> "Beam":
+    def empty_beam(cls, length: float = 0) -> "Beam":
         """
         Helper constructor to build an empty Beam object with an empty element object,
         primarly for testing purposes.
 
+        :param length: An optional length for the empty ``Beam``.
         :return: Returns a ``Beam`` object.
         """
 
-        element = Element.empty_element()
+        element = Element.empty_element(length=length)
 
         return cls(elements=element)
 

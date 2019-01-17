@@ -41,12 +41,22 @@ def test_AS4100_get_section():
     assert actual == expected
 
 
-def test_AS4100_get_section():
+def test_AS4100_get_section2():
     """
     Test the get_section method on a beam with actual length.
     """
 
-    assert False
+    s1 = Circle(radius=0.02)
+    s2 = Circle(radius=0.04)
+
+    e1 = Element.empty_element(length=0.5, section=s1)
+    e2 = Element.empty_element(length=0.5, section=s2)
+
+    b = Beam(elements=[e1, e2])
+
+    assert b.get_section(position=0.25) == [s1]
+    assert b.get_section(position=0.75) == [s2]
+    assert b.get_section() == [s1, s2]
 
 @mark.parametrize("name, data", data_AllSections)
 def test_AS4100_tension_check(name, data):
