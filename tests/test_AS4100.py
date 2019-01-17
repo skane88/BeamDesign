@@ -61,7 +61,10 @@ def test_AS4100_get_section2():
 
 
 @mark.parametrize("name, data", data_AllSections)
-def test_AS4100_tension_check(name, data):
+def test_AS4100_s7_Nt(name, data):
+    """
+    Test the AS4100 s7_Nty, Ntu and Nt methods.
+    """
 
     Ag = data.Ag
     An = data.An
