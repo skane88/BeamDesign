@@ -653,7 +653,7 @@ def test_Beam_get_section():
 
 def test_Beam_get_section_on_element_boundary():
     """
-    Test the beam get_section method on the boundary of elements
+    Test the beam get_section method with a postion on the boundary of elements
     """
 
     assert False

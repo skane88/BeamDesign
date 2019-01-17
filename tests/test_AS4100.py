@@ -12,6 +12,7 @@ from BeamDesign.Sections.Circle import Circle
 
 from tests.test_utils import *
 
+
 def test_AS4100():
     """
     Test whether an AS4100 object can even be instantiated
@@ -58,6 +59,7 @@ def test_AS4100_get_section2():
     assert b.get_section(position=0.75) == [s2]
     assert b.get_section() == [s1, s2]
 
+
 @mark.parametrize("name, data", data_AllSections)
 def test_AS4100_tension_check(name, data):
 
@@ -84,4 +86,3 @@ def test_AS4100_tension_check(name, data):
     actual = AS4100.s7_1_Nt(Ag=Ag, An=An, fy=fy, fu=fu, kt=kt, αu=αu)
 
     assert isclose(actual, expected)
-
