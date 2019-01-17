@@ -4,10 +4,13 @@ Tests for the AS4100 class
 
 from math import isclose
 
+from pytest import mark
+
 from BeamDesign.CodeCheck.AS4100.AS4100 import *
 from BeamDesign.Beam import Beam, Element
 from BeamDesign.Sections.Circle import Circle
 
+from tests.test_utils import *
 
 def test_AS4100():
     """
@@ -45,16 +48,30 @@ def test_AS4100_get_section():
 
     assert False
 
-def test_AS4100_tension_check():
+@mark.parametrize("name, data", data_AllSections)
+def test_AS4100_tension_check(name, data):
 
-    s = Circle(radius=0.02).area
+    Ag = data.Ag
+    An = data.An
 
-    fy = 250e6  # yield strength
-    fu = 410e6  # ultimate strength
-    kt = 1.0  # end connection factor
+    fy = data.fy
+    fu = data.fu
+    kt = data.kt  # end connection factor
 
-    expected = 314159.3  # approximate expected capacity, probably has more decimals...
+    αu = data.αu
 
-    actual = AS4100.S7_tension(Ag=s.area, An=s.area, fy=fy, fu=fu, kt=kt)
+    expected = data.Nty  # approximate expected capacity, probably has more decimals...
+    actual = AS4100.s7_2_Nty(Ag=Ag, fy=fy)
 
     assert isclose(actual, expected)
+
+    expected = data.Ntu  # approximate expected capacity, probably has more decimals...
+    actual = AS4100.s7_2_Ntu(An=An, fu=fu, kt=kt, αu=αu)
+
+    assert isclose(actual, expected)
+
+    expected = data.Nt  # approximate expected capacity, probably has more decimals...
+    actual = AS4100.s7_1_Nt(Ag=Ag, An=An, fy=fy, fu=fu, kt=kt, αu=αu)
+
+    assert isclose(actual, expected)
+
