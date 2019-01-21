@@ -13,21 +13,22 @@ class Circle(Section):
     section properties of a circular section.
     """
 
-    def __init__(self, x=0.0, y=0.0, radius=0.0):
+    def __init__(self, radius=0.0):
         """
         Initialise the Circle object.
 
-        :param x: the x co-ordinate of the centre of the shape.
-        :param y: the y co-ordinate of the centre of the shape.
         :param radius: the radius of the shape.
         """
 
-        super().__init__(x, y)
+        assert radius >= 0.0
+
+        super().__init__()
+
         self.radius = radius
 
     @property
     def area(self):
-        return math.pi() * (self.radius ** 2)
+        return math.pi * (self.radius ** 2)
 
     @property
     def is_circle(self):

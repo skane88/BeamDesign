@@ -1,8 +1,10 @@
 """This defines a parent class of "section" objects
 for calculating section properties."""
 
+from abc import ABC, abstractmethod
 
-class Section(object):
+
+class Section(ABC):
     """
     Section implements a parent class for  calculating
     section properties.
@@ -19,42 +21,35 @@ class Section(object):
     is_hollow: is the section hollow or not?
     """
 
-    def __init__(self, x=0.0, y=0.0):
+    def __init__(self):
         """
         Initialise a section object.
-
-        x: The x co-ordinate of the centroid of the shape.
-        y: The y co-ordinate of the centroid of the shape.
         """
 
-        self.x = x
-        self.y = y
+        pass
 
     @property
+    @abstractmethod
     def area(self):
         """
-        Placeholder method for returning the area of the shape.
-
-        Returns 0 by default in this class.
+        The area of the shape
         """
 
-        return 0.0
+        pass
 
     @property
+    @abstractmethod
     def is_circle(self):
         """
-        Placeholder method returning the answer to a query on the section.
-
         Is the section circular or not?
         """
 
         return False
 
     @property
+    @abstractmethod
     def is_hollow(self):
         """
-        Placeholder method returning the answer to a query on the section.
-
         Is the section hollow or not?
         """
 
