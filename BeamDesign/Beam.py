@@ -124,10 +124,10 @@ class Element:
         If ``component`` is not provided, then an array of all loads at the given
         position is returned:
 
-        [[pos, fx_1, fy_1, fz_1, mx_1, my_1, mz_1]
-         [pos, fx_2, fy_2, fz_2, mx_2, my_2, mz_2]
+        [[pos, vx_1, vy_1, N_1, mx_1, my_1, T_1]
+         [pos, vx_2, vy_2, N_2, mx_2, my_2, T_2]
          ...
-         [pos, fx_n, fy_n, fz_n, mx_n, my_n, mz_n]
+         [pos, vx_n, vy_n, N_n, mx_n, my_n, T_n]
         ]
 
         The values of position are normalised between 0.0 and 1.0. To get the true real
@@ -203,12 +203,12 @@ class Element:
     def constant_load_element(
         cls,
         case_id: int = 0,
-        FX: float = 0,
-        FY: float = 0,
-        FZ: float = 0,
+        VX: float = 0,
+        VY: float = 0,
+        N: float = 0,
         MX: float = 0,
         MY: float = 0,
-        MZ: float = 0,
+        T: float = 0,
         length: float = 0,
         section=None,
         material=None,
@@ -218,19 +218,19 @@ class Element:
         length. Primarily intended to be used for testing purposes.
 
         :param case_id: The ID to use for the LoadCase.
-        :param FX: The FX load component.
-        :param FY: The FY load component.
-        :param FZ: The FZ load component.
+        :param VX: The VX load component.
+        :param VY: The VY load component.
+        :param N: The N load component.
         :param MX: The MX load component.
         :param MY: The MY load component.
-        :param MZ: The MZ load component.
+        :param T: The T load component.
         :param length: The length of the element.
         :param section: The section of the element.
         :param material: The material of the element.
         :return: An ``Element`` with constant load along its length.
         """
 
-        loads = LoadCase.constant_load(FX=FX, FY=FY, FZ=FZ, MX=MX, MY=MY, MZ=MZ)
+        loads = LoadCase.constant_load(VX=VX, VY=VY, N=N, MX=MX, MY=MY, T=T)
         loads = {case_id: loads}
 
         return cls(loads=loads, length=length, section=section, material=material)
@@ -526,10 +526,10 @@ class Beam:
         If ``component`` is not provided, then an array of all loads at the given
         position is returned:
 
-        [[pos, fx_1, fy_1, fz_1, mx_1, my_1, mz_1]
-         [pos, fx_2, fy_2, fz_2, mx_2, my_2, mz_2]
+        [[pos, vx_1, vy_1, N_1, mx_1, my_1, T_1]
+         [pos, vx_2, vy_2, N_2, mx_2, my_2, T_2]
          ...
-         [pos, fx_n, fy_n, fz_n, mx_n, my_n, mz_n]
+         [pos, vx_n, vy_n, N_n, mx_n, my_n, T_n]
         ]
 
         The values of position are 'real' positions along the beam.

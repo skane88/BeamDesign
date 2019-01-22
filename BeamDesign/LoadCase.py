@@ -23,10 +23,10 @@ class LoadCase:
         :param loads: The loads to set. Must be an object that can be formatted into a
             numpy array of shape (n, 7). The following format is expected:
 
-            [[pos_1, fx_1, fy_1, fz_1, mx_1, my_1, mz_1]
-             [pos_2, fx_2, fy_2, fz_2, mx_2, my_2, mz_2]
+            [[pos_1, vx_1, vy_1, N_1, mx_1, my_1, T_1]
+             [pos_2, vx_2, vy_2, N_2, mx_2, my_2, T_2]
              ...
-             [pos_n, fx_n, fy_n, fz_n, mx_n, my_n, mz_n]
+             [pos_n, vx_n, vy_n, N_n, mx_n, my_n, T_n]
              ]
         """
 
@@ -70,10 +70,10 @@ class LoadCase:
         :param loads: The loads to set. Must be an object that can be formatted into a
             numpy array of shape (n, 7). The following format is expected:
 
-            [[pos_1, fx_1, fy_1, fz_1, mx_1, my_1, mz_1]
-             [pos_2, fx_2, fy_2, fz_2, mx_2, my_2, mz_2]
+            [[pos_1, vx_1, vy_1, fz_1, mx_1, my_1, T_1]
+             [pos_2, vx_2, vy_2, fz_2, mx_2, my_2, T_2]
              ...
-             [pos_n, fx_n, fy_n, fz_n, mx_n, my_n, mz_n]
+             [pos_n, vx_n, vy_n, fz_n, mx_n, my_n, T_n]
              ]
         """
 
@@ -245,10 +245,10 @@ class LoadCase:
         If ``component`` is not provided, then an array of all loads at the given
         position is returned:
 
-        [[pos, fx_1, fy_1, fz_1, mx_1, my_1, mz_1]
-         [pos, fx_2, fy_2, fz_2, mx_2, my_2, mz_2]
+        [[pos, vx_1, vy_1, N_1, mx_1, my_1, T_1]
+         [pos, vx_2, vy_2, N_2, mx_2, my_2, T_2]
          ...
-         [pos, fx_n, fy_n, fz_n, mx_n, my_n, mz_n]
+         [pos, vx_n, vy_n, N_n, mx_n, my_n, T_n]
         ]
 
         :param position: The position at which to return the load. Position values
@@ -267,13 +267,13 @@ class LoadCase:
         if component is None:
 
             fx = self._get_load_single_component(
-                position=position, component=LoadComponents.FX
+                position=position, component=LoadComponents.VX
             )
             fy = self._get_load_single_component(
-                position=position, component=LoadComponents.FY
+                position=position, component=LoadComponents.VY
             )
             fz = self._get_load_single_component(
-                position=position, component=LoadComponents.FZ
+                position=position, component=LoadComponents.N
             )
             mx = self._get_load_single_component(
                 position=position, component=LoadComponents.MX
@@ -282,7 +282,7 @@ class LoadCase:
                 position=position, component=LoadComponents.MY
             )
             mz = self._get_load_single_component(
-                position=position, component=LoadComponents.MZ
+                position=position, component=LoadComponents.T
             )
 
             comp = np.hstack((fx, fy, fz, mx, my, mz))
@@ -319,10 +319,10 @@ class LoadCase:
         If ``component`` is not provided, then an array of all loads at the given
         position is returned:
 
-        [[pos, fx_1, fy_1, fz_1, mx_1, my_1, mz_1]
-         [pos, fx_2, fy_2, fz_2, mx_2, my_2, mz_2]
+        [[pos, vx_1, vy_1, N_1, mx_1, my_1, T_1]
+         [pos, vx_2, vy_2, N_2, mx_2, my_2, T_2]
          ...
-         [pos, fx_n, fy_n, fz_n, mx_n, my_n, mz_n]
+         [pos, vx_n, vy_n, N_n, mx_n, my_n, T_n]
         ]
 
         :param position: The position at which to return the load. Position values
@@ -414,28 +414,28 @@ class LoadCase:
     def constant_load(
         cls,
         *,
-        FX: float = 0.0,
-        FY: float = 0.0,
-        FZ: float = 0.0,
+        VX: float = 0.0,
+        VY: float = 0.0,
+        N: float = 0.0,
         MX: float = 0.0,
         MY: float = 0.0,
-        MZ: float = 0.0,
+        T: float = 0.0,
     ) -> "LoadCase":
         """
         Constructor for a ``LoadCase`` object with a constant load along its length.
 
-        :param FX: The FX load component.
-        :param FY: The FY load component.
-        :param FZ: The FZ load component.
+        :param VX: The VX load component.
+        :param VY: The VY load component.
+        :param N: The N load component.
         :param MX: The MX load component.
         :param MY: The MY load component.
-        :param MZ: The MZ load component.
+        :param T: The T load component.
         :return: Returns a ``LoadCase`` object.
         """
 
         pos = 0.0
 
-        loads = [pos, FX, FY, FZ, MX, MY, MZ]
+        loads = [pos, VX, VY, N, MX, MY, T]
 
         return cls(loads=loads)
 

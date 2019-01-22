@@ -319,7 +319,7 @@ def test_Beam_get_loads_position():
 
     elements = [
         Element.constant_load_element(
-            FX=lo, FY=lo, FZ=lo, MX=lo, MY=lo, MZ=lo, length=le
+            VX=lo, VY=lo, N=lo, MX=lo, MY=lo, T=lo, length=le
         )
         for le, lo in ll
     ]
@@ -372,7 +372,7 @@ def test_Beam_get_loads_positions2():
 
     elements = [
         Element.constant_load_element(
-            FX=lo, FY=lo, FZ=lo, MX=lo, MY=lo, MZ=lo, length=le
+            VX=lo, VY=lo, N=lo, MX=lo, MY=lo, T=lo, length=le
         )
         for le, lo in ll
     ]
@@ -416,7 +416,7 @@ def test_Beam_get_loads_position3():
 
     elements = [
         Element.constant_load_element(
-            FX=lo, FY=lo, FZ=lo, MX=lo, MY=lo, MZ=lo, length=le
+            VX=lo, VY=lo, N=lo, MX=lo, MY=lo, T=lo, length=le
         )
         for le, lo in ll
     ]
@@ -452,7 +452,7 @@ def test_Beam_get_loads_min_positions():
 
     elements = [
         Element.constant_load_element(
-            FX=lo, FY=lo, FZ=lo, MX=lo, MY=lo, MZ=lo, length=le
+            VX=lo, VY=lo, N=lo, MX=lo, MY=lo, T=lo, length=le
         )
         for le, lo in ll
     ]
@@ -502,7 +502,7 @@ def test_Beam_get_loads_min_positions2():
 
     elements = [
         Element.constant_load_element(
-            FX=lo, FY=lo, FZ=lo, MX=lo, MY=lo, MZ=lo, length=le
+            VX=lo, VY=lo, N=lo, MX=lo, MY=lo, T=lo, length=le
         )
         for le, lo in ll
     ]
@@ -540,7 +540,7 @@ def test_Beam_get_loads_min_positions3():
 
     load = 2.5
     element_0 = Element.constant_load_element(
-        FX=load, FY=load, FZ=load, MX=load, MY=load, MZ=load, length=1.0
+        VX=load, VY=load, N=load, MX=load, MY=load, T=load, length=1.0
     )
 
     load_1 = [
@@ -582,8 +582,8 @@ def test_Beam_get_loads_multiple_load_cases():
     Test the beam.get_loads method when there is more than 1x load case on an element.
     """
 
-    load_0 = LoadCase.constant_load(FX=2.5, FY=2.5, FZ=2.5, MX=2.5, MY=2.5, MZ=2.5)
-    load_1 = LoadCase.constant_load(FX=5.0, FY=5.0, FZ=5.0, MX=5.0, MY=5.0, MZ=5.0)
+    load_0 = LoadCase.constant_load(VX=2.5, VY=2.5, N=2.5, MX=2.5, MY=2.5, T=2.5)
+    load_1 = LoadCase.constant_load(VX=5.0, VY=5.0, N=5.0, MX=5.0, MY=5.0, T=5.0)
 
     load_dict = {0: load_0, 1: load_1}
 
@@ -617,7 +617,7 @@ def test_Beam_get_loads_error(position, min_positions):
 
     elements = [
         Element.constant_load_element(
-            FX=lo, FY=lo, FZ=lo, MX=lo, MY=lo, MZ=lo, length=le
+            VX=lo, VY=lo, N=lo, MX=lo, MY=lo, T=lo, length=le
         )
         for le, lo in ll
     ]

@@ -58,24 +58,24 @@ def test_LoadCase_init_error():
 def test_get_loads_1():
     a = LoadCase()
 
-    assert a._get_input_loads(component="FX") is None
-    assert a._get_input_loads(component="FY") is None
-    assert a._get_input_loads(component="FZ") is None
+    assert a._get_input_loads(component="VX") is None
+    assert a._get_input_loads(component="VY") is None
+    assert a._get_input_loads(component="N") is None
     assert a._get_input_loads(component="MX") is None
     assert a._get_input_loads(component="MY") is None
-    assert a._get_input_loads(component="MZ") is None
+    assert a._get_input_loads(component="T") is None
 
 
 def test_get_loads_2():
 
     a = LoadCase(loads=[0.5, 1, 2, 3, 4, 5, 6])
 
-    assert np.array_equal(a._get_input_loads(component="FX"), np.array([[0.5, 1]]))
-    assert np.array_equal(a._get_input_loads(component="FY"), np.array([[0.5, 2]]))
-    assert np.array_equal(a._get_input_loads(component="FZ"), np.array([[0.5, 3]]))
+    assert np.array_equal(a._get_input_loads(component="VX"), np.array([[0.5, 1]]))
+    assert np.array_equal(a._get_input_loads(component="VY"), np.array([[0.5, 2]]))
+    assert np.array_equal(a._get_input_loads(component="N"), np.array([[0.5, 3]]))
     assert np.array_equal(a._get_input_loads(component="MX"), np.array([[0.5, 4]]))
     assert np.array_equal(a._get_input_loads(component="MY"), np.array([[0.5, 5]]))
-    assert np.array_equal(a._get_input_loads(component="MZ"), np.array([[0.5, 6]]))
+    assert np.array_equal(a._get_input_loads(component="T"), np.array([[0.5, 6]]))
 
 
 def test_get_loads_3():
@@ -84,13 +84,13 @@ def test_get_loads_3():
     a = LoadCase(loads=loads)
 
     assert np.array_equal(
-        a._get_input_loads(component="FX"), np.array([[0.25, 1], [0.75, 2]])
+        a._get_input_loads(component="VX"), np.array([[0.25, 1], [0.75, 2]])
     )
     assert np.array_equal(
-        a._get_input_loads(component="FY"), np.array([[0.25, 2], [0.75, 3]])
+        a._get_input_loads(component="VY"), np.array([[0.25, 2], [0.75, 3]])
     )
     assert np.array_equal(
-        a._get_input_loads(component="FZ"), np.array([[0.25, 3], [0.75, 4]])
+        a._get_input_loads(component="N"), np.array([[0.25, 3], [0.75, 4]])
     )
     assert np.array_equal(
         a._get_input_loads(component="MX"), np.array([[0.25, 4], [0.75, 5]])
@@ -99,7 +99,7 @@ def test_get_loads_3():
         a._get_input_loads(component="MY"), np.array([[0.25, 5], [0.75, 6]])
     )
     assert np.array_equal(
-        a._get_input_loads(component="MZ"), np.array([[0.25, 6], [0.75, 7]])
+        a._get_input_loads(component="T"), np.array([[0.25, 6], [0.75, 7]])
     )
 
 
@@ -113,13 +113,13 @@ def test_get_load_None():
     position = 1.0
 
     assert np.array_equal(
-        a.get_load(position=position, component="FX"), np.array([[1.0, None]])
+        a.get_load(position=position, component="VX"), np.array([[1.0, None]])
     )
     assert np.array_equal(
-        a.get_load(position=position, component="FY"), np.array([[1.0, None]])
+        a.get_load(position=position, component="VY"), np.array([[1.0, None]])
     )
     assert np.array_equal(
-        a.get_load(position=position, component="FZ"), np.array([[1.0, None]])
+        a.get_load(position=position, component="N"), np.array([[1.0, None]])
     )
     assert np.array_equal(
         a.get_load(position=position, component="MX"), np.array([[1.0, None]])
@@ -128,7 +128,7 @@ def test_get_load_None():
         a.get_load(position=position, component="MY"), np.array([[1.0, None]])
     )
     assert np.array_equal(
-        a.get_load(position=position, component="MZ"), np.array([[1.0, None]])
+        a.get_load(position=position, component="T"), np.array([[1.0, None]])
     )
 
 
@@ -143,13 +143,13 @@ def test_get_load_single():
     position = 0.25
 
     assert np.array_equal(
-        a.get_load(position=position, component="FX"), np.array([[position, 1]])
+        a.get_load(position=position, component="VX"), np.array([[position, 1]])
     )
     assert np.array_equal(
-        a.get_load(position=position, component="FY"), np.array([[position, 2]])
+        a.get_load(position=position, component="VY"), np.array([[position, 2]])
     )
     assert np.array_equal(
-        a.get_load(position=position, component="FZ"), np.array([[position, 3]])
+        a.get_load(position=position, component="N"), np.array([[position, 3]])
     )
     assert np.array_equal(
         a.get_load(position=position, component="MX"), np.array([[position, 4]])
@@ -158,19 +158,19 @@ def test_get_load_single():
         a.get_load(position=position, component="MY"), np.array([[position, 5]])
     )
     assert np.array_equal(
-        a.get_load(position=position, component="MZ"), np.array([[position, 6]])
+        a.get_load(position=position, component="T"), np.array([[position, 6]])
     )
 
     position = 0.5
 
     assert np.array_equal(
-        a.get_load(position=position, component="FX"), np.array([[position, 1]])
+        a.get_load(position=position, component="VX"), np.array([[position, 1]])
     )
     assert np.array_equal(
-        a.get_load(position=position, component="FY"), np.array([[position, 2]])
+        a.get_load(position=position, component="VY"), np.array([[position, 2]])
     )
     assert np.array_equal(
-        a.get_load(position=position, component="FZ"), np.array([[position, 3]])
+        a.get_load(position=position, component="N"), np.array([[position, 3]])
     )
     assert np.array_equal(
         a.get_load(position=position, component="MX"), np.array([[position, 4]])
@@ -179,19 +179,19 @@ def test_get_load_single():
         a.get_load(position=position, component="MY"), np.array([[position, 5]])
     )
     assert np.array_equal(
-        a.get_load(position=position, component="MZ"), np.array([[position, 6]])
+        a.get_load(position=position, component="T"), np.array([[position, 6]])
     )
 
     position = 0.75
 
     assert np.array_equal(
-        a.get_load(position=position, component="FX"), np.array([[position, 1]])
+        a.get_load(position=position, component="VX"), np.array([[position, 1]])
     )
     assert np.array_equal(
-        a.get_load(position=position, component="FY"), np.array([[position, 2]])
+        a.get_load(position=position, component="VY"), np.array([[position, 2]])
     )
     assert np.array_equal(
-        a.get_load(position=position, component="FZ"), np.array([[position, 3]])
+        a.get_load(position=position, component="N"), np.array([[position, 3]])
     )
     assert np.array_equal(
         a.get_load(position=position, component="MX"), np.array([[position, 4]])
@@ -200,7 +200,7 @@ def test_get_load_single():
         a.get_load(position=position, component="MY"), np.array([[position, 5]])
     )
     assert np.array_equal(
-        a.get_load(position=position, component="MZ"), np.array([[position, 6]])
+        a.get_load(position=position, component="T"), np.array([[position, 6]])
     )
 
 
@@ -214,15 +214,15 @@ def test_get_load_components():
     position = 0.25
 
     assert np.array_equal(
-        a.get_load(position=position, component=LoadComponents["FX"]),
+        a.get_load(position=position, component=LoadComponents["VX"]),
         np.array([[0.25, 1]]),
     )
     assert np.array_equal(
-        a.get_load(position=position, component=LoadComponents["FY"]),
+        a.get_load(position=position, component=LoadComponents["VY"]),
         np.array([[0.25, 2]]),
     )
     assert np.array_equal(
-        a.get_load(position=position, component=LoadComponents["FZ"]),
+        a.get_load(position=position, component=LoadComponents["N"]),
         np.array([[0.25, 3]]),
     )
     assert np.array_equal(
@@ -234,7 +234,7 @@ def test_get_load_components():
         np.array([[0.25, 5]]),
     )
     assert np.array_equal(
-        a.get_load(position=position, component=LoadComponents["MZ"]),
+        a.get_load(position=position, component=LoadComponents["T"]),
         np.array([[0.25, 6]]),
     )
 
@@ -249,13 +249,13 @@ def test_get_load_multiple_positions():
     position = 0.0
 
     assert np.array_equal(
-        a.get_load(position=position, component="FX"), np.array([[0.0, 1]])
+        a.get_load(position=position, component="VX"), np.array([[0.0, 1]])
     )
     assert np.array_equal(
-        a.get_load(position=position, component="FY"), np.array([[0.0, 2]])
+        a.get_load(position=position, component="VY"), np.array([[0.0, 2]])
     )
     assert np.array_equal(
-        a.get_load(position=position, component="FZ"), np.array([[0.0, 3]])
+        a.get_load(position=position, component="N"), np.array([[0.0, 3]])
     )
     assert np.array_equal(
         a.get_load(position=position, component="MX"), np.array([[0.0, 4]])
@@ -264,19 +264,19 @@ def test_get_load_multiple_positions():
         a.get_load(position=position, component="MY"), np.array([[0.0, 5]])
     )
     assert np.array_equal(
-        a.get_load(position=position, component="MZ"), np.array([[0.0, 6]])
+        a.get_load(position=position, component="T"), np.array([[0.0, 6]])
     )
 
     position = 0.25
 
     assert np.array_equal(
-        a.get_load(position=position, component="FX"), np.array([[0.25, 1]])
+        a.get_load(position=position, component="VX"), np.array([[0.25, 1]])
     )
     assert np.array_equal(
-        a.get_load(position=position, component="FY"), np.array([[0.25, 2]])
+        a.get_load(position=position, component="VY"), np.array([[0.25, 2]])
     )
     assert np.array_equal(
-        a.get_load(position=position, component="FZ"), np.array([[0.25, 3]])
+        a.get_load(position=position, component="N"), np.array([[0.25, 3]])
     )
     assert np.array_equal(
         a.get_load(position=position, component="MX"), np.array([[0.25, 4]])
@@ -285,19 +285,19 @@ def test_get_load_multiple_positions():
         a.get_load(position=position, component="MY"), np.array([[0.25, 5]])
     )
     assert np.array_equal(
-        a.get_load(position=position, component="MZ"), np.array([[0.25, 6]])
+        a.get_load(position=position, component="T"), np.array([[0.25, 6]])
     )
 
     position = 0.5
 
     assert np.array_equal(
-        a.get_load(position=position, component="FX"), np.array([[0.5, 1.5]])
+        a.get_load(position=position, component="VX"), np.array([[0.5, 1.5]])
     )
     assert np.array_equal(
-        a.get_load(position=position, component="FY"), np.array([[0.5, 2.5]])
+        a.get_load(position=position, component="VY"), np.array([[0.5, 2.5]])
     )
     assert np.array_equal(
-        a.get_load(position=position, component="FZ"), np.array([[0.5, 3.5]])
+        a.get_load(position=position, component="N"), np.array([[0.5, 3.5]])
     )
     assert np.array_equal(
         a.get_load(position=position, component="MX"), np.array([[0.5, 4.5]])
@@ -306,19 +306,19 @@ def test_get_load_multiple_positions():
         a.get_load(position=position, component="MY"), np.array([[0.5, 5.5]])
     )
     assert np.array_equal(
-        a.get_load(position=position, component="MZ"), np.array([[0.5, 6.5]])
+        a.get_load(position=position, component="T"), np.array([[0.5, 6.5]])
     )
 
     position = 0.75
 
     assert np.array_equal(
-        a.get_load(position=position, component="FX"), np.array([[0.75, 2]])
+        a.get_load(position=position, component="VX"), np.array([[0.75, 2]])
     )
     assert np.array_equal(
-        a.get_load(position=position, component="FY"), np.array([[0.75, 3]])
+        a.get_load(position=position, component="VY"), np.array([[0.75, 3]])
     )
     assert np.array_equal(
-        a.get_load(position=position, component="FZ"), np.array([[0.75, 4]])
+        a.get_load(position=position, component="N"), np.array([[0.75, 4]])
     )
     assert np.array_equal(
         a.get_load(position=position, component="MX"), np.array([[0.75, 5]])
@@ -327,19 +327,19 @@ def test_get_load_multiple_positions():
         a.get_load(position=position, component="MY"), np.array([[0.75, 6]])
     )
     assert np.array_equal(
-        a.get_load(position=position, component="MZ"), np.array([[0.75, 7]])
+        a.get_load(position=position, component="T"), np.array([[0.75, 7]])
     )
 
     position = 1.0
 
     assert np.array_equal(
-        a.get_load(position=position, component="FX"), np.array([[1.0, 2]])
+        a.get_load(position=position, component="VX"), np.array([[1.0, 2]])
     )
     assert np.array_equal(
-        a.get_load(position=position, component="FY"), np.array([[1.0, 3]])
+        a.get_load(position=position, component="VY"), np.array([[1.0, 3]])
     )
     assert np.array_equal(
-        a.get_load(position=position, component="FZ"), np.array([[1.0, 4]])
+        a.get_load(position=position, component="N"), np.array([[1.0, 4]])
     )
     assert np.array_equal(
         a.get_load(position=position, component="MX"), np.array([[1.0, 5]])
@@ -348,7 +348,7 @@ def test_get_load_multiple_positions():
         a.get_load(position=position, component="MY"), np.array([[1.0, 6]])
     )
     assert np.array_equal(
-        a.get_load(position=position, component="MZ"), np.array([[1.0, 7]])
+        a.get_load(position=position, component="T"), np.array([[1.0, 7]])
     )
 
 
@@ -371,13 +371,13 @@ def test_get_load_multiple_positions2():
     position = 0.0
 
     assert np.array_equal(
-        a.get_load(position=position, component="FX"), np.array([[0.0, 0]])
+        a.get_load(position=position, component="VX"), np.array([[0.0, 0]])
     )
     assert np.array_equal(
-        a.get_load(position=position, component="FY"), np.array([[0.0, 0]])
+        a.get_load(position=position, component="VY"), np.array([[0.0, 0]])
     )
     assert np.array_equal(
-        a.get_load(position=position, component="FZ"), np.array([[0.0, 0]])
+        a.get_load(position=position, component="N"), np.array([[0.0, 0]])
     )
     assert np.array_equal(
         a.get_load(position=position, component="MX"), np.array([[0.0, 0]])
@@ -386,19 +386,19 @@ def test_get_load_multiple_positions2():
         a.get_load(position=position, component="MY"), np.array([[0.0, 0]])
     )
     assert np.array_equal(
-        a.get_load(position=position, component="MZ"), np.array([[0.0, 0]])
+        a.get_load(position=position, component="T"), np.array([[0.0, 0]])
     )
 
     position = 0.25
 
     assert np.array_equal(
-        a.get_load(position=position, component="FX"), np.array([[0.25, 1]])
+        a.get_load(position=position, component="VX"), np.array([[0.25, 1]])
     )
     assert np.array_equal(
-        a.get_load(position=position, component="FY"), np.array([[0.25, 2]])
+        a.get_load(position=position, component="VY"), np.array([[0.25, 2]])
     )
     assert np.array_equal(
-        a.get_load(position=position, component="FZ"), np.array([[0.25, 3]])
+        a.get_load(position=position, component="N"), np.array([[0.25, 3]])
     )
     assert np.array_equal(
         a.get_load(position=position, component="MX"), np.array([[0.25, 4]])
@@ -407,19 +407,19 @@ def test_get_load_multiple_positions2():
         a.get_load(position=position, component="MY"), np.array([[0.25, 5]])
     )
     assert np.array_equal(
-        a.get_load(position=position, component="MZ"), np.array([[0.25, 6]])
+        a.get_load(position=position, component="T"), np.array([[0.25, 6]])
     )
 
     position = 0.4
 
     assert np.allclose(
-        a.get_load(position=position, component="FX"), np.array([[0.4, 1.3]])
+        a.get_load(position=position, component="VX"), np.array([[0.4, 1.3]])
     )
     assert np.allclose(
-        a.get_load(position=position, component="FY"), np.array([[0.4, 2.3]])
+        a.get_load(position=position, component="VY"), np.array([[0.4, 2.3]])
     )
     assert np.allclose(
-        a.get_load(position=position, component="FZ"), np.array([[0.4, 3.3]])
+        a.get_load(position=position, component="N"), np.array([[0.4, 3.3]])
     )
     assert np.allclose(
         a.get_load(position=position, component="MX"), np.array([[0.4, 4.3]])
@@ -428,19 +428,19 @@ def test_get_load_multiple_positions2():
         a.get_load(position=position, component="MY"), np.array([[0.4, 5.3]])
     )
     assert np.allclose(
-        a.get_load(position=position, component="MZ"), np.array([[0.4, 6.3]])
+        a.get_load(position=position, component="T"), np.array([[0.4, 6.3]])
     )
 
     position = 0.5
 
     assert np.array_equal(
-        a.get_load(position=position, component="FX"), np.array([[0.5, 1.5], [0.5, 10]])
+        a.get_load(position=position, component="VX"), np.array([[0.5, 1.5], [0.5, 10]])
     )
     assert np.array_equal(
-        a.get_load(position=position, component="FY"), np.array([[0.5, 2.5], [0.5, 10]])
+        a.get_load(position=position, component="VY"), np.array([[0.5, 2.5], [0.5, 10]])
     )
     assert np.array_equal(
-        a.get_load(position=position, component="FZ"), np.array([[0.5, 3.5], [0.5, 10]])
+        a.get_load(position=position, component="N"), np.array([[0.5, 3.5], [0.5, 10]])
     )
     assert np.array_equal(
         a.get_load(position=position, component="MX"), np.array([[0.5, 4.5], [0.5, 10]])
@@ -449,19 +449,19 @@ def test_get_load_multiple_positions2():
         a.get_load(position=position, component="MY"), np.array([[0.5, 5.5], [0.5, 10]])
     )
     assert np.array_equal(
-        a.get_load(position=position, component="MZ"), np.array([[0.5, 6.5], [0.5, 10]])
+        a.get_load(position=position, component="T"), np.array([[0.5, 6.5], [0.5, 10]])
     )
 
     position = 0.6
 
     assert np.allclose(
-        a.get_load(position=position, component="FX"), np.array([[0.6, 6.8]])
+        a.get_load(position=position, component="VX"), np.array([[0.6, 6.8]])
     )
     assert np.allclose(
-        a.get_load(position=position, component="FY"), np.array([[0.6, 7.2]])
+        a.get_load(position=position, component="VY"), np.array([[0.6, 7.2]])
     )
     assert np.allclose(
-        a.get_load(position=position, component="FZ"), np.array([[0.6, 7.6]])
+        a.get_load(position=position, component="N"), np.array([[0.6, 7.6]])
     )
     assert np.allclose(
         a.get_load(position=position, component="MX"), np.array([[0.6, 8.0]])
@@ -470,19 +470,19 @@ def test_get_load_multiple_positions2():
         a.get_load(position=position, component="MY"), np.array([[0.6, 8.4]])
     )
     assert np.allclose(
-        a.get_load(position=position, component="MZ"), np.array([[0.6, 8.8]])
+        a.get_load(position=position, component="T"), np.array([[0.6, 8.8]])
     )
 
     position = 0.75
 
     assert np.array_equal(
-        a.get_load(position=position, component="FX"), np.array([[0.75, 2]])
+        a.get_load(position=position, component="VX"), np.array([[0.75, 2]])
     )
     assert np.array_equal(
-        a.get_load(position=position, component="FY"), np.array([[0.75, 3]])
+        a.get_load(position=position, component="VY"), np.array([[0.75, 3]])
     )
     assert np.array_equal(
-        a.get_load(position=position, component="FZ"), np.array([[0.75, 4]])
+        a.get_load(position=position, component="N"), np.array([[0.75, 4]])
     )
     assert np.array_equal(
         a.get_load(position=position, component="MX"), np.array([[0.75, 5]])
@@ -491,19 +491,19 @@ def test_get_load_multiple_positions2():
         a.get_load(position=position, component="MY"), np.array([[0.75, 6]])
     )
     assert np.array_equal(
-        a.get_load(position=position, component="MZ"), np.array([[0.75, 7]])
+        a.get_load(position=position, component="T"), np.array([[0.75, 7]])
     )
 
     position = 1.0
 
     assert np.array_equal(
-        a.get_load(position=position, component="FX"), np.array([[1.0, 3]])
+        a.get_load(position=position, component="VX"), np.array([[1.0, 3]])
     )
     assert np.array_equal(
-        a.get_load(position=position, component="FY"), np.array([[1.0, 4]])
+        a.get_load(position=position, component="VY"), np.array([[1.0, 4]])
     )
     assert np.array_equal(
-        a.get_load(position=position, component="FZ"), np.array([[1.0, 5]])
+        a.get_load(position=position, component="N"), np.array([[1.0, 5]])
     )
     assert np.array_equal(
         a.get_load(position=position, component="MX"), np.array([[1.0, 6]])
@@ -512,7 +512,7 @@ def test_get_load_multiple_positions2():
         a.get_load(position=position, component="MY"), np.array([[1.0, 7]])
     )
     assert np.array_equal(
-        a.get_load(position=position, component="MZ"), np.array([[1.0, 8]])
+        a.get_load(position=position, component="T"), np.array([[1.0, 8]])
     )
 
 
@@ -711,7 +711,7 @@ def test_constant_load():
 
     assert np.allclose(expected, actual)
 
-    a = LoadCase.constant_load(FY=3.0, MZ=5.0)
+    a = LoadCase.constant_load(VY=3.0, T=5.0)
 
     pos = 0.25
 
