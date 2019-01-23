@@ -8,7 +8,19 @@ from BeamDesign.Beam import Beam
 
 
 class CodeCheck(ABC):
-    def __init__(self, *, beam: Beam = None, section=None):
+    """
+    This is an abstract base class for carrying out code checks of Beam objects.
+
+    The intent is to require only a minimal set of methods that are common across all
+    likely design checks.
+
+    For descriptions of methods that need to be implemented refer to method
+    documentation below.
+    """
+
+    def __init__(
+        self, *, beam: Beam = None, section=None, default_params_fp: str = None
+    ):
 
         self._beam = beam
         self._section = section
