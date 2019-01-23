@@ -89,3 +89,24 @@ def test_AS4100_s7_Nt(name, data):
     actual = AS4100.s7_1_Nt(Ag=Ag, An=An, fy=fy, fu=fu, kt=kt, αu=αu)
 
     assert isclose(actual, expected)
+
+def test_AS4100_Nt():
+    """
+    Test the tension properties instance method.
+    """
+
+    s = Circle(radius=0.02)
+
+    a = AS4100(section=s)
+
+    expected = 1
+    actual = a.Nt()
+
+    assert isclose(actual, expected)
+
+    φ = 0.9
+    expected = φ * 1
+    actual = a.φNt()
+
+    assert isclose(actual, expected)
+

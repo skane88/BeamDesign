@@ -27,6 +27,22 @@ class AS4100(CodeCheck):
 
         return super().get_section(position=position)
 
+    def Nt(self):
+        """
+
+        :return:
+        """
+
+        raise NotImplementedError()
+
+    def φNt(self):
+        """
+
+        :return:
+        """
+
+        raise NotImplementedError()
+
     @staticmethod
     def s7_1_Nt(
         *, Ag: float, An: float, fy: float, fu: float, kt: float, αu: float = 0.85
