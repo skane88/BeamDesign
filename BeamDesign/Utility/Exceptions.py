@@ -19,7 +19,7 @@ class LoadCaseError(BeamDesignError):
     pass
 
 
-class BeamError(Exception):
+class BeamError(BeamDesignError):
     """
     Main exception for ``Beam`` object errors.
     """
