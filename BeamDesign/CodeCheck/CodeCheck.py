@@ -5,6 +5,7 @@ This will contain an Abstract Base Class that all CodeCheck classes should inher
 from abc import ABC, abstractmethod
 
 from BeamDesign.Beam import Beam
+from BeamDesign.Utility.Exceptions import CodeCheckError
 
 
 class CodeCheck(ABC):
@@ -21,6 +22,12 @@ class CodeCheck(ABC):
     def __init__(
         self, *, beam: Beam = None, section=None, default_params_fp: str = None
     ):
+
+        if beam is None and section is None:
+            raise CodeCheckError(
+                f"Expected either a beam or a section, both were None."
+                + f" Cannot create a {self.__class__.__name__} instance"
+            )
 
         self._beam = beam
         self._section = section
