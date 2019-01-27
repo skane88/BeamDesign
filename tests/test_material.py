@@ -7,6 +7,7 @@ from math import isclose
 from pytest import mark
 
 from BeamDesign.material import Steel
+from BeamDesign.Utility.Exceptions import InvalidThicknessError
 
 as3678_250 = [
     [0.008, 0.012, 0.05, 0.08, 0.15],
@@ -57,3 +58,17 @@ def test_steel_strength(test_vals):
 
     assert isclose(s.strength_yield(thickness=thickness), f_y)
     assert isclose(s.strength_ultimate(), f_u)
+
+
+@mark.xfail(strict=True, raises=InvalidThicknessError)
+@mark.parametrize("thickness", [-0.005, 0.151, None])
+def test_steel_strength_yield_error(thickness):
+    """
+    Test that the steel strength methods return appropriate errors.
+    """
+
+    s = Steel(name="HR250", standard="AS3678", E=200e9, strengths=as3678_250)
+
+    f_y = s.strength_yield(thickness=thickness)
+
+    assert True
