@@ -8,11 +8,15 @@ import numpy as np
 
 from BeamDesign.Beam import Beam, Element
 from BeamDesign.LoadCase import LoadCase
+from BeamDesign.Sections.Circle import Circle
+from BeamDesign.Materials.material import Steel
 from BeamDesign.Utility.Exceptions import (
     ElementError,
     ElementLengthError,
     PositionNotInElementError,
 )
+
+as3678_HR250 = Steel.load_steel(steel_name="AS3678-HR250")
 
 
 def test_Element_init():
@@ -318,9 +322,7 @@ def test_Beam_get_loads_position():
     ll = list(zip(length, loads))
 
     elements = [
-        Element.constant_load_element(
-            VX=lo, VY=lo, N=lo, MX=lo, MY=lo, T=lo, length=le
-        )
+        Element.constant_load_element(VX=lo, VY=lo, N=lo, MX=lo, MY=lo, T=lo, length=le)
         for le, lo in ll
     ]
 
@@ -371,9 +373,7 @@ def test_Beam_get_loads_positions2():
     ll = list(zip(length, loads))
 
     elements = [
-        Element.constant_load_element(
-            VX=lo, VY=lo, N=lo, MX=lo, MY=lo, T=lo, length=le
-        )
+        Element.constant_load_element(VX=lo, VY=lo, N=lo, MX=lo, MY=lo, T=lo, length=le)
         for le, lo in ll
     ]
 
@@ -415,9 +415,7 @@ def test_Beam_get_loads_position3():
     ll = list(zip(length, loads))
 
     elements = [
-        Element.constant_load_element(
-            VX=lo, VY=lo, N=lo, MX=lo, MY=lo, T=lo, length=le
-        )
+        Element.constant_load_element(VX=lo, VY=lo, N=lo, MX=lo, MY=lo, T=lo, length=le)
         for le, lo in ll
     ]
 
@@ -451,9 +449,7 @@ def test_Beam_get_loads_min_positions():
     ll = list(zip(length, loads))
 
     elements = [
-        Element.constant_load_element(
-            VX=lo, VY=lo, N=lo, MX=lo, MY=lo, T=lo, length=le
-        )
+        Element.constant_load_element(VX=lo, VY=lo, N=lo, MX=lo, MY=lo, T=lo, length=le)
         for le, lo in ll
     ]
 
@@ -501,9 +497,7 @@ def test_Beam_get_loads_min_positions2():
     ll = list(zip(length, loads))
 
     elements = [
-        Element.constant_load_element(
-            VX=lo, VY=lo, N=lo, MX=lo, MY=lo, T=lo, length=le
-        )
+        Element.constant_load_element(VX=lo, VY=lo, N=lo, MX=lo, MY=lo, T=lo, length=le)
         for le, lo in ll
     ]
 
@@ -616,9 +610,7 @@ def test_Beam_get_loads_error(position, min_positions):
     ll = list(zip(length, loads))
 
     elements = [
-        Element.constant_load_element(
-            VX=lo, VY=lo, N=lo, MX=lo, MY=lo, T=lo, length=le
-        )
+        Element.constant_load_element(VX=lo, VY=lo, N=lo, MX=lo, MY=lo, T=lo, length=le)
         for le, lo in ll
     ]
 
@@ -648,15 +640,36 @@ def test_Beam_get_section():
     Test the beam get_section method with actual sections.
     """
 
-    assert False  # no sections defined for use yet.
+    s1 = Circle(radius=0.02, material=as3678_HR250)
+    s2 = Circle(radius=0.04, material=as3678_HR250)
+
+    e1 = Element.empty_element(length=0.5, section=s1)
+    e2 = Element.empty_element(length=0.5, section=s2)
+
+    b = Beam(elements=[e1, e2])
+
+    assert b.get_section(position=0.25) == [s1]
+    assert b.get_section(position=0.75) == [s2]
+    assert b.get_section() == [s1, s2]
 
 
 def test_Beam_get_section_on_element_boundary():
     """
     Test the beam get_section method with a postion on the boundary of elements
     """
+    """
+    Test the beam get_section method with actual sections.
+    """
 
-    assert False
+    s1 = Circle(radius=0.02, material=as3678_HR250)
+    s2 = Circle(radius=0.04, material=as3678_HR250)
+
+    e1 = Element.empty_element(length=0.5, section=s1)
+    e2 = Element.empty_element(length=0.5, section=s2)
+
+    b = Beam(elements=[e1, e2])
+
+    assert b.get_section(position=0.50) == [s1, s2]
 
 
 def test_Beam_get_section_on_zero_length_element():
@@ -671,6 +684,26 @@ def test_Beam_get_section_on_zero_length_element():
 
     assert b.get_section() == [None]
     assert b.get_section(position=0.0) == [None]
+
+
+def test_Beam_get_section_on_zero_length_element_2():
+    """
+    Test the beam get_section at a zero length element.
+    """
+
+    s1 = Circle(radius=0.02, material=as3678_HR250)
+    s2 = Circle(radius=0.04, material=as3678_HR250)
+    s3 = Circle(radius=0.06, material=as3678_HR250)
+
+    e1 = Element.empty_element(length=0.5, section=s1)
+    e2 = Element.empty_element(length=0.0, section=s2)
+    e3 = Element.empty_element(length=0.5, section=s3)
+
+    b = Beam(elements=[e1, e2, e3])
+
+    assert b.get_section(position=0.4999999) == [s1]
+    assert b.get_section(position=0.50) == [s1, s2, s3]
+    assert b.get_section(position=0.5000001) == [s3]
 
 
 def test_Beam_get_section_on_empty_element():

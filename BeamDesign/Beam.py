@@ -38,6 +38,7 @@ from BeamDesign.Utility.Exceptions import (
     ElementLengthError,
     PositionNotInElementError,
 )
+from BeamDesign.Sections.Section import Section
 
 
 class Element:
@@ -49,7 +50,7 @@ class Element:
     """
 
     def __init__(
-        self, *, loads: Dict[int, LoadCase], length=None, section=None, material=None
+        self, *, loads: Dict[int, LoadCase], length=None, section: Section = None
     ):
         """
         Constructor for an ``Element``.
@@ -59,7 +60,6 @@ class Element:
         :param length: The length of the ``Element``, corresponding to its real world
             length.
         :param section: The section of the ``Element``.
-        :param material: The material of the ``Element``.
         """
 
         if length is not None:
@@ -70,7 +70,6 @@ class Element:
 
         self.length = length
         self.section = section
-        self.material = material
 
         self._loads = loads
 
@@ -190,14 +189,13 @@ class Element:
 
         :param length: An optional length for the empty ``Element``.
         :param section: The section type of the element.
-        :param material: The material of the element.
         :return: An ``Element`` object.
         """
 
         loads = LoadCase()
         loads = {0: loads}
 
-        return cls(loads=loads, length=length, section=section, material=material)
+        return cls(loads=loads, length=length, section=section)
 
     @classmethod
     def constant_load_element(
@@ -226,14 +224,13 @@ class Element:
         :param T: The T load component.
         :param length: The length of the element.
         :param section: The section of the element.
-        :param material: The material of the element.
         :return: An ``Element`` with constant load along its length.
         """
 
         loads = LoadCase.constant_load(VX=VX, VY=VY, N=N, MX=MX, MY=MY, T=T)
         loads = {case_id: loads}
 
-        return cls(loads=loads, length=length, section=section, material=material)
+        return cls(loads=loads, length=length, section=section)
 
     def __repr__(self):
         return (
