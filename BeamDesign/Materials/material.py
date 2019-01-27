@@ -2,8 +2,10 @@
 This file contains a base class describing material properties.
 """
 
-from typing import List, Union
+from typing import List, Union, Dict
 from abc import ABC, abstractmethod
+import json
+from pathlib import Path
 
 import numpy as np
 
@@ -55,6 +57,16 @@ class Material(ABC):
         :return: The ultimate strength of the material.
         """
         raise NotImplementedError
+
+    def __eq__(self, other):
+        """
+        Override the equality test.
+        """
+
+        if isinstance(other, self.__class__):
+            return self.__dict__ == other.__dict__
+
+        return NotImplemented
 
     def __repr__(self):
         return (
@@ -165,7 +177,7 @@ class Steel(Material):
             )
 
         # first find the index of the next largest number
-        index = np.searchsorted(self.strengths[0], thickness, side='left')
+        index = np.searchsorted(self.strengths[0], thickness, side="left")
 
         return self.strengths[1, index]
 
@@ -198,3 +210,64 @@ class Steel(Material):
         """
 
         return np.amax(self.strengths[0])
+
+    def __eq__(self, other):
+        """
+        Override the equality test. Necessary because numpy arrays (used to store the
+        steel strengths) do not compare well.
+        """
+
+        if isinstance(other, self.__class__):
+
+            for k, v in self.__dict__.items():
+
+                if isinstance(v, np.ndarray):
+
+                    if not np.array_equal(v, other.__dict__[k]):
+                        return False
+
+                else:
+                    if v != other.__dict__[k]:
+                        return False
+
+            return True  # if we have got this far, all items have returned true
+
+        return NotImplemented
+
+    @classmethod
+    def load_steel(
+        cls, file_path: str = None, name: str = None
+    ) -> Union["Steel", Dict[str, "Steel"]]:
+        """
+        This class method creates ``Steel`` objects from a JSON file stored in the
+        specified location. If not specified, the default values stored in the package
+        are loaded.
+
+        :param file_path: The file_path to load the values from. If not specified, the
+            default values will be loaded.
+        :param name: The name of the steel to load. If None, a dict of all possible
+            Steel objects are returned.
+        :return: A ``Steel`` object or a dictionary of steel objects.
+        """
+
+        if file_path is None:
+
+            mod_file = Path(__file__)
+            file_path = mod_file.parent / 'steel.JSON'
+        else:
+            file_path = Path(file_path)
+
+        with file_path.open(mode='r') as f:
+            vals = json.load(fp=f)
+
+        ret_dict = {}
+
+        for k, v in vals.items():
+
+            ret_dict[k] = cls(**v)
+
+        if name is not None:
+
+            return ret_dict[name]
+
+        return ret_dict
