@@ -662,33 +662,55 @@ class Beam:
 
         return ret_val
 
-    def get_section(self, position: float = None):
+    def get_all_sections(self) -> List[Section]:
         """
-        Returns the section from the elements that make up the ``Beam`` object. If
-        position is not provided, the return is a list of all the sections from every
-        element. If position is provided, only the element/s at the provided position
-        are returned.
+        Returns all the sections from the elements that make up the ``Beam`` object.
 
-        :param position: The position at which to get the section type. If ``None`` all
-            sections are returned.
-        :return: Returns a list of section properties:
-            [section_element_1, section_element_2, ..., section_element_n]
+        :return: A list of all the sections.
+        """
+
+        return [e.section for e in self.elements]
+
+    def get_section(self, position: Union[List[float], float]) -> List[List[Section]]:
+        """
+        Returns the sections from the elements that make up the ``Beam`` object.
+
+        :param position: The position at which to get the section type. A list may be
+            provided.
+        :return: Returns a list of section properties corresponding to the provided
+            positions. To handle the presence of zero length elements and positions
+            that are on element boundaries, it is returned as a list of lists:
+            [
+                [section_element_1, ..., section_element_n] # Sections at position 1
+                ...
+                [section_element_1, ..., section_element_n] # Sections at position n
+            ]
         """
 
         # first check if position is None, if so we can simply return a list of all
         # sections
 
         if position is None:
-            return [e.section for e in self.elements]
+            return [[e.section for e in self.elements]]
 
-        # else we now have to get the element at a specified position
+        # else we now have to get the element at a specified position or list of
+        # positions.
 
-        in_elements = self.in_elements(position=position)
+        # first convert position to a list if required.
+        if isinstance(position, float):
+            position = [position]
 
         ret_list = []
 
-        for i in in_elements:
-            ret_list += [self.elements[i].section]
+        for p in position:
+            in_elements = self.in_elements(position=p)
+
+            int_list = []
+
+            for i in in_elements:
+                int_list += [self.elements[i].section]
+
+            ret_list += [int_list]
 
         return ret_list
 
