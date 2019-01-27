@@ -78,6 +78,7 @@ def test_steel_strength_yield_error(thickness):
 
     assert True
 
+
 def test_steel_eq():
     """
     Test the overriden equality method for Steel objects - necessary because Steel
@@ -89,17 +90,17 @@ def test_steel_eq():
 
     assert s250 == s250_2
 
-    s250_2.name='HR300'
+    s250_2.name = "HR300"
 
     assert s250 != s250_2
 
     s250_2 = Steel(name="HR250", standard="AS3678", E=200e9, strengths=as3678_HR250)
-    s250_2.standard = 'AS3679'
+    s250_2.standard = "AS3679"
 
     assert s250 != s250_2
 
     s250_2 = Steel(name="HR250", standard="AS3678", E=200e9, strengths=as3678_HR250)
-    s250_2._E = 'AS3679'
+    s250_2._E = "AS3679"
 
     assert s250 != s250_2
 
@@ -107,6 +108,7 @@ def test_steel_eq():
     s250_2._strengths = as3678_HR300
 
     assert s250 != s250_2
+
 
 def test_load_steel():
     """
@@ -118,8 +120,9 @@ def test_load_steel():
     s250 = Steel(name="HR250", standard="AS3678", E=200e9, strengths=as3678_HR250)
     s300 = Steel(name="HR300", standard="AS3678", E=200e9, strengths=as3678_HR300)
 
-    assert vals['AS3678-HR250'] == s250
-    assert vals['AS3678-HR300'] == s300
+    assert vals["AS3678-HR250"] == s250
+    assert vals["AS3678-HR300"] == s300
+
 
 def test_load_steel2():
     """
@@ -128,6 +131,6 @@ def test_load_steel2():
 
     s250 = Steel(name="HR250", standard="AS3678", E=200e9, strengths=as3678_HR250)
 
-    s250_load = Steel.load_steel(name='AS3678-HR250')
+    s250_load = Steel.load_steel(steel_name="AS3678-HR250")
 
     assert s250 == s250_load

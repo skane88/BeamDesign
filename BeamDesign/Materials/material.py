@@ -236,7 +236,7 @@ class Steel(Material):
 
     @classmethod
     def load_steel(
-        cls, file_path: str = None, name: str = None
+        cls, *, file_path: str = None, steel_name: str = None
     ) -> Union["Steel", Dict[str, "Steel"]]:
         """
         This class method creates ``Steel`` objects from a JSON file stored in the
@@ -245,20 +245,12 @@ class Steel(Material):
 
         :param file_path: The file_path to load the values from. If not specified, the
             default values will be loaded.
-        :param name: The name of the steel to load. If None, a dict of all possible
-            Steel objects are returned.
+        :param steel_name: The name of the steel to load. If None, a dict of all
+            possible ``Steel`` objects are returned.
         :return: A ``Steel`` object or a dictionary of steel objects.
         """
 
-        if file_path is None:
-
-            mod_file = Path(__file__)
-            file_path = mod_file.parent / 'steel.JSON'
-        else:
-            file_path = Path(file_path)
-
-        with file_path.open(mode='r') as f:
-            vals = json.load(fp=f)
+        vals = cls._load_helper(file_path=file_path)
 
         ret_dict = {}
 
@@ -266,8 +258,46 @@ class Steel(Material):
 
             ret_dict[k] = cls(**v)
 
-        if name is not None:
+        if steel_name is not None:
 
-            return ret_dict[name]
+            return ret_dict[steel_name]
 
         return ret_dict
+
+    @classmethod
+    def load_list(cls, *, file_path: str = None):
+        """
+        This class method loads a JSON file stored in the specified location and
+        returns a list of available materials that can be loaded into a steel object.
+
+        :param file_path: The file_path to load the values from. If not specified, the
+            default values will be loaded.
+        :return: A list of all the Steel objects that could be loaded.
+        """
+
+        return list(cls._load_helper(file_path=file_path))
+
+    @classmethod
+    def _load_helper(cls, *, file_path):
+        """
+        This class method loads a JSON file stored in the specified location.
+        If not specified, the default values stored in the package are loaded.
+
+        This is used as a helper method for the load_xxx clas methods.
+
+        :param file_path: The file_path to load the values from. If not specified, the
+            default values will be loaded from the file in the package.
+        :return: A dictionary containing the parsed JSON file.
+        """
+
+        if file_path is None:
+            mod_file = Path(__file__)
+            file_path = mod_file.parent / "steel.JSON"
+
+        else:
+            file_path = Path(file_path)
+
+        with file_path.open(mode="r") as f:
+            vals = json.load(fp=f)
+
+        return vals
