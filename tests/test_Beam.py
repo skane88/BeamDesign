@@ -621,6 +621,24 @@ def test_Beam_get_loads_error(position, min_positions):
     assert True
 
 
+def test_Beam_get_all_sections():
+    """
+     Test the beam get_all_sections method.
+     """
+
+    s1 = Circle(radius=0.02, material=as3678_HR250)
+    s2 = Circle(radius=0.04, material=as3678_HR250)
+    s3 = Circle(radius=0.06, material=as3678_HR250)
+
+    e1 = Element.empty_element(length=0.5, section=s1)
+    e2 = Element.empty_element(length=0.0, section=s2)
+    e3 = Element.empty_element(length=0.5, section=s3)
+
+    b = Beam(elements=[e1, e2, e3])
+
+    assert b.get_all_sections() == [s1, s2, s3]
+
+
 def test_Beam_get_section_none():
     """
     Test the beam get_section method.
@@ -631,8 +649,7 @@ def test_Beam_get_section_none():
 
     b = Beam(elements=e)
 
-    assert b.get_section() == [None]
-    assert b.get_section(position=0.5) == [None]
+    assert b.get_section(position=0.5) == [[None]]
 
 
 def test_Beam_get_section():
@@ -648,9 +665,8 @@ def test_Beam_get_section():
 
     b = Beam(elements=[e1, e2])
 
-    assert b.get_section(position=0.25) == [s1]
-    assert b.get_section(position=0.75) == [s2]
-    assert b.get_section() == [s1, s2]
+    assert b.get_section(position=0.25) == [[s1]]
+    assert b.get_section(position=0.75) == [[s2]]
 
 
 def test_Beam_get_section_on_element_boundary():
@@ -669,7 +685,7 @@ def test_Beam_get_section_on_element_boundary():
 
     b = Beam(elements=[e1, e2])
 
-    assert b.get_section(position=0.50) == [s1, s2]
+    assert b.get_section(position=0.50) == [[s1, s2]]
 
 
 def test_Beam_get_section_on_zero_length_element():
@@ -682,8 +698,7 @@ def test_Beam_get_section_on_zero_length_element():
 
     b = Beam(elements=e)
 
-    assert b.get_section() == [None]
-    assert b.get_section(position=0.0) == [None]
+    assert b.get_section(position=0.0) == [[None]]
 
 
 def test_Beam_get_section_on_zero_length_element_2():
@@ -701,10 +716,6 @@ def test_Beam_get_section_on_zero_length_element_2():
 
     b = Beam(elements=[e1, e2, e3])
 
-    assert b.get_section(position=0.4999999) == [s1]
-    assert b.get_section(position=0.50) == [s1, s2, s3]
-    assert b.get_section(position=0.5000001) == [s3]
-
-
-
-
+    assert b.get_section(position=0.4999999) == [[s1]]
+    assert b.get_section(position=0.50) == [[s1, s2, s3]]
+    assert b.get_section(position=0.5000001) == [[s3]]
