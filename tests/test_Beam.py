@@ -706,13 +706,5 @@ def test_Beam_get_section_on_zero_length_element_2():
     assert b.get_section(position=0.5000001) == [s3]
 
 
-def test_Beam_get_section_on_empty_element():
-    """
-    Test written after a bug discovered while trying to test the AS4100 class.
-    """
 
-    b = Beam.empty_beam()
 
-    assert b.get_section() == [None]  # passes as expected
-
-    assert b.get_section(position=0.0) == [None]  # test originally failed.
