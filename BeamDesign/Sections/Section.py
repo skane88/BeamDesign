@@ -3,6 +3,8 @@ for calculating section properties."""
 
 from abc import ABC, abstractmethod
 
+from BeamDesign.Materials.material import Material
+
 
 class Section(ABC):
     """
@@ -21,18 +23,28 @@ class Section(ABC):
     is_hollow: is the section hollow or not?
     """
 
-    def __init__(self):
+    def __init__(self, *, material: Material = None):
         """
         Initialise a section object.
         """
 
-        pass
+        self.material = material
 
     @property
     @abstractmethod
     def area(self):
         """
         The area of the shape
+        """
+
+        pass
+
+    @property
+    @abstractmethod
+    def area_net(self):
+        """
+        The net area of the section after accounting for bolt holes etc. - for simple
+        shapes this will usually be equivalent to self.area.
         """
 
         pass
@@ -54,3 +66,21 @@ class Section(ABC):
         """
 
         return False
+
+    @property
+    @abstractmethod
+    def min_strength_yield(self):
+        """
+        Return the minimum yield strength of the section.
+        """
+
+        raise NotImplementedError()
+
+    @property
+    @abstractmethod
+    def min_strength_ultimate(self):
+        """
+        Return the minimum ultimate strength of the section.
+        """
+
+        raise NotImplementedError()
