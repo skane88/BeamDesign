@@ -37,6 +37,7 @@ from BeamDesign.Utility.Exceptions import (
     ElementCaseError,
     ElementLengthError,
     PositionNotInElementError,
+    PositionNotInBeamError,
 )
 from BeamDesign.Sections.Section import Section
 
@@ -577,6 +578,15 @@ class Beam:
                 # following code.
                 position = [position]
 
+            # do some error checking.
+            for p in position:
+                if p < 0 or p > self.length:
+                    raise PositionNotInBeamError(
+                        f"Expected position to be > 0 or < the length of the beam. "
+                        + f"Provided positions were{position}, beam length is"
+                        + f" {self.length}."
+                    )
+
             # convert to a numpy array for use later.
             position = np.array(position)
             position = np.unique(position)
@@ -700,6 +710,15 @@ class Beam:
         # first convert position to a list if required.
         if isinstance(position, float):
             position = [position]
+
+        # now do some error checking
+        for p in position:
+            if p < 0 or p > self.length:
+                raise PositionNotInBeamError(
+                    f"Expected the position provided to be > 0 or < the beam length."
+                    + f" Positions provided were {position},"
+                    + f" beam length is {self.length}"
+                )
 
         ret_list = []
 

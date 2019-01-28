@@ -14,6 +14,7 @@ from BeamDesign.Utility.Exceptions import (
     ElementError,
     ElementLengthError,
     PositionNotInElementError,
+    PositionNotInBeamError,
 )
 
 as3678_HR250 = Steel.load_steel(steel_name="AS3678-HR250")
@@ -621,6 +622,31 @@ def test_Beam_get_loads_error(position, min_positions):
     assert True
 
 
+@mark.xfail(strict=True, raises=PositionNotInBeamError)
+@mark.parametrize("position", [-0.1, [-0.1, 1.0], [1.0, 4.0], 4.0])
+def test_Beam_get_loads_error(position):
+    """
+    Test that the beam get_loads method throws an error if a position is outside the
+    range of the length of the beam.
+    """
+
+    length = [1.0, 0.0, 2.3, 0.5]
+    loads = [0.5, 5.0, 2.5, 25.0]
+
+    ll = list(zip(length, loads))
+
+    elements = [
+        Element.constant_load_element(VX=lo, VY=lo, N=lo, MX=lo, MY=lo, T=lo, length=le)
+        for le, lo in ll
+    ]
+
+    b = Beam(elements=elements)
+
+    b.get_loads(load_case=0, position=position)
+
+    assert True
+
+
 def test_Beam_get_all_sections():
     """
      Test the beam get_all_sections method.
@@ -737,3 +763,25 @@ def test_Beam_get_section_multiple():
     b = Beam(elements=[e1, e2, e3])
 
     assert b.get_section(position=[0.25, 0.50, 0.75]) == [[s1], [s1, s2, s3], [s3]]
+
+
+@mark.xfail(strict=True, raises=PositionNotInBeamError)
+@mark.parametrize("position", [-0.1, 1.1])
+def test_Beam_get_section_outside_range_err(position):
+    """
+    Test to ensure an error thrown if get_section is called beyond the ends of the beam.
+    """
+
+    s1 = Circle(radius=0.02, material=as3678_HR250)
+    s2 = Circle(radius=0.04, material=as3678_HR250)
+    s3 = Circle(radius=0.06, material=as3678_HR250)
+
+    e1 = Element.empty_element(length=0.5, section=s1)
+    e2 = Element.empty_element(length=0.0, section=s2)
+    e3 = Element.empty_element(length=0.5, section=s3)
+
+    b = Beam(elements=[e1, e2, e3])
+
+    b.get_section(position=position)
+
+    assert True
