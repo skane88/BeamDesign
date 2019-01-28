@@ -48,7 +48,8 @@ class CodeCheck(ABC):
         """
         Get the limiting tension capacity of the member being checked.
 
-        :return: the limiting tension capacity of the member being checked.
+        :return: the limiting tension capacity of the member being checked. If the code
+            includes capacity reduction factors these will be included.
         """
 
         raise NotImplementedError()

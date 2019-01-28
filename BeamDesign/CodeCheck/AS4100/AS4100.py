@@ -31,7 +31,7 @@ class AS4100(CodeCheck):
 
     def tension_capacity(self):
 
-        raise NotImplementedError()
+        return self.φNt()
 
     def get_all_sections(self) -> List[Section]:
 
@@ -45,16 +45,29 @@ class AS4100(CodeCheck):
 
     def Nt(self, *, position: Union[List[float], float] = None):
         """
+        Calculates the tension capacity of the AS4100 object.
 
-        :return:
+        :param position: The position to calculate the capacity at. Can be a float, can
+            be a list of floats or can be None.
+
+            Note that if None is provided, a single tension capacity is returned which
+            is the minimum tension capacity of the entire AS4100 object.
+        :return: The calculated tension capacity (minimum of Nty and Ntu).
         """
 
         return min(self.Nty(position=position), self.Ntu(position=position))
 
     def φNt(self, *, position: Union[List[float], float] = None):
         """
+        Calculates the tension capacity of the AS4100 object.
 
-        :return:
+        :param position: The position to calculate the capacity at. Can be a float, can
+            be a list of floats or can be None.
+
+            Note that if None is provided, a single tension capacity is returned which
+            is the minimum tension capacity of the entire AS4100 object.
+        :return: The calculated tension capacity (minimum of Nty and Ntu) multiplied by
+            the capacity reduction factor.
         """
 
         return self.φ * self.Nt(position=position)
@@ -68,7 +81,7 @@ class AS4100(CodeCheck):
 
             Note that if None is provided, a single tension capacity is returned which
             is the minimum tension capacity of the entire AS4100 object.
-        :return: The calculated tension yield capacity.
+        :return: The calculated yield tension capacity.
         """
 
         if isinstance(position, float):
@@ -94,7 +107,8 @@ class AS4100(CodeCheck):
 
             Note that if None is provided, a single tension capacity is returned which
             is the minimum tension capacity of the entire AS4100 object.
-        :return: The calculated tension yield capacity.
+        :return: The calculated yield tension capacity, multiplied by the capacity
+            reduction factor.
         """
 
         return self.φ * self.Nty(position=position)
@@ -108,7 +122,7 @@ class AS4100(CodeCheck):
 
             Note that if None is provided, a single tension capacity is returned which
             is the minimum tension capacity of the entire AS4100 object.
-        :return: The calculated tension yield capacity.
+        :return: The calculated ultimate capacity.
         """
 
         if isinstance(position, float):
@@ -139,7 +153,8 @@ class AS4100(CodeCheck):
 
             Note that if None is provided, a single tension capacity is returned which
             is the minimum tension capacity of the entire AS4100 object.
-        :return: The calculated tension yield capacity.
+        :return: The calculated ultimate tension capacity, multiplied by the capacity
+            reduction factor.
         """
 
         return self.φ * self.Nty(position=position)
