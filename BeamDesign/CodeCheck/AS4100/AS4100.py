@@ -4,7 +4,8 @@ themselves. Specific equations from the code have been split off into other file
 minimise the size of this file.
 """
 
-from typing import List
+import itertools
+from typing import List, Union
 
 from BeamDesign.Beam import Beam
 from BeamDesign.CodeCheck.CodeCheck import CodeCheck
@@ -13,13 +14,7 @@ from BeamDesign.Sections.Section import Section
 
 class AS4100(CodeCheck):
     def __init__(
-        self,
-        *,
-        φ: float,
-        αu: float,
-        kt: float,
-        beam: Beam = None,
-        section=None,
+        self, *, φ: float, αu: float, kt: float, beam: Beam = None, section=None
     ):
         """
 
@@ -28,9 +23,7 @@ class AS4100(CodeCheck):
         :param kwargs:
         """
 
-        super().__init__(
-            beam=beam, section=section
-        )
+        super().__init__(beam=beam, section=section)
 
         self.φ = φ
         self.αu = αu
@@ -44,50 +37,112 @@ class AS4100(CodeCheck):
 
         return super().get_all_sections()
 
-    def get_section(self, position: float = None) -> List[List[Section]]:
+    def get_section(
+        self, position: Union[List[float], float] = None
+    ) -> List[List[Section]]:
 
         return super().get_section(position=position)
 
-    def Nt(self):
+    def Nt(self, *, position: Union[List[float], float] = None):
         """
 
         :return:
         """
 
-        return min(self.Nty(), self.Ntu())
+        return min(self.Nty(position=position), self.Ntu(position=position))
 
-    def φNt(self):
+    def φNt(self, *, position: Union[List[float], float] = None):
         """
 
         :return:
         """
 
-        return self.φ * self.Nt()
+        return self.φ * self.Nt(position=position)
 
-    def Nty(self):
+    def Nty(self, *, position: Union[List[float], float] = None) -> float:
         """
-        Calculates the
-        :return:
+        Calculates the tension yield capacity of the AS4100 object.
+
+        :param position: The position to calculate the capacity at. Can be a float, can
+            be a list of floats or can be None.
+
+            Note that if None is provided, a single tension capacity is returned which
+            is the minimum tension capacity of the entire AS4100 object.
+        :return: The calculated tension yield capacity.
         """
 
-        Ag = self.section.area
-        fy = self.section.min_strength_yield
+        if isinstance(position, float):
+            # if a float is provided, wrap it in a list for consistent logic below.
+            position = [position]
 
-        return self.s7_2_Nty(Ag=Ag, fy=fy)
+        sections = self.get_section(position=position)
 
-    def φNty(self):
+        # now flatten list to make it easier to check the values:
+        sections = list(itertools.chain.from_iterable(sections))
 
-        return self.φ * self.Nty()
+        # now we have a list of all sections to check, do the check
+        N = [self.s7_2_Nty(Ag=s.area, fy=s.min_strength_yield) for s in sections]
 
-    def Ntu(self):
+        return min(N)
 
-        An = self.section.area
-        fu = self.section.min_strength_ultimate
+    def φNty(self, *, position: Union[List[float], float] = None):
+        """
+        Calculates the tension yield capacity of the AS4100 object.
 
-        return self.s7_2_Ntu(An=An, fu=fu, kt=self.kt, αu=self.αu)
+        :param position: The position to calculate the capacity at. Can be a float, can
+            be a list of floats or can be None.
 
-    def φNtu(self):
-        return self.φ * self.Nty()
+            Note that if None is provided, a single tension capacity is returned which
+            is the minimum tension capacity of the entire AS4100 object.
+        :return: The calculated tension yield capacity.
+        """
+
+        return self.φ * self.Nty(position=position)
+
+    def Ntu(self, *, position: Union[List[float], float] = None):
+        """
+        Calculates the tension yield capacity of the AS4100 object.
+
+        :param position: The position to calculate the capacity at. Can be a float, can
+            be a list of floats or can be None.
+
+            Note that if None is provided, a single tension capacity is returned which
+            is the minimum tension capacity of the entire AS4100 object.
+        :return: The calculated tension yield capacity.
+        """
+
+        if isinstance(position, float):
+            # if a float is provided, wrap it in a list for consistent logic below.
+            position = [position]
+
+        sections = self.get_section(position=position)
+
+        # now flatten list to make it easier to check the values:
+        sections = list(itertools.chain.from_iterable(sections))
+
+        # now we have a list of all sections to check, do the check
+        N = [
+            self.s7_2_Ntu(
+                An=s.area_net, fu=s.min_strength_ultimate, kt=self.kt, αu=self.αu
+            )
+            for s in sections
+        ]
+
+        return min(N)
+
+    def φNtu(self, *, position: Union[List[float], float] = None):
+        """
+        Calculates the tension yield capacity of the AS4100 object.
+
+        :param position: The position to calculate the capacity at. Can be a float, can
+            be a list of floats or can be None.
+
+            Note that if None is provided, a single tension capacity is returned which
+            is the minimum tension capacity of the entire AS4100 object.
+        :return: The calculated tension yield capacity.
+        """
+
+        return self.φ * self.Nty(position=position)
 
     @staticmethod
     def s7_1_Nt(

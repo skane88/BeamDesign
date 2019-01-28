@@ -2,7 +2,7 @@
 Tests for the AS4100 class
 """
 
-from math import isclose
+from math import isclose, pi
 
 from pytest import mark
 
@@ -14,14 +14,15 @@ from BeamDesign.Utility.Exceptions import CodeCheckError
 
 from tests.test_utils import *
 
-as3678_HR250 = Steel.load_steel(steel_name='AS3678-HR250')
+as3678_HR250 = Steel.load_steel(steel_name="AS3678-HR250")
+
 
 def test_AS4100():
     """
     Test whether an AS4100 object can even be instantiated
     """
 
-    kwargs = {"φ": 0.9, "αu": 0.85, "kt":1.0}
+    kwargs = {"φ": 0.9, "αu": 0.85, "kt": 1.0}
 
     s = Circle(radius=0.02, material=as3678_HR250)
     a = AS4100(section=s, **kwargs)
@@ -59,6 +60,7 @@ def test_AS4100_defatul_params_fp_error_2():
 
     assert False
 
+
 def test_AS4100_get_all_sections():
     """
     Test the get_all_sections method when there is only a section.
@@ -72,6 +74,7 @@ def test_AS4100_get_all_sections():
 
     assert actual == [s]
 
+
 def test_AS4100_get_all_sections2():
     """
     Test the get_all_sections method with a beam that has a single section.
@@ -84,6 +87,7 @@ def test_AS4100_get_all_sections2():
     actual = a.get_all_sections()
 
     assert actual == [None]
+
 
 def test_AS4100_get_all_sections3():
     """
@@ -104,6 +108,7 @@ def test_AS4100_get_all_sections3():
 
     assert a.get_all_sections() == [s1, s2, s3]
 
+
 def test_AS4100_get_section():
     """
     Test the get_section method when there is only a section and not a beam.
@@ -116,6 +121,7 @@ def test_AS4100_get_section():
     actual = a.get_section()
 
     assert actual == [[s]]
+
 
 def test_AS4100_get_section2():
     """
@@ -190,24 +196,231 @@ def test_AS4100_Nt():
     Test the tension properties instance method.
     """
 
-    s = Circle(radius=0.02)
+    s = Circle(radius=0.02, material=as3678_HR250)
 
     a = AS4100(section=s, φ=0.9, αu=0.85, kt=1.0)
 
-    expected = 1
+    expected = 250e6 * pi * 0.02 ** 2
     actual = a.Nt()
 
     assert isclose(actual, expected)
 
     φ = 0.9
-    expected = φ * 1
+    expected = φ * 250e6 * pi * 0.02 ** 2
     actual = a.φNt()
 
     assert isclose(actual, expected)
+
 
 def test_AS4100_Nt_multiple_sections():
     """
     Test the tension properties instance method where there are multiple sections
     """
 
-    assert False
+    s1 = Circle(radius=0.02, material=as3678_HR250)
+    s2 = Circle(radius=0.04, material=as3678_HR250)
+    s3 = Circle(radius=0.06, material=as3678_HR250)
+
+    e1 = Element.empty_element(length=0.5, section=s1)
+    e2 = Element.empty_element(length=0.0, section=s2)
+    e3 = Element.empty_element(length=0.5, section=s3)
+
+    b = Beam(elements=[e1, e2, e3])
+
+    a = AS4100(beam=b, φ=0.9, αu=0.85, kt=1.0)
+
+    expected = 250e6 * pi * 0.02 ** 2
+    actual = a.Nt()
+
+    assert isclose(actual, expected)
+
+    φ = 0.9
+    expected = φ * 250e6 * pi * 0.02 ** 2
+    actual = a.φNt()
+
+    assert isclose(actual, expected)
+
+
+def test_AS4100_Nty():
+    """
+    Basic test of the Nty method with a section only.
+    """
+
+    s = Circle(radius=0.02, material=as3678_HR250)
+
+    a = AS4100(section=s, φ=0.9, αu=0.85, kt=1.0)
+
+    expected = 250e6 * pi * 0.02 ** 2
+
+    assert isclose(expected, a.Nty())
+
+
+def test_AS4100_Nty2():
+    """
+    Basic test of the Nty method with a beam.
+    """
+
+    s1 = Circle(radius=0.02, material=as3678_HR250)
+
+    e1 = Element.empty_element(length=1.0, section=s1)
+
+    b = Beam(elements=[e1])
+
+    a = AS4100(beam=b, φ=0.9, αu=0.85, kt=1.0)
+
+    expected = 250e6 * pi * 0.02 ** 2
+
+    assert isclose(expected, a.Nty())
+    assert isclose(expected, a.Nty(position=0.000))
+    assert isclose(expected, a.Nty(position=0.250))
+    assert isclose(expected, a.Nty(position=0.500))
+    assert isclose(expected, a.Nty(position=0.750))
+    assert isclose(expected, a.Nty(position=1.000))
+
+
+def test_AS4100_Nty3():
+    """
+    Basic test of the Nty method with multiple section types.
+    """
+
+    s1 = Circle(radius=0.02, material=as3678_HR250)
+    s2 = Circle(radius=0.04, material=as3678_HR250)
+    s3 = Circle(radius=0.06, material=as3678_HR250)
+
+    e1 = Element.empty_element(length=0.5, section=s1)
+    e2 = Element.empty_element(length=0.0, section=s2)
+    e3 = Element.empty_element(length=0.5, section=s3)
+
+    b = Beam(elements=[e1, e2, e3])
+
+    a = AS4100(beam=b, φ=0.9, αu=0.85, kt=1.0)
+
+    expected = 250e6 * pi * 0.02 ** 2
+
+    assert isclose(expected, a.Nty())
+    assert isclose(expected, a.Nty(position=0.25))
+    assert isclose(expected, a.Nty(position=0.50))
+
+    expected = 230e6 * pi * 0.06 ** 2
+
+    assert isclose(expected, a.Nty(position=0.75))
+    assert isclose(expected, a.Nty(position=1.00))
+
+
+def test_AS4100_Nty_multi_positions():
+    """
+    Basic test of the Nty method with multiple section types and multiple positions.
+    """
+
+    s1 = Circle(radius=0.02, material=as3678_HR250)
+    s2 = Circle(radius=0.04, material=as3678_HR250)
+    s3 = Circle(radius=0.06, material=as3678_HR250)
+
+    e1 = Element.empty_element(length=0.5, section=s1)
+    e2 = Element.empty_element(length=0.0, section=s2)
+    e3 = Element.empty_element(length=0.5, section=s3)
+
+    b = Beam(elements=[e1, e2, e3])
+
+    a = AS4100(beam=b, φ=0.9, αu=0.85, kt=1.0)
+
+    expected = 250e6 * pi * 0.02 ** 2
+
+    assert isclose(expected, a.Nty(position=[0.25, 0.75]))
+    assert isclose(expected, a.Nty(position=[0.50, 0.75, 1.00]))
+
+    expected = 230e6 * pi * 0.06 ** 2
+
+    assert isclose(expected, a.Nty(position=[0.75, 1.00]))
+
+
+def test_AS4100_Ntu():
+    """
+    Basic test of the Ntu method with a section only.
+    """
+
+    s = Circle(radius=0.02, material=as3678_HR250)
+
+    a = AS4100(section=s, φ=0.9, αu=0.85, kt=1.0)
+
+    expected = 0.85 * 1.0 * 410e6 * pi * 0.02 ** 2
+
+    assert isclose(expected, a.Ntu())
+
+
+def test_AS4100_Ntu2():
+    """
+    Basic test of the Ntu method with a beam.
+    """
+
+    s1 = Circle(radius=0.02, material=as3678_HR250)
+
+    e1 = Element.empty_element(length=1.0, section=s1)
+
+    b = Beam(elements=[e1])
+
+    a = AS4100(beam=b, φ=0.9, αu=0.85, kt=1.0)
+
+    expected = 0.85 * 1.0 * 410e6 * pi * 0.02 ** 2
+
+    assert isclose(expected, a.Ntu())
+    assert isclose(expected, a.Ntu(position=0.000))
+    assert isclose(expected, a.Ntu(position=0.250))
+    assert isclose(expected, a.Ntu(position=0.500))
+    assert isclose(expected, a.Ntu(position=0.750))
+    assert isclose(expected, a.Ntu(position=1.000))
+
+
+def test_AS4100_Ntu3():
+    """
+    Basic test of the Ntu method with multiple section types.
+    """
+
+    s1 = Circle(radius=0.02, material=as3678_HR250)
+    s2 = Circle(radius=0.04, material=as3678_HR250)
+    s3 = Circle(radius=0.06, material=as3678_HR250)
+
+    e1 = Element.empty_element(length=0.5, section=s1)
+    e2 = Element.empty_element(length=0.0, section=s2)
+    e3 = Element.empty_element(length=0.5, section=s3)
+
+    b = Beam(elements=[e1, e2, e3])
+
+    a = AS4100(beam=b, φ=0.9, αu=0.85, kt=1.0)
+
+    expected = 0.85 * 1.0 * 410e6 * pi * 0.02 ** 2
+
+    assert isclose(expected, a.Ntu())
+    assert isclose(expected, a.Ntu(position=0.25))
+    assert isclose(expected, a.Ntu(position=0.50))
+
+    expected = 0.85 * 1.0 * 410e6 * pi * 0.06 ** 2
+
+    assert isclose(expected, a.Ntu(position=0.75))
+    assert isclose(expected, a.Ntu(position=1.00))
+
+def test_AS4100_Ntu_multi_positions():
+    """
+    Basic test of the Ntu method with multiple section types and multiple positions.
+    """
+
+    s1 = Circle(radius=0.02, material=as3678_HR250)
+    s2 = Circle(radius=0.04, material=as3678_HR250)
+    s3 = Circle(radius=0.06, material=as3678_HR250)
+
+    e1 = Element.empty_element(length=0.5, section=s1)
+    e2 = Element.empty_element(length=0.0, section=s2)
+    e3 = Element.empty_element(length=0.5, section=s3)
+
+    b = Beam(elements=[e1, e2, e3])
+
+    a = AS4100(beam=b, φ=0.9, αu=0.85, kt=1.0)
+
+    expected = 0.85 * 1.0 * 410e6 * pi * 0.02 ** 2
+
+    assert isclose(expected, a.Ntu(position=[0.25, 0.75]))
+    assert isclose(expected, a.Ntu(position=[0.50, 0.75, 1.00]))
+
+    expected = 0.85 * 1.0 * 410e6 * pi * 0.06 ** 2
+
+    assert isclose(expected, a.Ntu(position=[0.75, 1.00]))
