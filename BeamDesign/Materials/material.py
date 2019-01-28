@@ -2,7 +2,7 @@
 This file contains a base class describing material properties.
 """
 
-from typing import List, Union, Dict
+from typing import List, Union, Dict, Any
 from abc import ABC, abstractmethod
 import json
 from pathlib import Path
@@ -265,7 +265,7 @@ class Steel(Material):
         return ret_dict
 
     @classmethod
-    def load_list(cls, *, file_path: str = None):
+    def load_list(cls, *, file_path: str = None) -> List[str]:
         """
         This class method loads a JSON file stored in the specified location and
         returns a list of available materials that can be loaded into a steel object.
@@ -278,12 +278,12 @@ class Steel(Material):
         return list(cls._load_helper(file_path=file_path))
 
     @classmethod
-    def _load_helper(cls, *, file_path):
+    def _load_helper(cls, *, file_path) -> Dict[str, Any]:
         """
         This class method loads a JSON file stored in the specified location.
         If not specified, the default values stored in the package are loaded.
 
-        This is used as a helper method for the load_xxx clas methods.
+        This is used as a helper method for the load_xxx classmethods.
 
         :param file_path: The file_path to load the values from. If not specified, the
             default values will be loaded from the file in the package.
