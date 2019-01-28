@@ -33,6 +33,10 @@ class AS4100(CodeCheck):
 
         return self.φNt()
 
+    def tension_utilisation(self):
+
+        raise NotImplementedError()
+
     def get_all_sections(self) -> List[Section]:
 
         return super().get_all_sections()

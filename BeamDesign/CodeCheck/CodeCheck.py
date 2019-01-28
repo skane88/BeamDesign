@@ -54,6 +54,22 @@ class CodeCheck(ABC):
 
         raise NotImplementedError()
 
+    @property
+    @abstractmethod
+    def tension_utilisation(self):
+        """
+        Get the utilisation ratio of the section in tension.
+
+        The utilisation ratio is a % value indicating that the load is x% of the load
+        that will cause load to match capacity.
+
+        NOTE: This should NOT be a simple division equation of load / capacity. Whilst
+        true when capacity is independent of loads, many code capacity equations depend
+        on the applied load.
+
+        :return: The utilisation of the section in tension.
+        """
+
     @abstractmethod
     def get_all_sections(self) -> List[Section]:
         """
