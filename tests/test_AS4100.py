@@ -22,7 +22,7 @@ def test_AS4100():
     Test whether an AS4100 object can even be instantiated
     """
 
-    kwargs = {"φ": 0.9, "αu": 0.85, "kt": 1.0}
+    kwargs = {"φ_steel": 0.9, "αu": 0.85, "kt": 1.0}
 
     s = Circle(radius=0.02, material=as3678_HR250)
     a = AS4100(section=s, **kwargs)
@@ -37,18 +37,32 @@ def test_AS4100():
     assert a
 
 
+def test_AS4100_default():
+    """
+    Can the classmethod default_AS4100 create an AS4100 object?
+    """
+
+    s = Circle(radius=0.02, material=as3678_HR250)
+    a = AS4100.default_AS4100(section=s)
+
+    assert a
+
+    e = Element.constant_load_element()
+    b = Beam(elements=e)
+
+    a = AS4100.default_AS4100(beam=b)
+
+    assert a
+
+
+
 @mark.xfail(strict=True, raises=CodeCheckError)
 def test_AS4100_beam_section_None_error():
     """
     Ensure that an error is thrown when both section & beam are equal to None
     """
 
-    a = AS4100(section=None, beam=None, φ=0.9, αu=0.85, kt=1.0)
-
-
-def test_AS4100_default_params():
-
-    assert False
+    a = AS4100(section=None, beam=None, φ_steel=0.9, αu=0.85, kt=1.0)
 
 
 def test_AS4100_default_params_fp_error_1():
@@ -56,7 +70,7 @@ def test_AS4100_default_params_fp_error_1():
     assert False
 
 
-def test_AS4100_defatul_params_fp_error_2():
+def test_AS4100_default_params_fp_error_2():
 
     assert False
 
@@ -68,7 +82,7 @@ def test_AS4100_get_all_sections():
 
     s = Circle(radius=0.02, material=as3678_HR250)
 
-    a = AS4100(section=s, φ=0.9, αu=0.85, kt=1.0)
+    a = AS4100(section=s, φ_steel=0.9, αu=0.85, kt=1.0)
 
     actual = a.get_all_sections()
 
@@ -82,7 +96,7 @@ def test_AS4100_get_all_sections2():
 
     b = Beam.empty_beam()
 
-    a = AS4100(beam=b, φ=0.9, αu=0.85, kt=1.0)
+    a = AS4100(beam=b, φ_steel=0.9, αu=0.85, kt=1.0)
 
     actual = a.get_all_sections()
 
@@ -104,7 +118,7 @@ def test_AS4100_get_all_sections3():
 
     b = Beam(elements=[e1, e2, e3])
 
-    a = AS4100(beam=b, φ=0.9, αu=0.85, kt=1.0)
+    a = AS4100(beam=b, φ_steel=0.9, αu=0.85, kt=1.0)
 
     assert a.get_all_sections() == [s1, s2, s3]
 
@@ -116,7 +130,7 @@ def test_AS4100_get_section():
 
     s = Circle(radius=0.02, material=as3678_HR250)
 
-    a = AS4100(section=s, φ=0.9, αu=0.85, kt=1.0)
+    a = AS4100(section=s, φ_steel=0.9, αu=0.85, kt=1.0)
 
     actual = a.get_section()
 
@@ -130,7 +144,7 @@ def test_AS4100_get_section2():
 
     b = Beam.empty_beam()
 
-    a = AS4100(beam=b, φ=0.9, αu=0.85, kt=1.0)
+    a = AS4100(beam=b, φ_steel=0.9, αu=0.85, kt=1.0)
 
     actual = a.get_section(position=0.0)
 
@@ -152,7 +166,7 @@ def test_AS4100_get_section3():
 
     b = Beam(elements=[e1, e2, e3])
 
-    a = AS4100(beam=b, φ=0.9, αu=0.85, kt=1.0)
+    a = AS4100(beam=b, φ_steel=0.9, αu=0.85, kt=1.0)
 
     assert a.get_section(position=0.25) == [[s1]]
     assert a.get_section(position=0.50) == [[s1, s2, s3]]
@@ -198,7 +212,7 @@ def test_AS4100_Nt():
 
     s = Circle(radius=0.02, material=as3678_HR250)
 
-    a = AS4100(section=s, φ=0.9, αu=0.85, kt=1.0)
+    a = AS4100(section=s, φ_steel=0.9, αu=0.85, kt=1.0)
 
     expected = 250e6 * pi * 0.02 ** 2
     actual = a.Nt()
@@ -227,7 +241,7 @@ def test_AS4100_Nt_multiple_sections():
 
     b = Beam(elements=[e1, e2, e3])
 
-    a = AS4100(beam=b, φ=0.9, αu=0.85, kt=1.0)
+    a = AS4100(beam=b, φ_steel=0.9, αu=0.85, kt=1.0)
 
     expected = 250e6 * pi * 0.02 ** 2
     actual = a.Nt()
@@ -248,7 +262,7 @@ def test_AS4100_Nty():
 
     s = Circle(radius=0.02, material=as3678_HR250)
 
-    a = AS4100(section=s, φ=0.9, αu=0.85, kt=1.0)
+    a = AS4100(section=s, φ_steel=0.9, αu=0.85, kt=1.0)
 
     expected = 250e6 * pi * 0.02 ** 2
 
@@ -266,7 +280,7 @@ def test_AS4100_Nty2():
 
     b = Beam(elements=[e1])
 
-    a = AS4100(beam=b, φ=0.9, αu=0.85, kt=1.0)
+    a = AS4100(beam=b, φ_steel=0.9, αu=0.85, kt=1.0)
 
     expected = 250e6 * pi * 0.02 ** 2
 
@@ -293,7 +307,7 @@ def test_AS4100_Nty3():
 
     b = Beam(elements=[e1, e2, e3])
 
-    a = AS4100(beam=b, φ=0.9, αu=0.85, kt=1.0)
+    a = AS4100(beam=b, φ_steel=0.9, αu=0.85, kt=1.0)
 
     expected = 250e6 * pi * 0.02 ** 2
 
@@ -322,7 +336,7 @@ def test_AS4100_Nty_multi_positions():
 
     b = Beam(elements=[e1, e2, e3])
 
-    a = AS4100(beam=b, φ=0.9, αu=0.85, kt=1.0)
+    a = AS4100(beam=b, φ_steel=0.9, αu=0.85, kt=1.0)
 
     expected = 250e6 * pi * 0.02 ** 2
 
@@ -341,7 +355,7 @@ def test_AS4100_Ntu():
 
     s = Circle(radius=0.02, material=as3678_HR250)
 
-    a = AS4100(section=s, φ=0.9, αu=0.85, kt=1.0)
+    a = AS4100(section=s, φ_steel=0.9, αu=0.85, kt=1.0)
 
     expected = 0.85 * 1.0 * 410e6 * pi * 0.02 ** 2
 
@@ -359,7 +373,7 @@ def test_AS4100_Ntu2():
 
     b = Beam(elements=[e1])
 
-    a = AS4100(beam=b, φ=0.9, αu=0.85, kt=1.0)
+    a = AS4100(beam=b, φ_steel=0.9, αu=0.85, kt=1.0)
 
     expected = 0.85 * 1.0 * 410e6 * pi * 0.02 ** 2
 
@@ -386,7 +400,7 @@ def test_AS4100_Ntu3():
 
     b = Beam(elements=[e1, e2, e3])
 
-    a = AS4100(beam=b, φ=0.9, αu=0.85, kt=1.0)
+    a = AS4100(beam=b, φ_steel=0.9, αu=0.85, kt=1.0)
 
     expected = 0.85 * 1.0 * 410e6 * pi * 0.02 ** 2
 
@@ -414,7 +428,7 @@ def test_AS4100_Ntu_multi_positions():
 
     b = Beam(elements=[e1, e2, e3])
 
-    a = AS4100(beam=b, φ=0.9, αu=0.85, kt=1.0)
+    a = AS4100(beam=b, φ_steel=0.9, αu=0.85, kt=1.0)
 
     expected = 0.85 * 1.0 * 410e6 * pi * 0.02 ** 2
 

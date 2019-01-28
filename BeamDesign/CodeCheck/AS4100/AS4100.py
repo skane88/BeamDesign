@@ -5,7 +5,10 @@ minimise the size of this file.
 """
 
 import itertools
-from typing import List, Union
+from typing import List, Union, Dict
+from pathlib import Path
+
+import toml
 
 from BeamDesign.Beam import Beam
 from BeamDesign.CodeCheck.CodeCheck import CodeCheck
@@ -14,7 +17,7 @@ from BeamDesign.Sections.Section import Section
 
 class AS4100(CodeCheck):
     def __init__(
-        self, *, φ: float, αu: float, kt: float, beam: Beam = None, section=None
+        self, *, φ_steel: float, αu: float, kt: float, beam: Beam = None, section=None
     ):
         """
 
@@ -25,7 +28,7 @@ class AS4100(CodeCheck):
 
         super().__init__(beam=beam, section=section)
 
-        self.φ = φ
+        self.φ_steel = φ_steel
         self.αu = αu
         self.kt = kt
 
@@ -74,7 +77,7 @@ class AS4100(CodeCheck):
             the capacity reduction factor.
         """
 
-        return self.φ * self.Nt(position=position)
+        return self.φ_steel * self.Nt(position=position)
 
     def Nty(self, *, position: Union[List[float], float] = None) -> float:
         """
@@ -115,7 +118,7 @@ class AS4100(CodeCheck):
             reduction factor.
         """
 
-        return self.φ * self.Nty(position=position)
+        return self.φ_steel * self.Nty(position=position)
 
     def Ntu(self, *, position: Union[List[float], float] = None):
         """
@@ -161,7 +164,7 @@ class AS4100(CodeCheck):
             reduction factor.
         """
 
-        return self.φ * self.Nty(position=position)
+        return self.φ_steel * self.Nty(position=position)
 
     @staticmethod
     def s7_1_Nt(
@@ -225,3 +228,37 @@ class AS4100(CodeCheck):
         """
 
         return An * fu * kt * αu
+
+    @classmethod
+    def default_AS4100(
+        cls, beam: Beam = None, section: Section = None, file_path: str = None
+    ) -> "AS4100":
+
+        config = cls.get_defaults(file_path=file_path)
+        defaults = config['defaults']
+
+        return cls(beam=beam, section=section, **defaults)
+
+    @classmethod
+    def get_defaults(cls, *, file_path: str = None) -> Dict[str, any]:
+        """
+        This class method loads a JSON file containing default values for AS4100 objects
+        that is stored in the specified location.
+        If not specified, the default values stored in the package are loaded.
+
+        :param file_path: The file_path to load the values from. If not specified, the
+            default values will be loaded from the file in the package.
+        :return: A dictionary containing the parsed JSON file.
+        """
+
+        if file_path is None:
+            mod_file = Path(__file__)
+            file_path = mod_file.parent / "AS4100.toml"
+
+        else:
+            file_path = Path(file_path)
+
+        with file_path.open(mode="r", encoding='utf-8') as f:
+            vals = toml.load(f=f)
+
+        return vals
