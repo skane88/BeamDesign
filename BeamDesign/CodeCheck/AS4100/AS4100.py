@@ -4,12 +4,23 @@ themselves. Specific equations from the code have been split off into other file
 minimise the size of this file.
 """
 
+from typing import List
+
 from BeamDesign.Beam import Beam
 from BeamDesign.CodeCheck.CodeCheck import CodeCheck
+from BeamDesign.Sections.Section import Section
 
 
 class AS4100(CodeCheck):
-    def __init__(self, *, beam: Beam = None, section=None, **kwargs):
+    def __init__(
+        self,
+        *,
+        φ: float,
+        αu: float,
+        kt: float,
+        beam: Beam = None,
+        section=None,
+    ):
         """
 
         :param beam:
@@ -17,13 +28,23 @@ class AS4100(CodeCheck):
         :param kwargs:
         """
 
-        super().__init__(beam=beam, section=section)
+        super().__init__(
+            beam=beam, section=section
+        )
+
+        self.φ = φ
+        self.αu = αu
+        self.kt = kt
 
     def tension_capacity(self):
 
         raise NotImplementedError()
 
-    def get_section(self, position: float = None):
+    def get_all_sections(self) -> List[Section]:
+
+        return super().get_all_sections()
+
+    def get_section(self, position: float = None) -> List[List[Section]]:
 
         return super().get_section(position=position)
 
@@ -33,7 +54,7 @@ class AS4100(CodeCheck):
         :return:
         """
 
-        raise NotImplementedError()
+        return min(self.Nty(), self.Ntu())
 
     def φNt(self):
         """
@@ -41,12 +62,37 @@ class AS4100(CodeCheck):
         :return:
         """
 
-        raise NotImplementedError()
+        return self.φ * self.Nt()
+
+    def Nty(self):
+        """
+        Calculates the
+        :return:
+        """
+
+        Ag = self.section.area
+        fy = self.section.min_strength_yield
+
+        return self.s7_2_Nty(Ag=Ag, fy=fy)
+
+    def φNty(self):
+
+        return self.φ * self.Nty()
+
+    def Ntu(self):
+
+        An = self.section.area
+        fu = self.section.min_strength_ultimate
+
+        return self.s7_2_Ntu(An=An, fu=fu, kt=self.kt, αu=self.αu)
+
+    def φNtu(self):
+        return self.φ * self.Nty()
 
     @staticmethod
     def s7_1_Nt(
-        *, Ag: float, An: float, fy: float, fu: float, kt: float, αu: float = 0.85
-    ):
+        *, Ag: float, An: float, fy: float, fu: float, kt: float, αu: float
+    ) -> float:
         """
         Calculates the tension capacity of a section according to AS4100 S7.1.
 
@@ -62,9 +108,10 @@ class AS4100(CodeCheck):
         :param fu: The ultimate strength of the section in Pa.
         :param kt: The connection efficiency factor / eccentric connection factor
             as per AS4100.
-        :param αu: A factor for the uncertainty in ultimate srength as per AS4100 S7.2.
-            By default 0.85. Note that AS4100 does not provide a variable name for this
-            value so αu is used, consistent with other uses of α in AS4100.
+        :param αu: A factor for the uncertainty in ultimate strength as per AS4100 S7.2.
+            Note that AS4100 does not provide a variable name for this value so αu is
+            used, consistent with other uses of α in AS4100. AS4100 provides a value of
+            0.85 for this factor.
         :return:
         """
 
@@ -86,7 +133,7 @@ class AS4100(CodeCheck):
         return Ag * fy
 
     @staticmethod
-    def s7_2_Ntu(*, An: float, fu: float, kt: float, αu: float = 0.85) -> float:
+    def s7_2_Ntu(*, An: float, fu: float, kt: float, αu: float) -> float:
         """
         Calculates the ultimate fracture capacity of a section and includes the
         additional uncertainty factor from AS4100.
@@ -96,9 +143,10 @@ class AS4100(CodeCheck):
         :param fu: The ultimate strength of the section in Pa.
         :param kt: The connection efficiency factor / eccentric connection factor
             as per AS4100.
-        :param αu: A factor for the uncertainty in ultimate srength as per AS4100 S7.2.
-            By default 0.85. Note that AS4100 does not provide a variable name for this
-            value so αu is used, consistent with other uses of α in AS4100.
+        :param αu: A factor for the uncertainty in ultimate strength as per AS4100 S7.2.
+            Note that AS4100 does not provide a variable name for this value so αu is
+            used, consistent with other uses of α in AS4100. AS4100 provides a value of
+            0.85 for this factor.
         :return: Returns the ultimate fracture capacity in N.
         """
 

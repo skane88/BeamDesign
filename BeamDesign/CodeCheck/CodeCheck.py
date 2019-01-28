@@ -3,8 +3,10 @@ This will contain an Abstract Base Class that all CodeCheck classes should inher
 """
 
 from abc import ABC, abstractmethod
+from typing import List, Union
 
 from BeamDesign.Beam import Beam
+from BeamDesign.Sections.Section import Section
 from BeamDesign.Utility.Exceptions import CodeCheckError
 
 
@@ -42,7 +44,7 @@ class CodeCheck(ABC):
 
     @property
     @abstractmethod
-    def tension_capacity(self) -> float:
+    def tension_capacity(self):
         """
         Get the limiting tension capacity of the member being checked.
 
@@ -52,9 +54,46 @@ class CodeCheck(ABC):
         raise NotImplementedError()
 
     @abstractmethod
-    def get_section(self, position: float = None):
+    def get_all_sections(self) -> List[Section]:
+        """
+        Returns all the sections from the elements that make up the ``CodeCheck``
+        object.
+
+        :return: A list of all the sections. If there is no beam (and only a section) a
+            list is still returned for consistency.
+        """
 
         if self.beam is None:
-            return self.section
-        else:
-            return self.beam.get_section(position=position)
+            return [self.section]
+
+        return self.beam.get_all_sections()
+
+    @abstractmethod
+    def get_section(
+        self, position: Union[List[float], float] = None
+    ) -> List[List[Section]]:
+        """
+        Gets the section properties at a given position or list of positions.
+
+        :param position: The position to return the section from. If the ``CodeCheck``
+            object has only a section property (and not a ``Beam`` property) it returns
+            ``self.section``. If ``None`` it returns all sections. If a position is
+            given it returns the sections at the given positions.
+        :return: Returns a list of lists. This is to allow it to handle both the case of
+            multiple positions and / or the case where a position falls on the boundary
+            between elements. The list is of the form:
+
+            [
+                [section_element_1, ..., section_element_n] # Sections at position 1
+                ...
+                [section_element_1, ..., section_element_n] # Sections at position n
+            ]
+        """
+
+        if self.beam is None:
+            return [[self.section]]
+
+        if position is None:
+            return [self.get_all_sections()]
+
+        return self.beam.get_section(position=position)
