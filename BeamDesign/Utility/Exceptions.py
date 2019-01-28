@@ -27,21 +27,6 @@ class BeamError(BeamDesignError):
     pass
 
 
-class MaterialError(BeamDesignError):
-    """
-    Main exception for ``Material`` object errors.
-    """
-
-    pass
-
-class InvalidThicknessError(MaterialError):
-    """
-    Exception to throw if the thickness entered into the strength_yield or similar
-    methods is invalid.
-    """
-
-    pass
-
 class ElementError(BeamError):
     """
     Main Exception for ``Element`` object errors.
@@ -70,6 +55,23 @@ class ElementCaseError(ElementError):
 class PositionNotInElementError(BeamError):
     """
     Error to throw when trying to find the local position of a *real* position in an Element
+    """
+
+    pass
+
+
+class MaterialError(BeamDesignError):
+    """
+    Main exception for ``Material`` object errors.
+    """
+
+    pass
+
+
+class InvalidThicknessError(MaterialError):
+    """
+    Exception to throw if the thickness entered into the strength_yield or similar
+    methods is invalid.
     """
 
     pass
