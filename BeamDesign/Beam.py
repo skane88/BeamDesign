@@ -680,6 +680,7 @@ class Beam:
         :return: Returns a list of section properties corresponding to the provided
             positions. To handle the presence of zero length elements and positions
             that are on element boundaries, it is returned as a list of lists:
+
             [
                 [section_element_1, ..., section_element_n] # Sections at position 1
                 ...
