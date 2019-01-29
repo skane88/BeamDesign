@@ -4,10 +4,10 @@ This file contains a base class describing material properties.
 
 from typing import List, Union, Dict, Any
 from abc import ABC, abstractmethod
-import json
 from pathlib import Path
 
 import numpy as np
+import toml
 
 from BeamDesign.Utility.Exceptions import InvalidThicknessError
 
@@ -292,12 +292,12 @@ class Steel(Material):
 
         if file_path is None:
             mod_file = Path(__file__)
-            file_path = mod_file.parent / "steel.JSON"
+            file_path = mod_file.parent / "steel.TOML"
 
         else:
             file_path = Path(file_path)
 
         with file_path.open(mode="r") as f:
-            vals = json.load(fp=f)
+            vals = toml.load(f=f)
 
         return vals

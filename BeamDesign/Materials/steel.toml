@@ -1,0 +1,25 @@
+# this is a TOML formatted document containing the default values for steel material objects.
+# for the TOML file format, see https://github.com/toml-lang/toml
+
+# NOTE: keys must be ASCII characters or else be in quotes "" (i.e. for greek variable names).
+
+# Australian Steels
+[AS3678-HR250]
+    name = "HR250"
+    standard = "AS3678"
+    E= 200e9
+    strengths= [
+        [0.008, 0.012, 0.050, 0.080, 0.150],
+        [280e6, 260e6, 250e6, 240e6, 230e6],
+        [410e6, 410e6, 410e6, 410e6, 410e6]
+        ]
+
+[AS3678-HR300]
+    name = "HR300"
+    standard = "AS3678"
+    E = 200e9
+    strengths = [
+        [0.008, 0.012, 0.050, 0.080, 0.150],
+        [320e6, 310e6, 280e6, 270e6, 260e6],
+        [430e6, 430e6, 430e6, 430e6, 430e6]
+        ]
