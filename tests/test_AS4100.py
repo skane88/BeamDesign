@@ -15,6 +15,7 @@ from BeamDesign.Utility.Exceptions import CodeCheckError
 from tests.test_utils import *
 
 as3678_250 = Steel.load_steel(steel_name="AS3678-250")
+as3678_300 = Steel.load_steel(steel_name="AS3678-300")
 
 
 def test_AS4100():
@@ -240,6 +241,39 @@ def test_AS4100_Nt_multiple_sections():
     φ = 0.9
     expected = φ * 250e6 * pi * 0.02 ** 2
     actual = a.φNt()
+
+    assert isclose(actual, expected)
+
+
+def test_AS4100_Nt_multiple_grades():
+    """
+    Test the tension properties instance method where there are multiple steel grades.
+    :return:
+    """
+
+    s1 = Circle(radius=0.02, material=as3678_250)
+    s2 = Circle(radius=0.02, material=as3678_300)
+
+    e1 = Element.empty_element(length=0.5, section=s1)
+    e2 = Element.empty_element(length=0.5, section=s2)
+
+    b = Beam(elements=[e1, e2])
+
+    a = AS4100(beam=b, φ_steel=0.9, αu=0.85, kt=1.0)
+
+    expected = 250e6 * pi * 0.02 ** 2
+    actual = a.Nt()
+
+    assert isclose(actual, expected)
+
+    φ = 0.9
+    expected = φ * 250e6 * pi * 0.02 ** 2
+    actual = a.φNt()
+
+    assert isclose(actual, expected)
+
+    expected = 280e6 * pi * 0.02 ** 2
+    actual = a.Nt(position=0.75)
 
     assert isclose(actual, expected)
 
