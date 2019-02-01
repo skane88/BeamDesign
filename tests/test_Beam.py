@@ -17,7 +17,7 @@ from BeamDesign.Utility.Exceptions import (
     PositionNotInBeamError,
 )
 
-as3678_HR250 = Steel.load_steel(steel_name="AS3678-HR250")
+as3678_250 = Steel.load_steel(steel_name="AS3678-250")
 
 
 def test_Element_init():
@@ -652,9 +652,9 @@ def test_Beam_get_all_sections():
      Test the beam get_all_sections method.
      """
 
-    s1 = Circle(radius=0.02, material=as3678_HR250)
-    s2 = Circle(radius=0.04, material=as3678_HR250)
-    s3 = Circle(radius=0.06, material=as3678_HR250)
+    s1 = Circle(radius=0.02, material=as3678_250)
+    s2 = Circle(radius=0.04, material=as3678_250)
+    s3 = Circle(radius=0.06, material=as3678_250)
 
     e1 = Element.empty_element(length=0.5, section=s1)
     e2 = Element.empty_element(length=0.0, section=s2)
@@ -683,8 +683,8 @@ def test_Beam_get_section():
     Test the beam get_section method with actual sections.
     """
 
-    s1 = Circle(radius=0.02, material=as3678_HR250)
-    s2 = Circle(radius=0.04, material=as3678_HR250)
+    s1 = Circle(radius=0.02, material=as3678_250)
+    s2 = Circle(radius=0.04, material=as3678_250)
 
     e1 = Element.empty_element(length=0.5, section=s1)
     e2 = Element.empty_element(length=0.5, section=s2)
@@ -703,8 +703,8 @@ def test_Beam_get_section_on_element_boundary():
     Test the beam get_section method with actual sections.
     """
 
-    s1 = Circle(radius=0.02, material=as3678_HR250)
-    s2 = Circle(radius=0.04, material=as3678_HR250)
+    s1 = Circle(radius=0.02, material=as3678_250)
+    s2 = Circle(radius=0.04, material=as3678_250)
 
     e1 = Element.empty_element(length=0.5, section=s1)
     e2 = Element.empty_element(length=0.5, section=s2)
@@ -732,9 +732,9 @@ def test_Beam_get_section_on_zero_length_element_2():
     Test the beam get_section at a zero length element.
     """
 
-    s1 = Circle(radius=0.02, material=as3678_HR250)
-    s2 = Circle(radius=0.04, material=as3678_HR250)
-    s3 = Circle(radius=0.06, material=as3678_HR250)
+    s1 = Circle(radius=0.02, material=as3678_250)
+    s2 = Circle(radius=0.04, material=as3678_250)
+    s3 = Circle(radius=0.06, material=as3678_250)
 
     e1 = Element.empty_element(length=0.5, section=s1)
     e2 = Element.empty_element(length=0.0, section=s2)
@@ -752,9 +752,9 @@ def test_Beam_get_section_multiple():
     Test the beam get_section at a zero length element.
     """
 
-    s1 = Circle(radius=0.02, material=as3678_HR250)
-    s2 = Circle(radius=0.04, material=as3678_HR250)
-    s3 = Circle(radius=0.06, material=as3678_HR250)
+    s1 = Circle(radius=0.02, material=as3678_250)
+    s2 = Circle(radius=0.04, material=as3678_250)
+    s3 = Circle(radius=0.06, material=as3678_250)
 
     e1 = Element.empty_element(length=0.5, section=s1)
     e2 = Element.empty_element(length=0.0, section=s2)
@@ -772,9 +772,9 @@ def test_Beam_get_section_outside_range_err(position):
     Test to ensure an error thrown if get_section is called beyond the ends of the beam.
     """
 
-    s1 = Circle(radius=0.02, material=as3678_HR250)
-    s2 = Circle(radius=0.04, material=as3678_HR250)
-    s3 = Circle(radius=0.06, material=as3678_HR250)
+    s1 = Circle(radius=0.02, material=as3678_250)
+    s2 = Circle(radius=0.04, material=as3678_250)
+    s3 = Circle(radius=0.06, material=as3678_250)
 
     e1 = Element.empty_element(length=0.5, section=s1)
     e2 = Element.empty_element(length=0.0, section=s2)

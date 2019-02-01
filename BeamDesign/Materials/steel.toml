@@ -4,8 +4,8 @@
 # NOTE: keys must be ASCII characters or else be in quotes "" (i.e. for greek variable names).
 
 # Australian Steels
-[AS3678-HR250]
-    name = "HR250"
+[AS3678-250]
+    name = "250"
     standard = "AS3678"
     E= 200e9
     strengths= [
@@ -14,8 +14,8 @@
         [410e6, 410e6, 410e6, 410e6, 410e6]
         ]
 
-[AS3678-HR300]
-    name = "HR300"
+[AS3678-300]
+    name = "300"
     standard = "AS3678"
     E = 200e9
     strengths = [

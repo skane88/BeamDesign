@@ -9,12 +9,12 @@ from pytest import mark
 from BeamDesign.Materials.material import Steel
 from BeamDesign.Utility.Exceptions import InvalidThicknessError
 
-as3678_HR250 = [
+as3678_250 = [
     [0.008, 0.012, 0.05, 0.08, 0.15],
     [280e6, 260e6, 250e6, 240e6, 230e6],
     [410e6, 410e6, 410e6, 410e6, 410e6],
 ]
-as3678_HR300 = [
+as3678_300 = [
     [0.008, 0.012, 0.050, 0.080, 0.150],
     [320e6, 310e6, 280e6, 270e6, 260e6],
     [430e6, 430e6, 430e6, 430e6, 430e6],
@@ -26,7 +26,7 @@ def test_steel():
     Can a Steel object be instantiated.
     """
 
-    s = Steel(name="HR250", standard="AS3678", E=200e9, strengths=as3678_HR250)
+    s = Steel(name="HR250", standard="AS3678", E=200e9, strengths=as3678_250)
 
     assert s
 
@@ -59,7 +59,7 @@ def test_steel_strength(test_vals):
     f_y = test_vals[1]
     f_u = test_vals[2]
 
-    s = Steel(name="HR250", standard="AS3678", E=200e9, strengths=as3678_HR250)
+    s = Steel(name="HR250", standard="AS3678", E=200e9, strengths=as3678_250)
 
     assert isclose(s.strength_yield(thickness=thickness), f_y)
     assert isclose(s.strength_ultimate(), f_u)
@@ -72,7 +72,7 @@ def test_steel_strength_yield_error(thickness):
     Test that the steel strength methods return appropriate errors.
     """
 
-    s = Steel(name="HR250", standard="AS3678", E=200e9, strengths=as3678_HR250)
+    s = Steel(name="HR250", standard="AS3678", E=200e9, strengths=as3678_250)
 
     f_y = s.strength_yield(thickness=thickness)
 
@@ -85,8 +85,8 @@ def test_steel_eq():
     objects have a numpy array hidden within them.
     """
 
-    s250 = Steel(name="HR250", standard="AS3678", E=200e9, strengths=as3678_HR250)
-    s250_2 = Steel(name="HR250", standard="AS3678", E=200e9, strengths=as3678_HR250)
+    s250 = Steel(name="HR250", standard="AS3678", E=200e9, strengths=as3678_250)
+    s250_2 = Steel(name="HR250", standard="AS3678", E=200e9, strengths=as3678_250)
 
     assert s250 == s250_2
 
@@ -94,18 +94,18 @@ def test_steel_eq():
 
     assert s250 != s250_2
 
-    s250_2 = Steel(name="HR250", standard="AS3678", E=200e9, strengths=as3678_HR250)
+    s250_2 = Steel(name="HR250", standard="AS3678", E=200e9, strengths=as3678_250)
     s250_2.standard = "AS3679"
 
     assert s250 != s250_2
 
-    s250_2 = Steel(name="HR250", standard="AS3678", E=200e9, strengths=as3678_HR250)
+    s250_2 = Steel(name="HR250", standard="AS3678", E=200e9, strengths=as3678_250)
     s250_2._E = "AS3679"
 
     assert s250 != s250_2
 
-    s250_2 = Steel(name="HR250", standard="AS3678", E=200e9, strengths=as3678_HR250)
-    s250_2._strengths = as3678_HR300
+    s250_2 = Steel(name="HR250", standard="AS3678", E=200e9, strengths=as3678_250)
+    s250_2._strengths = as3678_300
 
     assert s250 != s250_2
 
@@ -117,11 +117,11 @@ def test_load_steel():
 
     vals = Steel.load_steel()
 
-    s250 = Steel(name="HR250", standard="AS3678", E=200e9, strengths=as3678_HR250)
-    s300 = Steel(name="HR300", standard="AS3678", E=200e9, strengths=as3678_HR300)
+    s250 = Steel(name="250", standard="AS3678", E=200e9, strengths=as3678_250)
+    s300 = Steel(name="300", standard="AS3678", E=200e9, strengths=as3678_300)
 
-    assert vals["AS3678-HR250"] == s250
-    assert vals["AS3678-HR300"] == s300
+    assert vals["AS3678-250"] == s250
+    assert vals["AS3678-300"] == s300
 
 
 def test_load_steel2():
@@ -129,8 +129,8 @@ def test_load_steel2():
     Test the load_steel class method.
     """
 
-    s250 = Steel(name="HR250", standard="AS3678", E=200e9, strengths=as3678_HR250)
+    s250 = Steel(name="250", standard="AS3678", E=200e9, strengths=as3678_250)
 
-    s250_load = Steel.load_steel(steel_name="AS3678-HR250")
+    s250_load = Steel.load_steel(steel_name="AS3678-250")
 
     assert s250 == s250_load

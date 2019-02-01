@@ -14,7 +14,7 @@ from BeamDesign.Utility.Exceptions import CodeCheckError
 
 from tests.test_utils import *
 
-as3678_HR250 = Steel.load_steel(steel_name="AS3678-HR250")
+as3678_250 = Steel.load_steel(steel_name="AS3678-250")
 
 
 def test_AS4100():
@@ -24,7 +24,7 @@ def test_AS4100():
 
     kwargs = {"φ_steel": 0.9, "αu": 0.85, "kt": 1.0}
 
-    s = Circle(radius=0.02, material=as3678_HR250)
+    s = Circle(radius=0.02, material=as3678_250)
     a = AS4100(section=s, **kwargs)
 
     assert a
@@ -42,7 +42,7 @@ def test_AS4100_default():
     Can the classmethod default_AS4100 create an AS4100 object?
     """
 
-    s = Circle(radius=0.02, material=as3678_HR250)
+    s = Circle(radius=0.02, material=as3678_250)
     a = AS4100.default_AS4100(section=s)
 
     assert a
@@ -80,7 +80,7 @@ def test_AS4100_get_all_sections():
     Test the get_all_sections method when there is only a section.
     """
 
-    s = Circle(radius=0.02, material=as3678_HR250)
+    s = Circle(radius=0.02, material=as3678_250)
 
     a = AS4100(section=s, φ_steel=0.9, αu=0.85, kt=1.0)
 
@@ -108,9 +108,9 @@ def test_AS4100_get_all_sections3():
     Test the get_all_sections method on a beam with actual length.
     """
 
-    s1 = Circle(radius=0.02, material=as3678_HR250)
-    s2 = Circle(radius=0.04, material=as3678_HR250)
-    s3 = Circle(radius=0.06, material=as3678_HR250)
+    s1 = Circle(radius=0.02, material=as3678_250)
+    s2 = Circle(radius=0.04, material=as3678_250)
+    s3 = Circle(radius=0.06, material=as3678_250)
 
     e1 = Element.empty_element(length=0.5, section=s1)
     e2 = Element.empty_element(length=0.0, section=s2)
@@ -128,7 +128,7 @@ def test_AS4100_get_section():
     Test the get_section method when there is only a section and not a beam.
     """
 
-    s = Circle(radius=0.02, material=as3678_HR250)
+    s = Circle(radius=0.02, material=as3678_250)
 
     a = AS4100(section=s, φ_steel=0.9, αu=0.85, kt=1.0)
 
@@ -156,9 +156,9 @@ def test_AS4100_get_section3():
     Test the get_section method on a beam with actual length.
     """
 
-    s1 = Circle(radius=0.02, material=as3678_HR250)
-    s2 = Circle(radius=0.04, material=as3678_HR250)
-    s3 = Circle(radius=0.06, material=as3678_HR250)
+    s1 = Circle(radius=0.02, material=as3678_250)
+    s2 = Circle(radius=0.04, material=as3678_250)
+    s3 = Circle(radius=0.06, material=as3678_250)
 
     e1 = Element.empty_element(length=0.5, section=s1)
     e2 = Element.empty_element(length=0.0, section=s2)
@@ -210,7 +210,7 @@ def test_AS4100_Nt():
     Test the tension properties instance method.
     """
 
-    s = Circle(radius=0.02, material=as3678_HR250)
+    s = Circle(radius=0.02, material=as3678_250)
 
     a = AS4100(section=s, φ_steel=0.9, αu=0.85, kt=1.0)
 
@@ -231,9 +231,9 @@ def test_AS4100_Nt_multiple_sections():
     Test the tension properties instance method where there are multiple sections
     """
 
-    s1 = Circle(radius=0.02, material=as3678_HR250)
-    s2 = Circle(radius=0.04, material=as3678_HR250)
-    s3 = Circle(radius=0.06, material=as3678_HR250)
+    s1 = Circle(radius=0.02, material=as3678_250)
+    s2 = Circle(radius=0.04, material=as3678_250)
+    s3 = Circle(radius=0.06, material=as3678_250)
 
     e1 = Element.empty_element(length=0.5, section=s1)
     e2 = Element.empty_element(length=0.0, section=s2)
@@ -260,7 +260,7 @@ def test_AS4100_Nty():
     Basic test of the Nty method with a section only.
     """
 
-    s = Circle(radius=0.02, material=as3678_HR250)
+    s = Circle(radius=0.02, material=as3678_250)
 
     a = AS4100(section=s, φ_steel=0.9, αu=0.85, kt=1.0)
 
@@ -274,7 +274,7 @@ def test_AS4100_Nty2():
     Basic test of the Nty method with a beam.
     """
 
-    s1 = Circle(radius=0.02, material=as3678_HR250)
+    s1 = Circle(radius=0.02, material=as3678_250)
 
     e1 = Element.empty_element(length=1.0, section=s1)
 
@@ -297,9 +297,9 @@ def test_AS4100_Nty3():
     Basic test of the Nty method with multiple section types.
     """
 
-    s1 = Circle(radius=0.02, material=as3678_HR250)
-    s2 = Circle(radius=0.04, material=as3678_HR250)
-    s3 = Circle(radius=0.06, material=as3678_HR250)
+    s1 = Circle(radius=0.02, material=as3678_250)
+    s2 = Circle(radius=0.04, material=as3678_250)
+    s3 = Circle(radius=0.06, material=as3678_250)
 
     e1 = Element.empty_element(length=0.5, section=s1)
     e2 = Element.empty_element(length=0.0, section=s2)
@@ -326,9 +326,9 @@ def test_AS4100_Nty_multi_positions():
     Basic test of the Nty method with multiple section types and multiple positions.
     """
 
-    s1 = Circle(radius=0.02, material=as3678_HR250)
-    s2 = Circle(radius=0.04, material=as3678_HR250)
-    s3 = Circle(radius=0.06, material=as3678_HR250)
+    s1 = Circle(radius=0.02, material=as3678_250)
+    s2 = Circle(radius=0.04, material=as3678_250)
+    s3 = Circle(radius=0.06, material=as3678_250)
 
     e1 = Element.empty_element(length=0.5, section=s1)
     e2 = Element.empty_element(length=0.0, section=s2)
@@ -353,7 +353,7 @@ def test_AS4100_Ntu():
     Basic test of the Ntu method with a section only.
     """
 
-    s = Circle(radius=0.02, material=as3678_HR250)
+    s = Circle(radius=0.02, material=as3678_250)
 
     a = AS4100(section=s, φ_steel=0.9, αu=0.85, kt=1.0)
 
@@ -367,7 +367,7 @@ def test_AS4100_Ntu2():
     Basic test of the Ntu method with a beam.
     """
 
-    s1 = Circle(radius=0.02, material=as3678_HR250)
+    s1 = Circle(radius=0.02, material=as3678_250)
 
     e1 = Element.empty_element(length=1.0, section=s1)
 
@@ -390,9 +390,9 @@ def test_AS4100_Ntu3():
     Basic test of the Ntu method with multiple section types.
     """
 
-    s1 = Circle(radius=0.02, material=as3678_HR250)
-    s2 = Circle(radius=0.04, material=as3678_HR250)
-    s3 = Circle(radius=0.06, material=as3678_HR250)
+    s1 = Circle(radius=0.02, material=as3678_250)
+    s2 = Circle(radius=0.04, material=as3678_250)
+    s3 = Circle(radius=0.06, material=as3678_250)
 
     e1 = Element.empty_element(length=0.5, section=s1)
     e2 = Element.empty_element(length=0.0, section=s2)
@@ -418,9 +418,9 @@ def test_AS4100_Ntu_multi_positions():
     Basic test of the Ntu method with multiple section types and multiple positions.
     """
 
-    s1 = Circle(radius=0.02, material=as3678_HR250)
-    s2 = Circle(radius=0.04, material=as3678_HR250)
-    s3 = Circle(radius=0.06, material=as3678_HR250)
+    s1 = Circle(radius=0.02, material=as3678_250)
+    s2 = Circle(radius=0.04, material=as3678_250)
+    s3 = Circle(radius=0.06, material=as3678_250)
 
     e1 = Element.empty_element(length=0.5, section=s1)
     e2 = Element.empty_element(length=0.0, section=s2)
