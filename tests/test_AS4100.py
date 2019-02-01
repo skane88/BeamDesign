@@ -55,7 +55,6 @@ def test_AS4100_default():
     assert a
 
 
-
 @mark.xfail(strict=True, raises=CodeCheckError)
 def test_AS4100_beam_section_None_error():
     """
@@ -63,16 +62,6 @@ def test_AS4100_beam_section_None_error():
     """
 
     a = AS4100(section=None, beam=None, φ_steel=0.9, αu=0.85, kt=1.0)
-
-
-def test_AS4100_default_params_fp_error_1():
-
-    assert False
-
-
-def test_AS4100_default_params_fp_error_2():
-
-    assert False
 
 
 def test_AS4100_get_all_sections():
@@ -412,6 +401,7 @@ def test_AS4100_Ntu3():
 
     assert isclose(expected, a.Ntu(position=0.75))
     assert isclose(expected, a.Ntu(position=1.00))
+
 
 def test_AS4100_Ntu_multi_positions():
     """
