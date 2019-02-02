@@ -118,15 +118,15 @@ def test_Beam_length(lengths):
         ([1.2345, 4.5678, 2.3456], [[0.0, 1.2345], [1.2345, 5.8023], [5.8023, 8.1479]]),
     ],
 )
-def test_Beam_starts_ends(lengths, expected):
+def test_Beam_element_ends(lengths, expected):
     """
-    Test the element_starts_ends property
+    Test the element_ends property
     """
 
     elements = [Element.empty_element(length=l) for l in lengths]
 
     a = Beam(elements=elements)
-    starts_ends = a.element_starts_ends
+    starts_ends = a.element_ends
 
     assert starts_ends == expected
 
@@ -209,24 +209,24 @@ def test_Beam_in_element(position, expected):
         (3.8, 3, 1.0),
     ],
 )
-def test_Beam_element_local(position, element, expected):
+def test_Beam_beam_to_local(position, element, expected):
     """
-    Test the ``Beam.element_local_position`` method.
+    Test the ``Beam.beam_to_local_position`` method.
     """
     length = [1.0, 0.0, 2.3, 0.5]
 
     elements = [Element.empty_element(length=l) for l in length]
 
     a = Beam(elements=elements)
-    actual = a.element_local_position(position=position, element=element)
+    actual = a.beam_to_local_position(position=position, element=element)
 
     assert actual == expected
 
 
 @mark.xfail(strict=True, raises=ElementLengthError)
-def test_Beam_element_local_error():
+def test_Beam_beam_to_local_error():
     """
-    Test the ``Beam.element_local_position`` method.
+    Test the ``Beam.beam_to_local_position`` method.
     """
 
     length = [1.0, 0.0, 2.3, 0.5]
@@ -237,7 +237,7 @@ def test_Beam_element_local_error():
     element = 1
 
     a = Beam(elements=elements)
-    actual = a.element_local_position(position=position, element=element)
+    actual = a.beam_to_local_position(position=position, element=element)
 
     assert True
 
@@ -246,16 +246,16 @@ def test_Beam_element_local_error():
 @mark.parametrize(
     "position, element", [(-0.5, 0), (0.5, 1), (1.1, 0), (1.1, 1), (3.9, 3)]
 )
-def test_Beam_element_local_error2(position, element):
+def test_Beam_beam_to_local_error2(position, element):
     """
-    Test for expected errors in the ``Beam.element_local_position`` method.
+    Test for expected errors in the ``Beam.beam_to_local_position`` method.
     """
     length = [1.0, 0.0, 2.3, 0.5]
 
     elements = [Element.empty_element(length=l) for l in length]
 
     a = Beam(elements=elements)
-    actual = a.element_local_position(position=position, element=element)
+    actual = a.beam_to_local_position(position=position, element=element)
 
     assert True
 
@@ -277,9 +277,9 @@ def test_Beam_element_local_error2(position, element):
         (1.0, 3, 3.8),
     ],
 )
-def test_Beam_element_real_position(position, element, expected):
+def test_Beam_local_to_beam_position(position, element, expected):
     """
-    Test for the Beam.element_real_position method.
+    Test for the Beam.local_to_beam_position method.
     """
 
     length = [1.0, 0.0, 2.3, 0.5]
@@ -288,7 +288,7 @@ def test_Beam_element_real_position(position, element, expected):
 
     a = Beam(elements=elements)
 
-    actual = a.element_real_position(position=position, element=element)
+    actual = a.local_to_beam_position(position=position, element=element)
 
     assert actual == expected
 
@@ -296,9 +296,9 @@ def test_Beam_element_real_position(position, element, expected):
 @mark.xfail(strict=True, raises=PositionNotInElementError)
 @mark.parametrize("position", [-1, -0.1, 1.1, 2.0])
 @mark.parametrize("element", [0, 1, 2, 3])
-def test_Beam_element_real_position_error(position, element):
+def test_Beam_local_to_beam_position_error(position, element):
     """
-    Test for the Beam.element_real_position method errors.
+    Test for the Beam.local_to_beam_position method errors.
     """
 
     length = [1.0, 0.0, 2.3, 0.5]
@@ -307,7 +307,7 @@ def test_Beam_element_real_position_error(position, element):
 
     a = Beam(elements=elements)
 
-    actual = a.element_real_position(position=position, element=element)
+    actual = a.local_to_beam_position(position=position, element=element)
 
     assert True
 

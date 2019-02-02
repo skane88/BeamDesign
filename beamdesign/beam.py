@@ -130,17 +130,17 @@ class Element:
          [pos, vx_n, vy_n, N_n, mx_n, my_n, T_n]
         ]
 
-        The values of position are normalised between 0.0 and 1.0. To get the true real
-        world length along the element they should be multiplied by ``self.length``.
-        This is not done at this stage as real-world lengths will generally only be
-        required on a ``Beam`` object which may consist of multiple elements.
+        The values of position are normalised local positions between 0.0 and 1.0.
+        To get the true global length along the element they should be multiplied by
+        ``self.length``. This is not done at this stage as global lengths will generally
+        only be required on a ``Beam`` object which may consist of multiple elements.
 
         :param load_case: The load case to get the loads in.
         :param position: The position at which to return the load. Position values
             should be entered as floats between 0.0 and 1.0 where 0.0 and 1.0 define
             the ends of the element on which the load case is being applied. Positions
-            in real world lengths must be normalised by dividing by the element length.
-            length.
+            in global positions (i.e. based on real world length) must be normalised by
+            dividing by the element length.
 
             Positions can be a single position or a list of positions. If a list is
             provided, any duplicate values will be ignored, and the order will be
@@ -383,7 +383,7 @@ class Beam:
         return self.elements[0].load_cases
 
     @property
-    def element_starts_ends(self) -> List[List[float]]:
+    def element_ends(self) -> List[List[float]]:
         """
         Returns the ``Element`` starting & ending points as positions from the
         start of the ``Beam``. ``Beam.elements[0]`` always starts at 0.0.
@@ -424,7 +424,7 @@ class Beam:
         :return: Returns a List of the start & end postions [start, end]
         """
 
-        return self.element_starts_ends[element]
+        return self.element_ends[element]
 
     def in_elements(self, *, position: float) -> List[int]:
         """
@@ -453,7 +453,7 @@ class Beam:
 
         return ret_list
 
-    def element_local_position(self, *, position: float, element: int) -> float:
+    def beam_to_local_position(self, *, position: float, element: int) -> float:
         """
         Gets the local position of a *real* position normalised onto an ``Element``.
 
@@ -480,7 +480,7 @@ class Beam:
         else:
             return (position - start) / length
 
-    def element_real_position(self, *, position: float, element: int) -> float:
+    def local_to_beam_position(self, *, position: float, element: int) -> float:
         """
         Gets the *real* position of an ``Element`` local position on the ``Beam``
         object.
@@ -603,7 +603,7 @@ class Beam:
             # element local positions, which may be some double handling, but keeps the
             # logic easier to follow.
 
-            start_ends = self.element_starts_ends
+            start_ends = self.element_ends
             position = list(itertools.chain.from_iterable(start_ends))
 
             for i, e in enumerate(elements):
@@ -613,7 +613,7 @@ class Beam:
                 # now convert to *real* positions
 
                 real_pos = [
-                    self.element_real_position(position=p, element=i)
+                    self.local_to_beam_position(position=p, element=i)
                     for p in element_pos
                 ]
 
@@ -648,7 +648,7 @@ class Beam:
             e_id = e[1]
 
             if elements[e_id].length > 0:
-                local_pos = self.element_local_position(position=real_pos, element=e_id)
+                local_pos = self.beam_to_local_position(position=real_pos, element=e_id)
             else:
                 # handle the case of a zero length element. Determining the local
                 # position of a real world position on a zero length element is
