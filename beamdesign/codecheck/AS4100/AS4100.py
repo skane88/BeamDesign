@@ -40,9 +40,9 @@ class AS4100(CodeCheck):
 
         raise NotImplementedError()
 
-    def get_all_sections(self) -> List[Section]:
+    def sections(self) -> List[Section]:
 
-        return super().get_all_sections()
+        return super().sections()
 
     def get_section(
         self, position: Union[List[float], float] = None

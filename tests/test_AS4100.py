@@ -74,7 +74,7 @@ def test_AS4100_get_all_sections():
 
     a = AS4100(section=s, φ_steel=0.9, αu=0.85, kt=1.0)
 
-    actual = a.get_all_sections()
+    actual = a.sections()
 
     assert actual == [s]
 
@@ -88,7 +88,7 @@ def test_AS4100_get_all_sections2():
 
     a = AS4100(beam=b, φ_steel=0.9, αu=0.85, kt=1.0)
 
-    actual = a.get_all_sections()
+    actual = a.sections()
 
     assert actual == [None]
 
@@ -110,7 +110,7 @@ def test_AS4100_get_all_sections3():
 
     a = AS4100(beam=b, φ_steel=0.9, αu=0.85, kt=1.0)
 
-    assert a.get_all_sections() == [s1, s2, s3]
+    assert a.sections() == [s1, s2, s3]
 
 
 def test_AS4100_get_section():

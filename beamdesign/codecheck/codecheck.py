@@ -71,7 +71,7 @@ class CodeCheck(ABC):
         """
 
     @abstractmethod
-    def get_all_sections(self) -> List[Section]:
+    def sections(self) -> List[Section]:
         """
         Returns all the sections from the elements that make up the ``codecheck``
         object.
@@ -111,6 +111,6 @@ class CodeCheck(ABC):
             return [[self.section]]
 
         if position is None:
-            return [self.get_all_sections()]
+            return [self.sections()]
 
         return self.beam.get_section(position=position)
