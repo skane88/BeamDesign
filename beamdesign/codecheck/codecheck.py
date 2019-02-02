@@ -83,7 +83,7 @@ class CodeCheck(ABC):
         if self.beam is None:
             return [self.section]
 
-        return self.beam.get_all_sections()
+        return self.beam.sections()
 
     @abstractmethod
     def get_section(

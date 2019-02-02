@@ -647,9 +647,9 @@ def test_Beam_get_loads_error(position):
     assert True
 
 
-def test_Beam_get_all_sections():
+def test_Beam_sections():
     """
-     Test the beam get_all_sections method.
+     Test the beam sections method.
      """
 
     s1 = Circle(radius=0.02, material=as3678_250)
@@ -662,7 +662,7 @@ def test_Beam_get_all_sections():
 
     b = Beam(elements=[e1, e2, e3])
 
-    assert b.get_all_sections() == [s1, s2, s3]
+    assert b.sections() == [s1, s2, s3]
 
 
 def test_Beam_get_section_none():

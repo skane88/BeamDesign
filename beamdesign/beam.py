@@ -672,7 +672,7 @@ class Beam:
 
         return ret_val
 
-    def get_all_sections(self) -> List[Section]:
+    def sections(self) -> List[Section]:
         """
         Returns all the sections from the elements that make up the ``Beam`` object.
 
