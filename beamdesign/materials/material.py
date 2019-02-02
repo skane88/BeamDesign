@@ -9,7 +9,7 @@ from pathlib import Path
 import numpy as np
 import toml
 
-from BeamDesign.Utility.Exceptions import InvalidThicknessError
+from beamdesign.utility.exceptions import InvalidThicknessError
 
 
 class Material(ABC):

@@ -30,16 +30,16 @@ from typing import List, Dict, Union
 
 import numpy as np
 
-from BeamDesign.LoadCase import LoadCase
-from BeamDesign.const import LoadComponents
-from BeamDesign.Utility.Exceptions import (
+from beamdesign.loadcase import LoadCase
+from beamdesign.const import LoadComponents
+from beamdesign.utility.exceptions import (
     ElementError,
     ElementCaseError,
     ElementLengthError,
     PositionNotInElementError,
     PositionNotInBeamError,
 )
-from BeamDesign.Sections.Section import Section
+from beamdesign.sections.section import Section
 
 
 class Element:
@@ -692,9 +692,9 @@ class Beam:
             that are on element boundaries, it is returned as a list of lists:
 
             [
-                [section_element_1, ..., section_element_n] # Sections at position 1
+                [section_element_1, ..., section_element_n] # sections at position 1
                 ...
-                [section_element_1, ..., section_element_n] # Sections at position n
+                [section_element_1, ..., section_element_n] # sections at position n
             ]
         """
 

@@ -1,13 +1,13 @@
 """
-This will contain an Abstract Base Class that all CodeCheck classes should inherit from.
+This will contain an Abstract Base Class that all codecheck classes should inherit from.
 """
 
 from abc import ABC, abstractmethod
 from typing import List, Union
 
-from BeamDesign.Beam import Beam
-from BeamDesign.Sections.Section import Section
-from BeamDesign.Utility.Exceptions import CodeCheckError
+from beamdesign.beam import Beam
+from beamdesign.sections.section import Section
+from beamdesign.utility.exceptions import CodeCheckError
 
 
 class CodeCheck(ABC):
@@ -73,7 +73,7 @@ class CodeCheck(ABC):
     @abstractmethod
     def get_all_sections(self) -> List[Section]:
         """
-        Returns all the sections from the elements that make up the ``CodeCheck``
+        Returns all the sections from the elements that make up the ``codecheck``
         object.
 
         :return: A list of all the sections. If there is no beam (and only a section) a
@@ -92,7 +92,7 @@ class CodeCheck(ABC):
         """
         Gets the section properties at a given position or list of positions.
 
-        :param position: The position to return the section from. If the ``CodeCheck``
+        :param position: The position to return the section from. If the ``codecheck``
             object has only a section property (and not a ``Beam`` property) it returns
             ``self.section``. If ``None`` it returns all sections. If a position is
             given it returns the sections at the given positions.
@@ -101,9 +101,9 @@ class CodeCheck(ABC):
             between elements. The list is of the form:
 
             [
-                [section_element_1, ..., section_element_n] # Sections at position 1
+                [section_element_1, ..., section_element_n] # sections at position 1
                 ...
-                [section_element_1, ..., section_element_n] # Sections at position n
+                [section_element_1, ..., section_element_n] # sections at position n
             ]
         """
 

@@ -2,9 +2,9 @@ import numpy as np
 
 import pytest
 
-from BeamDesign.LoadCase import LoadCase
-from BeamDesign.const import LoadComponents
-from BeamDesign.Utility.Exceptions import LoadCaseError
+from beamdesign.loadcase import LoadCase
+from beamdesign.const import LoadComponents
+from beamdesign.utility.exceptions import LoadCaseError
 
 
 def test_LoadCase_init():

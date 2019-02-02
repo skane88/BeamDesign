@@ -5,8 +5,8 @@ It inherits from ``clsSection``.
 
 import math
 
-from BeamDesign.Sections.Section import Section
-from BeamDesign.Materials.material import Material
+from beamdesign.sections.section import Section
+from beamdesign.materials.material import Material
 
 
 class Circle(Section):

@@ -6,11 +6,11 @@ from pytest import mark
 
 import numpy as np
 
-from BeamDesign.Beam import Beam, Element
-from BeamDesign.LoadCase import LoadCase
-from BeamDesign.Sections.Circle import Circle
-from BeamDesign.Materials.material import Steel
-from BeamDesign.Utility.Exceptions import (
+from beamdesign.beam import Beam, Element
+from beamdesign.loadcase import LoadCase
+from beamdesign.sections.circle import Circle
+from beamdesign.materials.material import Steel
+from beamdesign.utility.exceptions import (
     ElementError,
     ElementLengthError,
     PositionNotInElementError,

@@ -4,8 +4,8 @@ Contains tests for the circle section properties class
 
 from math import isclose
 
-from BeamDesign.Sections.Circle import Circle
-from BeamDesign.Materials.material import Steel
+from beamdesign.sections.circle import Circle
+from beamdesign.materials.material import Steel
 
 as3678_250 = Steel.load_steel(steel_name='AS3678-250')
 

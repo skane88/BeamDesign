@@ -3,7 +3,7 @@ for calculating section properties."""
 
 from abc import ABC, abstractmethod
 
-from BeamDesign.Materials.material import Material
+from beamdesign.materials.material import Material
 
 
 class Section(ABC):

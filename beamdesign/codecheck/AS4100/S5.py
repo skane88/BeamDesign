@@ -32,7 +32,7 @@ import math
 import enum
 
 from typing import List, Union, Dict
-from BeamDesign.Sections.HollowCircle import HollowCircle
+from beamdesign.sections.hollowcircle import HollowCircle
 
 
 # define some helpful enumerations

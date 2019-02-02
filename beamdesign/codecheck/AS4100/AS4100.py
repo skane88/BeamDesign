@@ -10,9 +10,9 @@ from pathlib import Path
 
 import toml
 
-from BeamDesign.Beam import Beam
-from BeamDesign.CodeCheck.CodeCheck import CodeCheck
-from BeamDesign.Sections.Section import Section
+from beamdesign.beam import Beam
+from beamdesign.codecheck.codecheck import CodeCheck
+from beamdesign.sections.section import Section
 
 
 class AS4100(CodeCheck):

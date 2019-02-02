@@ -6,8 +6,8 @@ from typing import Union, List
 
 import numpy as np
 
-from BeamDesign.Utility.Exceptions import LoadCaseError
-from BeamDesign.const import LoadComponents
+from beamdesign.utility.exceptions import LoadCaseError
+from beamdesign.const import LoadComponents
 
 
 class LoadCase:

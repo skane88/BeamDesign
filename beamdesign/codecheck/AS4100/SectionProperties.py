@@ -3,7 +3,7 @@ This module contains functions for calculating effective section properties
 as required by AS4100 S5, 6 & 7.
 """
 
-from BeamDesign.Sections.HollowCircle import HollowCircle
+from beamdesign.sections.hollowcircle import HollowCircle
 
 
 def s6_2_λ_e_flatplate(b, t, f_y, f_ref = 250.):

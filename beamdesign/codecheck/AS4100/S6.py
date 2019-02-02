@@ -28,7 +28,7 @@ in consistent systems of units.
 import math
 import numpy
 import functools
-from BeamDesign.Utility.Symmetry import Symmetry
+from beamdesign.utility.symmetry import Symmetry
 from typing import Dict, Union
 
 #section capacity methods

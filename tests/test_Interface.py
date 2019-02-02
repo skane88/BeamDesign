@@ -1,4 +1,4 @@
-from BeamDesign.Beam import Beam
+from beamdesign.beam import Beam
 
 
 def test_basic():

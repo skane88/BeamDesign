@@ -6,11 +6,11 @@ from math import isclose, pi
 
 from pytest import mark
 
-from BeamDesign.CodeCheck.AS4100.AS4100 import *
-from BeamDesign.Beam import Beam, Element
-from BeamDesign.Sections.Circle import Circle
-from BeamDesign.Materials.material import Steel
-from BeamDesign.Utility.Exceptions import CodeCheckError
+from beamdesign.codecheck.AS4100.AS4100 import *
+from beamdesign.beam import Beam, Element
+from beamdesign.sections.circle import Circle
+from beamdesign.materials.material import Steel
+from beamdesign.utility.exceptions import CodeCheckError
 
 from tests.test_utils import *
 

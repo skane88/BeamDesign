@@ -89,7 +89,7 @@ class InvalidThicknessError(MaterialError):
 
 class CodeCheckError(BeamDesignError):
     """
-    Default error to throw in the CodeCheck classes.
+    Default error to throw in the codecheck classes.
     """
 
     pass

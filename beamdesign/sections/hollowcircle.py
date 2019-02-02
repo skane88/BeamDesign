@@ -1,8 +1,8 @@
 """Defines a section properties class for hollow circles,
 inherited from SectionClass"""
 
-from BeamDesign.Sections.Section import Section
-from BeamDesign.Sections.Circle import Circle
+from beamdesign.sections.section import Section
+from beamdesign.sections.circle import Circle
 
 
 class HollowCircle(Section):

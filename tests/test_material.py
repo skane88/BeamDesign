@@ -6,8 +6,8 @@ from math import isclose
 
 from pytest import mark
 
-from BeamDesign.Materials.material import Steel
-from BeamDesign.Utility.Exceptions import InvalidThicknessError
+from beamdesign.materials.material import Steel
+from beamdesign.utility.exceptions import InvalidThicknessError
 
 as3678_250 = [
     [0.008, 0.012, 0.05, 0.08, 0.15],
