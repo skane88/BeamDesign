@@ -10,14 +10,14 @@ from beamdesign.materials.material import Steel
 from beamdesign.utility.exceptions import InvalidThicknessError
 
 as3678_250 = [
-    [0.008, 0.012, 0.05, 0.08, 0.15],
-    [280e6, 260e6, 250e6, 240e6, 230e6],
-    [410e6, 410e6, 410e6, 410e6, 410e6],
+    [0.008, 0.012, 0.020, 0.050, 0.080, 0.150, 0.200],
+    [280e6, 260e6, 250e6, 250e6, 240e6, 230e6, 220e6],
+    [410e6, 410e6, 410e6, 410e6, 410e6, 410e6, 400e6]
 ]
 as3678_300 = [
-    [0.008, 0.012, 0.050, 0.080, 0.150],
-    [320e6, 310e6, 280e6, 270e6, 260e6],
-    [430e6, 430e6, 430e6, 430e6, 430e6],
+    [0.008, 0.012, 0.020, 0.050, 0.080, 0.150, 0.200],
+    [320e6, 310e6, 300e6, 280e6, 270e6, 260e6, 250e6],
+    [430e6, 430e6, 430e6, 430e6, 430e6, 430e6, 420e6]
 ]
 
 
@@ -62,11 +62,11 @@ def test_steel_strength(test_vals):
     s = Steel(name="HR250", standard="AS3678", E=200e9, strengths=as3678_250)
 
     assert isclose(s.strength_yield(thickness=thickness), f_y)
-    assert isclose(s.strength_ultimate(), f_u)
+    assert isclose(s.strength_ultimate(thickness=thickness), f_u)
 
 
 @mark.xfail(strict=True, raises=InvalidThicknessError)
-@mark.parametrize("thickness", [-0.005, 0.151, None])
+@mark.parametrize("thickness", [-0.005, 0.201, None])
 def test_steel_strength_yield_error(thickness):
     """
     Test that the steel strength methods return appropriate errors.
@@ -117,11 +117,11 @@ def test_load_steel():
 
     vals = Steel.load_steel()
 
-    s250 = Steel(name="250", standard="AS3678", E=200e9, strengths=as3678_250)
-    s300 = Steel(name="300", standard="AS3678", E=200e9, strengths=as3678_300)
+    s250 = Steel(name="250", standard="AS3678-2016", E=200e9, strengths=as3678_250)
+    s300 = Steel(name="300", standard="AS3678-2016", E=200e9, strengths=as3678_300)
 
-    assert vals["AS3678-250"] == s250
-    assert vals["AS3678-300"] == s300
+    assert vals["AS3678-2016-250"] == s250
+    assert vals["AS3678-2016-300"] == s300
 
 
 def test_load_steel2():
@@ -129,8 +129,8 @@ def test_load_steel2():
     Test the load_steel class method.
     """
 
-    s250 = Steel(name="250", standard="AS3678", E=200e9, strengths=as3678_250)
+    s250 = Steel(name="250", standard="AS3678-2016", E=200e9, strengths=as3678_250)
 
-    s250_load = Steel.load_steel(steel_name="AS3678-250")
+    s250_load = Steel.load_steel(steel_name="AS3678-2016-250")
 
     assert s250 == s250_load

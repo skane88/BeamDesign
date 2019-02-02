@@ -43,17 +43,20 @@ class Material(ABC):
         Returns the yield strength of the material.
 
         :param thickness: For materials where the yield strength depends on the
-            thickness, thickness should be entered. Otherwise the method should receive
-            ``None`` and ignore it.
+            thickness, thickness should be handled. Otherwise the method should ignore
+            the passed in value.
         :return: The yield strength of the material.
         """
         raise NotImplementedError
 
     @abstractmethod
-    def strength_ultimate(self) -> float:
+    def strength_ultimate(self, *, thickness=None) -> float:
         """
         Returns the ultimate strength of the material.
 
+        :param thickness: For materials where the yield strength depends on the
+            thickness, thickness should be handled. Otherwise the method should ignore
+            the passed in value.
         :return: The ultimate strength of the material.
         """
         raise NotImplementedError
@@ -118,7 +121,7 @@ class Steel(Material):
 
         return self._E
 
-    def strength_yield(self, *, thickness: float = None):
+    def strength_yield(self, *, thickness: float = None) -> float:
         """
         Calculates the yield strength of the material. This is taken to be the yield
         strength of the next largest stored thickness. I.e. if the following yield
@@ -138,16 +141,16 @@ class Steel(Material):
 
         return self.fy(thickness=thickness)
 
-    def strength_ultimate(self):
+    def strength_ultimate(self, *, thickness: float = None) -> float:
         """
         Return the ultimate strength of the material.
 
         :return: The ultimate strength of the material.
         """
 
-        return self.fu()
+        return self.fu(thickness=thickness)
 
-    def fy(self, *, thickness: float):
+    def fy(self, *, thickness: float) -> float:
         """
         Calculates the yield strength of the material. This is taken to be the yield
             strength of the next largest stored thickness. I.e. if the following yield
@@ -156,8 +159,8 @@ class Steel(Material):
             thickness = 10mm, yield strength = 260MPa
             thickness = 15mm, yield strength = 250MPa
 
-            An input parameter of thickness = 9mm will return 260MPa, and an inpt of 12mm
-            will return a yield strength of 250MPa.
+            An input parameter of thickness = 9mm will return 260MPa, and an input of
+            12mm will return a yield strength of 250MPa.
 
         :param thickness: The thickness of the material.
         :return: The yield strength of the material.
@@ -181,14 +184,39 @@ class Steel(Material):
 
         return self.strengths[1, index]
 
-    def fu(self):
+    def fu(self, *, thickness: float) -> float:
         """
-        Return the ultimate strength of the material.
+        Calculates the ultimate strength of the material. This is taken to be the
+            strength of the next largest stored thickness. I.e. if the following
+            strength profile is taken to apply:
 
+            thickness = 10mm, ultimate strength = 410MPa
+            thickness = 15mm, ultimate strength = 400MPa
+
+            An input parameter of thickness = 9mm will return 401MPa, and an input of
+            12mm will return an ultimate strength of 400MPa.
+
+        :param thickness: The thickness of the material.
         :return: The ultimate strength of the material.
         """
 
-        return np.amin(self.strengths[2])
+        if thickness is None:
+            raise InvalidThicknessError(f"Thickness cannot be None")
+        elif thickness < 0:
+            raise InvalidThicknessError(
+                f"Thickness must be >=0. Thickness was {thickness}"
+            )
+        elif thickness > self.max_thickness:
+            raise InvalidThicknessError(
+                f"Thickness is expected to be <= largest stored thickness value. "
+                + f"Thickness entered was {thickness}, "
+                + f"largest stored thickness is {self.max_thickness}"
+            )
+
+        # first find the index of the next largest number
+        index = np.searchsorted(self.strengths[0], thickness, side="left")
+
+        return self.strengths[2, index]
 
     @property
     def strengths(self) -> np.ndarray:

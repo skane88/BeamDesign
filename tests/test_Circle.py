@@ -7,7 +7,7 @@ from math import isclose
 from beamdesign.sections.circle import Circle
 from beamdesign.materials.material import Steel
 
-as3678_250 = Steel.load_steel(steel_name='AS3678-250')
+as3678_250 = Steel.load_steel(steel_name='AS3678-2016-250')
 
 
 def test_Circle():

@@ -66,7 +66,7 @@ class Circle(Section):
         Return the minimum ultimate strength of the section.
         """
 
-        return self.material.strength_ultimate()
+        return self.material.strength_ultimate(thickness=self.radius * 2)
 
     def __repr__(self):
         return (

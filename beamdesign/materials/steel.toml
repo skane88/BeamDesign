@@ -3,23 +3,75 @@
 
 # NOTE: keys must be ASCII characters or else be in quotes "" (i.e. for greek variable names).
 
-# Australian Steels
-[AS3678-250]
+# Australian Steels - flat plate
+[AS3678-2016-250]
     name = "250"
-    standard = "AS3678"
+    standard = "AS3678-2016"
     E= 200e9
     strengths= [
-        [0.008, 0.012, 0.050, 0.080, 0.150],
-        [280e6, 260e6, 250e6, 240e6, 230e6],
-        [410e6, 410e6, 410e6, 410e6, 410e6]
+        [0.008, 0.012, 0.020, 0.050, 0.080, 0.150, 0.200],
+        [280e6, 260e6, 250e6, 250e6, 240e6, 230e6, 220e6],
+        [410e6, 410e6, 410e6, 410e6, 410e6, 410e6, 400e6]
         ]
 
-[AS3678-300]
+[AS3678-2016-300]
     name = "300"
-    standard = "AS3678"
+    standard = "AS3678-2016"
     E = 200e9
     strengths = [
-        [0.008, 0.012, 0.050, 0.080, 0.150],
-        [320e6, 310e6, 280e6, 270e6, 260e6],
-        [430e6, 430e6, 430e6, 430e6, 430e6]
+        [0.008, 0.012, 0.020, 0.050, 0.080, 0.150, 0.200],
+        [320e6, 310e6, 300e6, 280e6, 270e6, 260e6, 250e6],
+        [430e6, 430e6, 430e6, 430e6, 430e6, 430e6, 420e6]
+        ]
+
+
+[AS3678-2016-350]
+    name = "350"
+    standard = "AS3678-2016"
+    E = 200e9
+    strengths = [
+        [0.008, 0.012, 0.020, 0.032, 0.050, 0.080, 0.150, 0.200],
+        [360e6, 360e6, 350e6, 340e6, 340e6, 340e6, 330e6, 320e6],
+        [450e6, 450e6, 450e6, 450e6, 450e6, 450e6, 450e6, 450e6]
+        ]
+
+[AS3678-2016-400]
+    name = "400"
+    standard = "AS3678-2016"
+    E = 200e9
+    strengths = [
+        [0.008, 0.012, 0.020, 0.032, 0.050, 0.080],
+        [400e6, 400e6, 380e6, 360e6, 360e6, 360e6],
+        [450e6, 450e6, 450e6, 450e6, 450e6, 450e6]
+        ]
+
+# Australian Steels - Hot Rolled Sections
+["AS3679.1-1996-250"]
+    name = "250"
+    standard = "AS3679.1-1996"
+    E = 200e9
+    strengths = [
+        [0.011, 0.017, 0.040, 0.200], # note: properties above 40mm thickness not specified in the standard. Using 0.20 for consistency with AS3678 standard.
+        [260e6, 250e6, 250e6, 230e6],
+        [410e6, 410e6, 410e6, 410e6]
+        ]
+
+["AS3679.1-2016-300"]
+    name = "300"
+    standard = "AS3679.1-1996"
+    E = 200e9
+    strengths = [
+        [0.011, 0.017, 0.040, 0.200], # note: properties above 40mm thickness not specified in the standard. Using 0.20 for consistency with AS3678 standard.
+        [320e6, 300e6, 280e6, 280e6],
+        [440e6, 440e6, 440e6, 440e6]
+        ]
+
+["AS3679.1-2016-350"]
+    name = "350"
+    standard = "AS3679.1-1996"
+    E = 200e9
+    strengths = [
+        [0.011, 0.017, 0.040, 0.200], # note: properties above 40mm thickness not specified in the standard. Using 0.20 for consistency with AS3678 standard.
+        [360e6, 340e6, 340e6, 330e6],
+        [480e6, 480e6, 480e6, 480e6]
         ]

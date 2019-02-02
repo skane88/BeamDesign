@@ -14,8 +14,8 @@ from beamdesign.utility.exceptions import CodeCheckError
 
 from tests.test_utils import *
 
-as3678_250 = Steel.load_steel(steel_name="AS3678-250")
-as3678_300 = Steel.load_steel(steel_name="AS3678-300")
+as3678_250 = Steel.load_steel(steel_name="AS3678-2016-250")
+as3678_300 = Steel.load_steel(steel_name="AS3678-2016-300")
 
 
 def test_AS4100():
