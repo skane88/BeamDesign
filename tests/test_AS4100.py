@@ -65,9 +65,9 @@ def test_AS4100_beam_section_None_error():
     a = AS4100(section=None, beam=None, φ_steel=0.9, αu=0.85, kt=1.0)
 
 
-def test_AS4100_get_all_sections():
+def test_AS4100_sections():
     """
-    Test the get_all_sections method when there is only a section.
+    Test the sections method when there is only a section.
     """
 
     s = Circle(radius=0.02, material=as3678_250)
@@ -79,9 +79,9 @@ def test_AS4100_get_all_sections():
     assert actual == [s]
 
 
-def test_AS4100_get_all_sections2():
+def test_AS4100_sections2():
     """
-    Test the get_all_sections method with a beam that has a single section.
+    Test the sections method with a beam that has a single section.
     """
 
     b = Beam.empty_beam()
@@ -93,9 +93,9 @@ def test_AS4100_get_all_sections2():
     assert actual == [None]
 
 
-def test_AS4100_get_all_sections3():
+def test_AS4100_sections3():
     """
-    Test the get_all_sections method on a beam with actual length.
+    Test the sections method on a beam with actual length.
     """
 
     s1 = Circle(radius=0.02, material=as3678_250)
