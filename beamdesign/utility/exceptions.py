@@ -93,11 +93,3 @@ class CodeCheckError(BeamDesignError):
     """
 
     pass
-
-
-class DefaultParametersMissingError(CodeCheckError):
-    """
-    Error to throw if the default parameters class is missing.
-    """
-
-    pass
