@@ -6,131 +6,128 @@ from math import isclose
 
 from pytest import mark
 
-from beamdesign.materials.material import Steel
+from beamdesign.materials.material import Material
+from beamdesign.const import MatType
 from beamdesign.utility.exceptions import InvalidThicknessError
 
 as3678_250 = [
     [0.008, 0.012, 0.020, 0.050, 0.080, 0.150, 0.200],
     [280e6, 260e6, 250e6, 250e6, 240e6, 230e6, 220e6],
-    [410e6, 410e6, 410e6, 410e6, 410e6, 410e6, 400e6]
+    [410e6, 410e6, 410e6, 410e6, 410e6, 410e6, 400e6],
 ]
 as3678_300 = [
     [0.008, 0.012, 0.020, 0.050, 0.080, 0.150, 0.200],
     [320e6, 310e6, 300e6, 280e6, 270e6, 260e6, 250e6],
-    [430e6, 430e6, 430e6, 430e6, 430e6, 430e6, 420e6]
+    [430e6, 430e6, 430e6, 430e6, 430e6, 430e6, 420e6],
 ]
 
 
-def test_steel():
+def test_material():
     """
-    Can a Steel object be instantiated.
+    Can a Material object be instantiated.
     """
 
-    s = Steel(name="HR250", standard="AS3678", E=200e9, strengths=as3678_250)
+    vals = {
+        "type": "steel",
+        "name": "HR250",
+        "standard": "AS3678",
+        "properties": {"E": 200e9, "strengths": as3678_250},
+    }
+
+    s = Material(**vals)
 
     assert s
 
 
-@mark.parametrize(
-    "test_vals",
-    [
-        (0.000, 280e6, 410e6),
-        (0.007, 280e6, 410e6),
-        (0.008, 280e6, 410e6),
-        (0.009, 260e6, 410e6),
-        (0.012, 260e6, 410e6),
-        (0.025, 250e6, 410e6),
-        (0.050, 250e6, 410e6),
-        (0.075, 240e6, 410e6),
-        (0.080, 240e6, 410e6),
-        (0.130, 230e6, 410e6),
-        (0.150, 230e6, 410e6),
-    ],
-    ids=lambda x: (
-        f"t = {x[0]:.3f}m, expected f_y= {x[1] / 1e6:0}MPa, f_u= {x[2] / 1e6}MPa"
-    ),
-)
-def test_steel_strength(test_vals):
+def test_material_eq():
     """
-    Test the strength_yield method against standard 250 grade steel.
+    Does the material equality test work?
     """
 
-    thickness = test_vals[0]
-    f_y = test_vals[1]
-    f_u = test_vals[2]
+    vals = {
+        "type": "steel",
+        "name": "HR250",
+        "standard": "AS3678",
+        "properties": {"E": 200e9, "strengths": as3678_250},
+    }
 
-    s = Steel(name="HR250", standard="AS3678", E=200e9, strengths=as3678_250)
+    vals2 = {
+        "type": "steel",
+        "name": "HR250",
+        "standard": "AS3678",
+        "properties": {"E": 200e9, "strengths": as3678_250},
+    }
 
-    assert isclose(s.strength_yield(thickness=thickness), f_y)
-    assert isclose(s.strength_ultimate(thickness=thickness), f_u)
+    vals3 = {
+        "type": "steel",
+        "name": "HR250",
+        "standard": "AS3678",
+        "properties": {"E": 200e9, "strengths": as3678_300},
+    }
 
+    s1 = Material(**vals)
+    s2 = Material(**vals2)
+    s3 = Material(**vals3)
 
-@mark.xfail(strict=True, raises=InvalidThicknessError)
-@mark.parametrize("thickness", [-0.005, 0.201, None])
-def test_steel_strength_yield_error(thickness):
-    """
-    Test that the steel strength methods return appropriate errors.
-    """
-
-    s = Steel(name="HR250", standard="AS3678", E=200e9, strengths=as3678_250)
-
-    f_y = s.strength_yield(thickness=thickness)
-
-    assert True
-
-
-def test_steel_eq():
-    """
-    Test the overriden equality method for Steel objects - necessary because Steel
-    objects have a numpy array hidden within them.
-    """
-
-    s250 = Steel(name="HR250", standard="AS3678", E=200e9, strengths=as3678_250)
-    s250_2 = Steel(name="HR250", standard="AS3678", E=200e9, strengths=as3678_250)
-
-    assert s250 == s250_2
-
-    s250_2.name = "HR300"
-
-    assert s250 != s250_2
-
-    s250_2 = Steel(name="HR250", standard="AS3678", E=200e9, strengths=as3678_250)
-    s250_2.standard = "AS3679"
-
-    assert s250 != s250_2
-
-    s250_2 = Steel(name="HR250", standard="AS3678", E=200e9, strengths=as3678_250)
-    s250_2._E = "AS3679"
-
-    assert s250 != s250_2
-
-    s250_2 = Steel(name="HR250", standard="AS3678", E=200e9, strengths=as3678_250)
-    s250_2._strengths = as3678_300
-
-    assert s250 != s250_2
+    assert s1 == s2
+    assert s2 != s3
 
 
-def test_load_steel():
+def test_load_material():
     """
     Test the load_steel class method.
     """
 
-    vals = Steel.load_steel()
+    vals = Material.load_material()
 
-    s250 = Steel(name="250", standard="AS3678-2016", E=200e9, strengths=as3678_250)
-    s300 = Steel(name="300", standard="AS3678-2016", E=200e9, strengths=as3678_300)
+    vals250 = {
+        "type": "steel",
+        "name": "250",
+        "standard": "AS3678-2016",
+        "properties": {"E": 200e9, "strengths": as3678_250},
+    }
 
-    assert vals["AS3678-2016-250"] == s250
-    assert vals["AS3678-2016-300"] == s300
+    vals300 = {
+        "type": "steel",
+        "name": "300",
+        "standard": "AS3678-2016",
+        "properties": {"E": 200e9, "strengths": as3678_300},
+    }
+
+    s250 = Material(**vals250)
+    s300 = Material(**vals300)
+
+    s250_act = vals["AS3678-2016-250"]
+    s300_act = vals["AS3678-2016-300"]
+
+    assert s250_act == s250
+    assert s300_act == s300
 
 
-def test_load_steel2():
+def test_load_material2():
     """
-    Test the load_steel class method.
+    Test the load_material class method.
     """
 
-    s250 = Steel(name="250", standard="AS3678-2016", E=200e9, strengths=as3678_250)
+    vals250 = {
+        "type": "steel",
+        "name": "250",
+        "standard": "AS3678-2016",
+        "properties": {"E": 200e9, "strengths": as3678_250},
+    }
 
-    s250_load = Steel.load_steel(steel_name="AS3678-2016-250")
+    s250 = Material(**vals250)
+
+    s250_load = Material.load_material(name="AS3678-2016-250")
 
     assert s250 == s250_load
+
+
+def test_load_material_propertyless():
+    """
+    Test the load_material class method with a propertyless object.
+    """
+
+    mat = Material.load_material(name="test_propertyless")
+
+    assert mat.properties == {}
