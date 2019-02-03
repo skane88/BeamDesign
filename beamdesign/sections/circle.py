@@ -52,22 +52,6 @@ class Circle(Section):
 
         return False
 
-    @property
-    def min_strength_yield(self) -> float:
-        """
-        Return the minimum yield strength of the section.
-        """
-
-        return self.material.strength_yield(thickness=self.radius * 2)
-
-    @property
-    def min_strength_ultimate(self) -> float:
-        """
-        Return the minimum ultimate strength of the section.
-        """
-
-        return self.material.strength_ultimate(thickness=self.radius * 2)
-
     def __repr__(self):
         return (
             f"{self.__class__.__name__}("
