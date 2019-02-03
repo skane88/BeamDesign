@@ -37,6 +37,33 @@ class Section(ABC):
 
     @property
     @abstractmethod
+    def is_circle(self) -> bool:
+        """
+        Is the section circular or not?
+        """
+
+        return False
+
+    @property
+    @abstractmethod
+    def is_hollow(self) -> bool:
+        """
+        Is the section hollow or not?
+        """
+
+        return False
+
+    @property
+    @abstractmethod
+    def is_composite(self) -> bool:
+        """
+        Is the section composite or not?
+        """
+
+        return False
+
+    @property
+    @abstractmethod
     def area(self):
         """
         The area of the shape
@@ -53,21 +80,3 @@ class Section(ABC):
         """
 
         pass
-
-    @property
-    @abstractmethod
-    def is_circle(self):
-        """
-        Is the section circular or not?
-        """
-
-        return False
-
-    @property
-    @abstractmethod
-    def is_hollow(self):
-        """
-        Is the section hollow or not?
-        """
-
-        return False
