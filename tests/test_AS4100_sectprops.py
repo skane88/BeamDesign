@@ -24,8 +24,4 @@ def test_circle():
 
     as4100circle = AS4100Circle(section=c)
 
-    print()
-    for k, v in as4100circle.__dict__.items():
-        print(f"{k}: {v}")
-
     assert as4100circle
