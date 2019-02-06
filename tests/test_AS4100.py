@@ -78,7 +78,7 @@ def test_AS4100_sections():
 
     a = AS4100(section=s, φ_steel=0.9, αu=0.85, kt=1.0)
 
-    actual = a.sections()
+    actual = a.sections
 
     assert actual == [s]
 
@@ -93,7 +93,7 @@ def test_AS4100_sections2():
 
     a = AS4100(beam=b, φ_steel=0.9, αu=0.85, kt=1.0)
 
-    actual = a.sections()
+    actual = a.sections
 
     assert actual == [s]
 
@@ -115,7 +115,7 @@ def test_AS4100_sections3():
 
     a = AS4100(beam=b, φ_steel=0.9, αu=0.85, kt=1.0)
 
-    assert a.sections() == [s1, s2, s3]
+    assert a.sections == [s1, s2, s3]
 
 
 @mark.xfail(strict=True, raises=SectionOnlyError)

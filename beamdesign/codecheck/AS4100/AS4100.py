@@ -5,7 +5,7 @@ minimise the size of this file.
 """
 
 import itertools
-from typing import List, Union, Dict
+from typing import List, Union, Dict, Tuple
 from pathlib import Path
 
 import toml
@@ -14,6 +14,7 @@ from beamdesign.beam import Beam
 from beamdesign.codecheck.codecheck import CodeCheck
 from beamdesign.sections.section import Section
 from beamdesign.codecheck.AS4100.AS4100_sect_props import AS4100Section
+from beamdesign.utility.exceptions import SectionOnlyError
 
 
 class AS4100(CodeCheck):
@@ -31,7 +32,7 @@ class AS4100(CodeCheck):
 
         as4100_sects = []
 
-        for s in self.sections():
+        for s in self.sections:
             as4100_sects += [AS4100Section.AS4100_sect_factory(section=s)]
 
         self._as4100_sections = as4100_sects
@@ -48,19 +49,75 @@ class AS4100(CodeCheck):
 
         raise NotImplementedError()
 
+    @property
     def sections(self) -> List[Section]:
 
         return super().sections
 
+    @property
     def as4100_sections(self) -> List["AS4100Section"]:
+        """
+        Returns a list of all the AS4100Sections that make up the AS4100 object. These
+        are wrapper classes over the top of the underlying beam element sections, such
+        that self.sections[n] is the basis for self.as4100_sections[n].
+        """
 
         return self._as4100_sections
 
     def get_section(
-        self, position: Union[List[float], float] = None
-    ) -> List[List[Section]]:
+        self,
+        *,
+        position: Union[List[float], float] = None,
+        min_positions: int = None,
+        load_case: int = None,
+    ) -> Tuple[List[float], List[Section]]:
 
         return super().get_section(position=position)
+
+    def get_as4100_section(
+        self,
+        *,
+        position: Union[List[float], float] = None,
+        min_positions: int = None,
+        load_case: int = None,
+    ) -> Tuple[List[float], List[AS4100Section]]:
+        """
+        Gets the AS4100 section properties at a given position or list of positions.
+
+        The positions can either be requested directly, or as a minimum number of
+        positions along the beam. If specified as minimum positions, a load case can be
+        specified as well (to include load discontinuities etc.
+
+        If the ``CodeCheck`` object is a section based object, it will raise a
+        SectionOnlyError.
+
+        :param min_positions: The minimum no. of positions to return.
+        :param position: The position to return the section from. If the ``codecheck``
+            object has only a section property (and not a ``Beam`` property) it returns
+            ``self.section``. If ``None`` it returns all sections. If a position is
+            given it returns the sections at the given positions.
+        :param load_case: he load case to consider if using min_positions. Can be
+            ``None``, in which case only the start & ends of elements are returned.
+        :return: Returns a tuple of positions and AS4100 sections:
+
+            (
+                [pos_1, ..., pos_n]
+                [section_1, ..., section_n]
+            )
+        """
+
+        if self.beam is None:
+            raise SectionOnlyError(
+                f"get_section does not apply to Section based CodeCheck objects."
+            )
+
+        positions, elements, local_positions = self.beam.list_positions(
+            position=position, min_positions=min_positions, load_case=load_case
+        )
+
+        as4100_sections = [self.as4100_sections[e] for e in elements]
+
+        return (positions, as4100_sections)
 
     def Nt(self, *, position: Union[List[float], float] = None):
         """
@@ -103,17 +160,17 @@ class AS4100(CodeCheck):
         :return: The calculated yield tension capacity.
         """
 
-        if isinstance(position, float):
-            # if a float is provided, wrap it in a list for consistent logic below.
-            position = [position]
+        if position is None:
+            sections = self.as4100_sections
+        else:
+            if isinstance(position, float):
+                # if a float is provided, wrap it in a list for consistent logic below.
+                position = [position]
 
-        sections = self.get_section(position=position)
-
-        # now flatten list to make it easier to check the values:
-        sections = list(itertools.chain.from_iterable(sections))
+            positions, sections = self.get_as4100_section(position=position)
 
         # now we have a list of all sections to check, do the check
-        N = [self.s7_2_Nty(Ag=s.area, fy=s.min_strength_yield) for s in sections]
+        N = [self.s7_2_Nty(Ag=s.Ag, fy=s.min_fy) for s in sections]
 
         return min(N)
 
@@ -144,19 +201,19 @@ class AS4100(CodeCheck):
         :return: The calculated ultimate capacity.
         """
 
-        if isinstance(position, float):
-            # if a float is provided, wrap it in a list for consistent logic below.
-            position = [position]
+        if position is None:
+            sections = self.as4100_sections
+        else:
+            if isinstance(position, float):
+                # if a float is provided, wrap it in a list for consistent logic below.
+                position = [position]
 
-        sections = self.get_section(position=position)
-
-        # now flatten list to make it easier to check the values:
-        sections = list(itertools.chain.from_iterable(sections))
+            positions, sections = self.get_as4100_section(position=position)
 
         # now we have a list of all sections to check, do the check
         N = [
             self.s7_2_Ntu(
-                An=s.area_net, fu=s.min_strength_ultimate, kt=self.kt, αu=self.αu
+                An=s.An, fu=s.min_fu, kt=self.kt, αu=self.αu
             )
             for s in sections
         ]

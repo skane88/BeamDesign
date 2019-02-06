@@ -43,18 +43,6 @@ class AS4100Section(ABC):
             )
 
     @property
-    @abstractmethod
-    def min_fy(self):
-
-        raise NotImplementedError()
-
-    @property
-    @abstractmethod
-    def min_fu(self):
-
-        raise NotImplementedError()
-
-    @property
     def material(self) -> Material:
         """
         The material from the underlying ``Section`` object.
@@ -77,6 +65,41 @@ class AS4100Section(ABC):
         """
 
         return self.material.properties["strengths"]
+
+    @property
+    @abstractmethod
+    def min_fy(self):
+        """
+        The minimum yield strength of the section.
+        """
+
+        raise NotImplementedError()
+
+    @property
+    @abstractmethod
+    def min_fu(self):
+        """
+        The minimum ultimate strength of the section.
+        """
+
+        raise NotImplementedError()
+
+    @property
+    @abstractmethod
+    def Ag(self) -> float:
+        """
+        The gross area of the section, ignoring any holes below the limits given in
+        AS4100
+        """
+
+        raise NotImplementedError()
+
+    def An(self) -> float:
+        """
+        The net area
+        """
+
+        raise NotImplementedError()
 
     @staticmethod
     def _get_f(
@@ -136,7 +159,7 @@ class AS4100Section(ABC):
         # now we need to actually get the strength
 
         if isinstance(yield_or_ult, str):
-            yield_or_ult= yield_or_ult.lower()
+            yield_or_ult = yield_or_ult.lower()
 
         yield_choice = {"y": 1, "u": 2, True: 1, False: 2}
 
@@ -189,6 +212,16 @@ class AS4100Circle(AS4100Section):
             yield_or_ult="U",
             strengths=self._strengths,
         )
+
+    @property
+    def Ag(self) -> float:
+
+        return self.section.area
+
+    @property
+    def An(self) -> float:
+
+        return self.section.area_net
 
 
 def s6_2_λ_e_flatplate(b, t, f_y, f_ref=250.0):
