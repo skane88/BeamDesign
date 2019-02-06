@@ -30,7 +30,7 @@ def test_AS4100():
 
     assert a
 
-    e = Element.constant_load_element()
+    e = Element.constant_load_element(section=s)
     b = Beam(elements=e)
 
     a = AS4100(beam=b, **kwargs)
@@ -48,7 +48,7 @@ def test_AS4100_default():
 
     assert a
 
-    e = Element.constant_load_element()
+    e = Element.constant_load_element(section=s)
     b = Beam(elements=e)
 
     a = AS4100.default_AS4100(beam=b)
@@ -84,13 +84,14 @@ def test_AS4100_sections2():
     Test the sections method with a beam that has a single section.
     """
 
-    b = Beam.empty_beam()
+    s = Circle(radius=0.02, material=as3678_250)
+    b = Beam.empty_beam(section=s)
 
     a = AS4100(beam=b, φ_steel=0.9, αu=0.85, kt=1.0)
 
     actual = a.sections()
 
-    assert actual == [None]
+    assert actual == [s]
 
 
 def test_AS4100_sections3():
@@ -132,13 +133,14 @@ def test_AS4100_get_section2():
     Test the get_section method with a beam that has a single section.
     """
 
-    b = Beam.empty_beam()
+    s = Circle(radius=0.02, material=as3678_250)
+    b = Beam.empty_beam(section=s)
 
     a = AS4100(beam=b, φ_steel=0.9, αu=0.85, kt=1.0)
 
     actual = a.get_section(position=0.0)
 
-    assert actual == [[None]]
+    assert actual == [[s]]
 
 
 def test_AS4100_get_section3():
