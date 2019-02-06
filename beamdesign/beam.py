@@ -26,7 +26,7 @@ with multiple design codes.
 """
 
 import itertools
-from typing import List, Dict, Union
+from typing import List, Dict, Union, Tuple
 
 import numpy as np
 
@@ -343,7 +343,7 @@ class Beam:
         :return: Returns the length of the ``Beam`` object.
         """
 
-        return sum([e.length for e in self._elements])
+        return sum([e.length for e in self.elements])
 
     @property
     def no_elements(self) -> int:
@@ -416,6 +416,16 @@ class Beam:
                 starts_ends += [[prev_end, prev_end + e.length]]
 
         return starts_ends
+
+    @property
+    def sections(self) -> List[Section]:
+        """
+        Returns all the sections from the elements that make up the ``Beam`` object.
+
+        :return: A list of all the sections.
+        """
+
+        return [e.section for e in self.elements]
 
     def get_element_start_end(self, *, element: int) -> List[float]:
         """
@@ -506,7 +516,7 @@ class Beam:
     def get_loads(
         self,
         *,
-        load_case,
+        load_case: int,
         position: Union[List[float], float] = None,
         min_positions: int = None,
         component: Union[int, str, LoadComponents] = None,
@@ -559,17 +569,81 @@ class Beam:
 
         # first check for ambiguities in position / min_positions
 
+        position, elements, local_positions = self.list_positions(
+            load_case, min_positions, position
+        )
+
+        # we now have a list of all the positions at which we intend to get the loads.
+
+        ret_val = None
+
+        for p, e, l in zip(position, elements, local_positions):
+
+            val = self.elements[e].get_loads(
+                load_case=load_case, position=l, component=component
+            )
+
+            # now we need to get the beam_position of the element and replace with the
+            # real position.
+
+            val[..., 0] = p
+
+            if ret_val is None:
+                ret_val = val
+            else:
+                ret_val = np.vstack((ret_val, val))
+
+        return ret_val
+
+    def list_positions(
+        self,
+        *,
+        load_case: int = None,
+        min_positions: int = None,
+        position: Union[List[float], float] = None,
+    ) -> Tuple[List[float], List[int], List[float]]:
+        """
+        Build a list of positions along a Beam element, and the elements and local
+        positions they correspond to.
+
+        In the simple case of a provided position/s it returns value at the provided
+        positions only. If min_positions is provided, it returns at least
+        min_positions number of positions, but will also include any element starts /
+        ends and any load discontinuities in the given load case.
+
+        :param load_case: The load case to consider if using min_positions.
+        :param min_positions: The minimum no. of positions to return.
+        :param position: A provided position or positions to check.
+        :return: Returns a tuple in the format
+            (
+                [
+                    beam_position_0,
+                    ...,
+                    beam_position_n,
+                ],
+                [
+                    element_0,
+                    ...,
+                    element_n,
+                ],
+                [
+                    local_position_0,
+                    ...,
+                    local_position_n,
+                ],
+            )
+        """
+
+        # first do some checking that either a position or a no. of positions required
+        # is provided.
         assert (
             position is not None or min_positions is not None
         ), "Expected either position or num_positions to be provided. Both were None."
-
         assert (
             position is None or min_positions is None
         ), "Expected only position or num_positions. Both were provided."
 
         # next build a list of positions.
-
-        elements = self.elements  # call now to prevent having to call it multiple times
 
         if position is not None:
             # if position is the provided value then use it.
@@ -588,31 +662,32 @@ class Beam:
                         + f" {self.length}."
                     )
 
-            # convert to a numpy array for use later.
-            position = np.array(position)
-            position = np.unique(position)
+            # convert to unique values and guarantee a sorted list.
+            position = list(sorted(set(position)))
 
         else:
             # else if min_positions is provided we need to build a list of positions to
             # get the loads at.
 
-            lin_pos = np.linspace(0.0, self.length, min_positions)
+            lin_pos = list(np.linspace(0.0, self.length, min_positions))
 
             # next concatenate with all the starts & ends and the load positions on the
             # elements to do this we need to get all the load positions on the elements
-            # and convert them to real positions. They will be converted back later into
-            # element local positions, which may be some double handling, but keeps the
-            # logic easier to follow.
+            # and convert them to real positions.
 
-            start_ends = self.element_ends
-            position = list(itertools.chain.from_iterable(start_ends))
+            position = list(itertools.chain.from_iterable(self.element_ends))
 
-            for i, e in enumerate(elements):
+            for i, e in enumerate(self.elements):
+                # get the local positions of all the loads
 
-                element_pos = e.load_positions(load_case=load_case)
+                if load_case is None:
+                    # if no load case provided, just use the element starts & ends.
+                    element_pos = [0.0, 1.0]
+                else:
+                    # else, use the load positions
+                    element_pos = e.load_positions(load_case=load_case)
 
                 # now convert to *real* positions
-
                 real_pos = [
                     self.local_to_beam_position(position=p, element=i)
                     for p in element_pos
@@ -621,66 +696,56 @@ class Beam:
                 # now add to the collecting list.
                 position += real_pos
 
-            position = np.array(position)
-            position = np.concatenate((lin_pos, position))
+            # now make sure we only have unique values
+            position = set(position)
+            position.update(lin_pos)
 
-            position = np.unique(position)  # get rid of duplicate positions
+            position = list(sorted(position))  # now sort
 
-        # we now have a list of all the positions at which we intend to get the loads.
-        # next step is to figure out which elements each position maps to.
+        # now we have the positions also get the elements & the local positions
 
-        element_map = []
+        position_list = []
+        element_list = []
+        local_position_list = []
 
         for p in position:
 
-            containing_elements = self.in_elements(position=p)
+            elements = self.in_elements(position=p)
 
-            for e in containing_elements:
-                element_map += [[p, e]]
+            for e in elements:
 
-        # we now have a list which contains all the positions and all the elements that
-        # they map to.
-        # then start from the lowest position and working to the highest, get all
-        # the loads at these positions.
+                if self.elements[e].length == 0:
+                    # handle the case of a 0 length element - the local position method
+                    # will not work when converting a real to local position on a zero
+                    # length element.
 
-        for i, e in enumerate(element_map):
+                    if load_case is None:
+                        # if no load case is provided, then simply use the start and
+                        # end values of the element.
+                        load_pos = [0.0, 1.0]
+                    else:
+                        # else use all the load values.
+                        load_pos = self.elements[e].load_positions(load_case=load_case)
 
-            real_pos = e[0]
-            e_id = e[1]
+                        # and make sure the element start & ends are included
+                        if load_pos[0] != 0:
+                            load_pos = [0.0] + load_pos
+                        if load_pos[-1] != 1.0:
+                            load_pos = load_pos + [1.0]
 
-            if elements[e_id].length > 0:
-                local_pos = self.beam_to_local_position(position=real_pos, element=e_id)
-            else:
-                # handle the case of a zero length element. Determining the local
-                # position of a real world position on a zero length element is
-                # ambiguous - it can be anywhere along the element. Therefore need to
-                # return all load positions.
-                local_pos = elements[e_id].load_positions(load_case=load_case)
+                    for l in load_pos:
+                        position_list += [p]
+                        element_list += [e]
+                        local_position_list += [l]
 
-            val = elements[e_id].get_loads(
-                load_case=load_case, position=local_pos, component=component
-            )
+                else:
+                    position_list += [p]
+                    element_list += [e]
+                    local_position_list += [
+                        self.beam_to_local_position(position=p, element=e)
+                    ]
 
-            # now we need to get the beam_position of the element and replace with the
-            # real position.
-
-            val[..., 0] = real_pos
-
-            if i == 0:
-                ret_val = val
-            else:
-                ret_val = np.vstack((ret_val, val))
-
-        return ret_val
-
-    def sections(self) -> List[Section]:
-        """
-        Returns all the sections from the elements that make up the ``Beam`` object.
-
-        :return: A list of all the sections.
-        """
-
-        return [e.section for e in self.elements]
+        return position_list, element_list, local_position_list
 
     def get_section(self, position: Union[List[float], float]) -> List[List[Section]]:
         """
