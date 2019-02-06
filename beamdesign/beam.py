@@ -38,6 +38,7 @@ from beamdesign.utility.exceptions import (
     ElementLengthError,
     PositionNotInElementError,
     PositionNotInBeamError,
+    InvalidPositionError,
 )
 from beamdesign.sections.section import Section
 
@@ -637,12 +638,16 @@ class Beam:
 
         # first do some checking that either a position or a no. of positions required
         # is provided.
-        assert (
-            position is not None or min_positions is not None
-        ), "Expected either position or num_positions to be provided. Both were None."
-        assert (
-            position is None or min_positions is None
-        ), "Expected only position or num_positions. Both were provided."
+        if position is None and min_positions is None:
+            raise InvalidPositionError(
+                f"Expected either position or num_positions to be provided."
+                + f"Both were None."
+            )
+
+        if position is not None and min_positions is not None:
+            raise InvalidPositionError(
+                f"Expected only position or num_positions. Both were provided."
+            )
 
         # next build a list of positions.
 

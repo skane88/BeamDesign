@@ -10,7 +10,11 @@ from beamdesign.codecheck.AS4100.AS4100 import *
 from beamdesign.beam import Beam, Element
 from beamdesign.sections.circle import Circle
 from beamdesign.materials.material import Material
-from beamdesign.utility.exceptions import CodeCheckError
+from beamdesign.utility.exceptions import (
+    CodeCheckError,
+    SectionOnlyError,
+    InvalidPositionError,
+)
 
 from tests.test_utils import *
 
@@ -114,9 +118,11 @@ def test_AS4100_sections3():
     assert a.sections() == [s1, s2, s3]
 
 
-def test_AS4100_get_section():
+@mark.xfail(strict=True, raises=SectionOnlyError)
+def test_AS4100_get_section_error():
     """
-    Test the get_section method when there is only a section and not a beam.
+    Test the get_section method when there is only a section and not a beam. This should
+    raise an exception.
     """
 
     s = Circle(radius=0.02, material=as3678_250)
@@ -125,10 +131,27 @@ def test_AS4100_get_section():
 
     actual = a.get_section()
 
-    assert actual == [[s]]
+    assert True
 
 
-def test_AS4100_get_section2():
+@mark.xfail(strict=True, raises=InvalidPositionError)
+def test_AS4100_get_section_error2():
+    """
+    Test the get_section method when neither a position or min_positions is provided.
+    This should raise an exception.
+    """
+
+    s = Circle(radius=0.02, material=as3678_250)
+    b = Beam.empty_beam(section=s)
+
+    a = AS4100(beam=b, φ_steel=0.9, αu=0.85, kt=1.0)
+
+    actual = a.get_section()
+
+    assert True
+
+
+def test_AS4100_get_section():
     """
     Test the get_section method with a beam that has a single section.
     """
@@ -140,10 +163,10 @@ def test_AS4100_get_section2():
 
     actual = a.get_section(position=0.0)
 
-    assert actual == [[s]]
+    assert actual == ([0.0, 0.0], [s, s])
 
 
-def test_AS4100_get_section3():
+def test_AS4100_get_section2():
     """
     Test the get_section method on a beam with actual length.
     """
@@ -160,10 +183,9 @@ def test_AS4100_get_section3():
 
     a = AS4100(beam=b, φ_steel=0.9, αu=0.85, kt=1.0)
 
-    assert a.get_section(position=0.25) == [[s1]]
-    assert a.get_section(position=0.50) == [[s1, s2, s3]]
-    assert a.get_section(position=0.75) == [[s3]]
-    assert a.get_section() == [[s1, s2, s3]]
+    assert a.get_section(position=0.25) == ([0.25], [s1])
+    assert a.get_section(position=0.50) == ([0.50, 0.50, 0.50, 0.50], [s1, s2, s2, s3])
+    assert a.get_section(position=0.75) == ([0.75], [s3])
 
 
 @mark.parametrize("name, data", data_AllSections)
