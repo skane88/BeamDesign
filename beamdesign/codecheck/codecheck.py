@@ -208,7 +208,9 @@ class CodeCheck(ABC):
         component: Union[int, str, LoadComponents] = None,
     ) -> np.ndarray:
         """
-        Gets the load in a ``Beam`` in a given load case and at a given position.
+        Gets the load on a ``CodeCheck`` object in a given load case and at a given
+        position.
+
         If there are multiple loads at a position it returns all of them. Returns in the
         form of a numpy array of the format:
 
@@ -227,7 +229,7 @@ class CodeCheck(ABC):
          [pos, vx_n, vy_n, N_n, mx_n, my_n, T_n]
         ]
 
-        The values of position are 'real' positions along the beam.
+        The values of position are 'real' positions along the underlying beam.
 
         :param load_case: The load case to get the loads in.
         :param position: The position at which to return the load. Position values

@@ -15,6 +15,7 @@ from beamdesign.codecheck.codecheck import CodeCheck
 from beamdesign.sections.section import Section
 from beamdesign.codecheck.AS4100.AS4100_sect_props import AS4100Section
 from beamdesign.utility.exceptions import SectionOnlyError
+from beamdesign.const import LoadComponents
 
 
 class AS4100(CodeCheck):
@@ -125,6 +126,22 @@ class AS4100(CodeCheck):
         as4100_sections = [self.as4100_sections[e] for e in elements]
 
         return (positions, as4100_sections)
+
+    def get_loads(
+        self,
+        *,
+        load_case: int,
+        position: Union[List[float], float] = None,
+        min_positions: int = None,
+        component: Union[int, str, LoadComponents] = None,
+    ):
+
+        return super().get_loads(
+            load_case=load_case,
+            position=position,
+            min_positions=min_positions,
+            component=component,
+        )
 
     def Nt(self, *, position: Union[List[float], float] = None):
         """
