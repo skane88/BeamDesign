@@ -3,11 +3,11 @@ This will contain an Abstract Base Class that all codecheck classes should inher
 """
 
 from abc import ABC, abstractmethod
-from typing import List, Union
+from typing import List, Union, Tuple
 
 from beamdesign.beam import Beam
 from beamdesign.sections.section import Section
-from beamdesign.utility.exceptions import CodeCheckError
+from beamdesign.utility.exceptions import CodeCheckError, SectionOnlyError
 
 
 class CodeCheck(ABC):
@@ -36,10 +36,23 @@ class CodeCheck(ABC):
 
     @property
     def beam(self) -> Beam:
+        """
+        The ``Beam`` object that the ``CodeCheck`` object is checking.
+
+        :return: The ``Beam`` object that the ``CodeCheck`` object is checking. May be
+            ``None`` if the ``CodeCheck`` object is based on a ``Section``.
+        """
+
         return self._beam
 
     @property
     def section(self):
+        """
+
+        :return: The ``Section`` object that the ``CodeCheck`` object contains. May be
+            ``None`` if the ``CodeCheck`` object is based on a ``Beam``.
+        """
+
         return self._section
 
     @property
@@ -70,6 +83,7 @@ class CodeCheck(ABC):
         :return: The utilisation of the section in tension.
         """
 
+    @property
     @abstractmethod
     def sections(self) -> List[Section]:
         """
@@ -83,34 +97,46 @@ class CodeCheck(ABC):
         if self.beam is None:
             return [self.section]
 
-        return self.beam.sections()
+        return self.beam.sections
 
     @abstractmethod
     def get_section(
-        self, position: Union[List[float], float] = None
-    ) -> List[List[Section]]:
+        self,
+        *,
+        position: Union[List[float], float] = None,
+        min_positions: int = None,
+        load_case: int = None,
+    ) -> Tuple[List[float], List[Section]]:
         """
         Gets the section properties at a given position or list of positions.
 
+        The positions can either be requested directly, or as a minimum number of
+        positions along the beam. If specified as minimum positions, a load case can be
+        specified as well (to include load discontinuities etc.
+
+        If the ``CodeCheck`` object is a section based object, it will raise a
+        SectionOnlyError.
+
+        :param min_positions: The minimum no. of positions to return.
         :param position: The position to return the section from. If the ``codecheck``
             object has only a section property (and not a ``Beam`` property) it returns
             ``self.section``. If ``None`` it returns all sections. If a position is
             given it returns the sections at the given positions.
-        :return: Returns a list of lists. This is to allow it to handle both the case of
-            multiple positions and / or the case where a position falls on the boundary
-            between elements. The list is of the form:
+        :param load_case: he load case to consider if using min_positions. Can be
+            ``None``, in which case only the start & ends of elements are returned.
+        :return: Returns a tuple of positions and sections:
 
-            [
-                [section_element_1, ..., section_element_n] # sections at position 1
-                ...
-                [section_element_1, ..., section_element_n] # sections at position n
-            ]
+            (
+                [pos_1, ..., pos_n]
+                [section_1, ..., section_n]
+            )
         """
 
         if self.beam is None:
-            return [[self.section]]
+            raise SectionOnlyError(
+                f"get_section does not apply to Section based CodeCheck objects."
+            )
 
-        if position is None:
-            return [self.sections()]
-
-        return self.beam.get_section(position=position)
+        return self.beam.get_section(
+            position=position, min_positions=min_positions, load_case=load_case
+        )

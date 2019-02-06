@@ -70,6 +70,13 @@ class PositionNotInBeamError(BeamError):
     pass
 
 
+class InvalidPositionError(BeamError):
+    """
+    Error to throw when requesting information from an invalid position on a ``Beam``.
+    """
+
+    pass
+
 class MaterialError(BeamDesignError):
     """
     Main exception for ``Material`` object errors.
@@ -95,9 +102,18 @@ class CodeCheckError(BeamDesignError):
     pass
 
 
-class DefaultParametersMissingError(CodeCheckError):
+class InvalidMaterialError(CodeCheckError):
     """
-    Error to throw if the default parameters class is missing.
+    Error to throw if there is an incorrect material used in a CodeCheck object.
+    """
+
+    pass
+
+
+class SectionOnlyError(CodeCheckError):
+    """
+    Error to throw if a CodeCheck method tries to use the beam properties when there is
+    only a section.
     """
 
     pass

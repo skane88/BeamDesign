@@ -3,63 +3,52 @@ This file contains a base class describing material properties.
 """
 
 from typing import List, Union, Dict, Any
-from abc import ABC, abstractmethod
 from pathlib import Path
 
-import numpy as np
 import toml
 
-from beamdesign.utility.exceptions import InvalidThicknessError
+from beamdesign.const import MatType
 
 
-class Material(ABC):
+class Material:
     """
-    An base class for materials to inherit from.
+    This is intended to be a very basic material class to store a material object.
+
+    NOTE: this class should store very little information and have few methods as many
+    of the material properties etc. are determined by specific code rules.
+
+    This results in a very simple object that could easily have been a named tuple etc.
+    however this has been designed as a class to allow it to be extended in future
+    if required and to allow for the use of a classmethod for loading material objects
+    from a TOML file.
     """
 
-    def __init__(self, *, name: str, standard: str):
+    def __init__(
+        self,
+        *,
+        type: Union[MatType, str],
+        name: str,
+        standard: str,
+        properties: Dict[str, Any],
+    ):
         """
         Constructor for a Material object.
 
+        :param type: The type of the material.
         :param name: The name of the material.
         :param standard: The standard that the material complies with.
+        :param properties: The properties of the material. This should be a dictionary
+            containing appropriate properties that the relevant design standards would
+            understand.
         """
 
+        if isinstance(type, str):
+            type = MatType(type)
+
+        self.type = type
         self.name = name
         self.standard = standard
-
-    @abstractmethod
-    def E(self) -> float:
-        """
-        The elastic modulus of the material.
-
-        :return: Return the Elastic Modulus of the material.
-        """
-        raise NotImplementedError
-
-    @abstractmethod
-    def strength_yield(self, *, thickness=None) -> float:
-        """
-        Returns the yield strength of the material.
-
-        :param thickness: For materials where the yield strength depends on the
-            thickness, thickness should be handled. Otherwise the method should ignore
-            the passed in value.
-        :return: The yield strength of the material.
-        """
-        raise NotImplementedError
-
-    @abstractmethod
-    def strength_ultimate(self, *, thickness=None) -> float:
-        """
-        Returns the ultimate strength of the material.
-
-        :param thickness: For materials where the yield strength depends on the
-            thickness, thickness should be handled. Otherwise the method should ignore
-            the passed in value.
-        :return: The ultimate strength of the material.
-        """
-        raise NotImplementedError
+        self.properties = properties
 
     def __eq__(self, other):
         """
@@ -74,198 +63,16 @@ class Material(ABC):
     def __repr__(self):
         return (
             f"{self.__class__.__name__}("
+            + f"type={self.type}, "
             + f"name={self.name}, "
             + f"standard={self.standard}"
             + f")"
         )
 
-
-class Steel(Material):
-    """
-    A class to represent a steel material.
-    """
-
-    def __init__(
-        self,
-        *,
-        name: str,
-        standard: str,
-        E: float,
-        strengths: Union[List[List[float]], np.ndarray],
-    ):
-        """
-        Constructor for a Steel Material object.
-
-        :param name: The name of the material.
-        :param standard: The standard that the material complies with.
-        :param E: The elastic modulus of the steel
-        :param strengths: The strength of the steel in the form of a 2D list or numpy
-            array:
-            [[thickness, ...], [yield_strengths, ...], [ultimate_strength, ...]]
-        """
-
-        super().__init__(name=name, standard=standard)
-
-        self._E = E
-
-        self._strengths = np.array(strengths)
-
-        # finally do a check to ensure the thicknesses are sorted:
-        if not np.all(np.diff(self.strengths[0]) > 0):
-            raise InvalidThicknessError(
-                f"The thicknesses are expected to be sorted in increasing order. "
-                + f"Provided thicknesses were {strengths[0]}."
-            )
-
-    def E(self):
-
-        return self._E
-
-    def strength_yield(self, *, thickness: float = None) -> float:
-        """
-        Calculates the yield strength of the material. This is taken to be the yield
-        strength of the next largest stored thickness. I.e. if the following yield
-        strength profile is taken to apply:
-
-        thickness = 10mm, yield strength = 260MPa
-        thickness = 15mm, yield strength = 250MPa
-
-        An input parameter of thickness = 9mm will return 260MPa, and an inpt of 12mm
-        will return a yield strength of 250MPa.
-
-        :param thickness: The thickness of the material. Note that if thickness is
-            ``None``, or <0 or > the largest value in the thickness lists an error will
-            be returned.
-        :return: The yield strength of the material.
-        """
-
-        return self.fy(thickness=thickness)
-
-    def strength_ultimate(self, *, thickness: float = None) -> float:
-        """
-        Return the ultimate strength of the material.
-
-        :return: The ultimate strength of the material.
-        """
-
-        return self.fu(thickness=thickness)
-
-    def fy(self, *, thickness: float) -> float:
-        """
-        Calculates the yield strength of the material. This is taken to be the yield
-            strength of the next largest stored thickness. I.e. if the following yield
-            strength profile is taken to apply:
-
-            thickness = 10mm, yield strength = 260MPa
-            thickness = 15mm, yield strength = 250MPa
-
-            An input parameter of thickness = 9mm will return 260MPa, and an input of
-            12mm will return a yield strength of 250MPa.
-
-        :param thickness: The thickness of the material.
-        :return: The yield strength of the material.
-        """
-
-        if thickness is None:
-            raise InvalidThicknessError(f"Thickness cannot be None")
-        elif thickness < 0:
-            raise InvalidThicknessError(
-                f"Thickness must be >=0. Thickness was {thickness}"
-            )
-        elif thickness > self.max_thickness:
-            raise InvalidThicknessError(
-                f"Thickness is expected to be <= largest stored thickness value. "
-                + f"Thickness entered was {thickness}, "
-                + f"largest stored thickness is {self.max_thickness}"
-            )
-
-        # first find the index of the next largest number
-        index = np.searchsorted(self.strengths[0], thickness, side="left")
-
-        return self.strengths[1, index]
-
-    def fu(self, *, thickness: float) -> float:
-        """
-        Calculates the ultimate strength of the material. This is taken to be the
-            strength of the next largest stored thickness. I.e. if the following
-            strength profile is taken to apply:
-
-            thickness = 10mm, ultimate strength = 410MPa
-            thickness = 15mm, ultimate strength = 400MPa
-
-            An input parameter of thickness = 9mm will return 401MPa, and an input of
-            12mm will return an ultimate strength of 400MPa.
-
-        :param thickness: The thickness of the material.
-        :return: The ultimate strength of the material.
-        """
-
-        if thickness is None:
-            raise InvalidThicknessError(f"Thickness cannot be None")
-        elif thickness < 0:
-            raise InvalidThicknessError(
-                f"Thickness must be >=0. Thickness was {thickness}"
-            )
-        elif thickness > self.max_thickness:
-            raise InvalidThicknessError(
-                f"Thickness is expected to be <= largest stored thickness value. "
-                + f"Thickness entered was {thickness}, "
-                + f"largest stored thickness is {self.max_thickness}"
-            )
-
-        # first find the index of the next largest number
-        index = np.searchsorted(self.strengths[0], thickness, side="left")
-
-        return self.strengths[2, index]
-
-    @property
-    def strengths(self) -> np.ndarray:
-        """
-        The list of strengths which are stored in the ``Steel`` object.
-
-        :return: The list of strengths as a numpy array.
-        """
-
-        return self._strengths
-
-    @property
-    def max_thickness(self):
-        """
-        Determines the maximum valid thickness that the strength methods can be called
-        upon, based on the largest thickness in self.strengths.
-
-        :return: The maximum thickness.
-        """
-
-        return np.amax(self.strengths[0])
-
-    def __eq__(self, other):
-        """
-        Override the equality test. Necessary because numpy arrays (used to store the
-        steel strengths) do not compare well.
-        """
-
-        if isinstance(other, self.__class__):
-
-            for k, v in self.__dict__.items():
-
-                if isinstance(v, np.ndarray):
-
-                    if not np.array_equal(v, other.__dict__[k]):
-                        return False
-
-                else:
-                    if v != other.__dict__[k]:
-                        return False
-
-            return True  # if we have got this far, all items have returned true
-
-        return NotImplemented
-
     @classmethod
-    def load_steel(
-        cls, *, file_path: str = None, steel_name: str = None
-    ) -> Union["Steel", Dict[str, "Steel"]]:
+    def load_material(
+        cls, *, file_path: str = None, name: str = None
+    ) -> Union["Material", Dict[str, "Material"]]:
         """
         This class method creates ``Steel`` objects from a JSON file stored in the
         specified location. If not specified, the default values stored in the package
@@ -273,9 +80,9 @@ class Steel(Material):
 
         :param file_path: The file_path to load the values from. If not specified, the
             default values will be loaded.
-        :param steel_name: The name of the steel to load. If None, a dict of all
-            possible ``Steel`` objects are returned.
-        :return: A ``Steel`` object or a dictionary of steel objects.
+        :param name: The name of the material to load. If None, a dict of all
+            possible ``Material`` objects are returned.
+        :return: A ``Material`` object or a dictionary of them.
         """
 
         vals = cls._load_helper(file_path=file_path)
@@ -284,11 +91,17 @@ class Steel(Material):
 
         for k, v in vals.items():
 
-            ret_dict[k] = cls(**v)
+            kwargs = {}
+            kwargs["type"] = v.pop("type")
+            kwargs["name"] = v.pop("name")
+            kwargs["standard"] = v.pop("standard")
+            kwargs["properties"] = v
 
-        if steel_name is not None:
+            ret_dict[k] = cls(**kwargs)
 
-            return ret_dict[steel_name]
+        if name is not None:
+
+            return ret_dict[name]
 
         return ret_dict
 
@@ -320,7 +133,7 @@ class Steel(Material):
 
         if file_path is None:
             mod_file = Path(__file__)
-            file_path = mod_file.parent / "steel.TOML"
+            file_path = mod_file.parent / "material.toml"
 
         else:
             file_path = Path(file_path)

@@ -9,7 +9,7 @@ import numpy as np
 from beamdesign.beam import Beam, Element
 from beamdesign.loadcase import LoadCase
 from beamdesign.sections.circle import Circle
-from beamdesign.materials.material import Steel
+from beamdesign.materials.material import Material
 from beamdesign.utility.exceptions import (
     ElementError,
     ElementLengthError,
@@ -17,7 +17,7 @@ from beamdesign.utility.exceptions import (
     PositionNotInBeamError,
 )
 
-as3678_250 = Steel.load_steel(steel_name="AS3678-2016-250")
+as3678_250 = Material.load_material(name="AS3678-2016-250")
 
 
 def test_Element_init():
@@ -662,7 +662,7 @@ def test_Beam_sections():
 
     b = Beam(elements=[e1, e2, e3])
 
-    assert b.sections() == [s1, s2, s3]
+    assert b.sections == [s1, s2, s3]
 
 
 def test_Beam_get_section_none():
@@ -675,7 +675,7 @@ def test_Beam_get_section_none():
 
     b = Beam(elements=e)
 
-    assert b.get_section(position=0.5) == [[None]]
+    assert b.get_section(position=0.5) == ([0.5], [None])
 
 
 def test_Beam_get_section():
@@ -691,8 +691,8 @@ def test_Beam_get_section():
 
     b = Beam(elements=[e1, e2])
 
-    assert b.get_section(position=0.25) == [[s1]]
-    assert b.get_section(position=0.75) == [[s2]]
+    assert b.get_section(position=0.25) == ([0.25], [s1])
+    assert b.get_section(position=0.75) == ([0.75], [s2])
 
 
 def test_Beam_get_section_on_element_boundary():
@@ -711,7 +711,7 @@ def test_Beam_get_section_on_element_boundary():
 
     b = Beam(elements=[e1, e2])
 
-    assert b.get_section(position=0.50) == [[s1, s2]]
+    assert b.get_section(position=0.50) == ([0.50, 0.50], [s1, s2])
 
 
 def test_Beam_get_section_on_zero_length_element():
@@ -724,7 +724,7 @@ def test_Beam_get_section_on_zero_length_element():
 
     b = Beam(elements=e)
 
-    assert b.get_section(position=0.0) == [[None]]
+    assert b.get_section(position=0.0) == ([0.0, 0.0], [None, None])
 
 
 def test_Beam_get_section_on_zero_length_element_2():
@@ -742,9 +742,9 @@ def test_Beam_get_section_on_zero_length_element_2():
 
     b = Beam(elements=[e1, e2, e3])
 
-    assert b.get_section(position=0.4999999) == [[s1]]
-    assert b.get_section(position=0.50) == [[s1, s2, s3]]
-    assert b.get_section(position=0.5000001) == [[s3]]
+    assert b.get_section(position=0.4999999) == ([0.4999999], [s1])
+    assert b.get_section(position=0.50) == ([0.50, 0.50, 0.50, 0.50], [s1, s2, s2, s3])
+    assert b.get_section(position=0.5000001) == ([0.5000001], [s3])
 
 
 def test_Beam_get_section_multiple():
@@ -762,7 +762,10 @@ def test_Beam_get_section_multiple():
 
     b = Beam(elements=[e1, e2, e3])
 
-    assert b.get_section(position=[0.25, 0.50, 0.75]) == [[s1], [s1, s2, s3], [s3]]
+    assert b.get_section(position=[0.25, 0.50, 0.75]) == (
+        [0.25, 0.50, 0.50, 0.50, 0.50, 0.75],
+        [s1, s1, s2, s2, s3, s3],
+    )
 
 
 @mark.xfail(strict=True, raises=PositionNotInBeamError)

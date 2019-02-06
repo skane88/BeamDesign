@@ -1,10 +1,20 @@
-# this is a TOML formatted document containing the default values for steel material objects.
+# this is a TOML formatted document containing the default values for material objects.
 # for the TOML file format, see https://github.com/toml-lang/toml
+
+# The following information MUST be provided for each object:
+# [table key - typically the full name of the material. This must be unique]
+#     type = a string describing the type of the material
+#     name = a string for the material name
+#     standard = the standard the material complies with or is designed to
+#     properties = the material properties that will be stored on the material. The properties will be material specifc
+#         and may be design code specific as well. If no further properties are provided, the material object's
+#         properties parameter will be an empty dict {}.
 
 # NOTE: keys must be ASCII characters or else be in quotes "" (i.e. for greek variable names).
 
 # Australian Steels - flat plate
 [AS3678-2016-250]
+    type = "steel"
     name = "250"
     standard = "AS3678-2016"
     E= 200e9
@@ -15,6 +25,7 @@
         ]
 
 [AS3678-2016-300]
+    type = "steel"
     name = "300"
     standard = "AS3678-2016"
     E = 200e9
@@ -26,6 +37,7 @@
 
 
 [AS3678-2016-350]
+    type = "steel"
     name = "350"
     standard = "AS3678-2016"
     E = 200e9
@@ -36,6 +48,7 @@
         ]
 
 [AS3678-2016-400]
+    type = "steel"
     name = "400"
     standard = "AS3678-2016"
     E = 200e9
@@ -47,6 +60,7 @@
 
 # Australian Steels - Hot Rolled Sections
 ["AS3679.1-1996-250"]
+    type = "steel"
     name = "250"
     standard = "AS3679.1-1996"
     E = 200e9
@@ -57,8 +71,9 @@
         ]
 
 ["AS3679.1-2016-300"]
+    type = "steel"
     name = "300"
-    standard = "AS3679.1-1996"
+    standard = "AS3679.1-2016"
     E = 200e9
     strengths = [
         [0.011, 0.017, 0.040, 0.200], # note: properties above 40mm thickness not specified in the standard. Using 0.20 for consistency with AS3678 standard.
@@ -67,11 +82,18 @@
         ]
 
 ["AS3679.1-2016-350"]
+    type = "steel"
     name = "350"
-    standard = "AS3679.1-1996"
+    standard = "AS3679.1-2016"
     E = 200e9
     strengths = [
         [0.011, 0.017, 0.040, 0.200], # note: properties above 40mm thickness not specified in the standard. Using 0.20 for consistency with AS3678 standard.
         [360e6, 340e6, 340e6, 330e6],
         [480e6, 480e6, 480e6, 480e6]
         ]
+
+[test_propertyless]
+    type = "steel"
+    name = "test"
+    standard = "test"
+    

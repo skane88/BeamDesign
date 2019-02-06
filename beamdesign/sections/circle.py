@@ -29,44 +29,27 @@ class Circle(Section):
         self.radius = radius
 
     @property
+    def is_circle(self) -> bool:
+
+        return True
+
+    @property
+    def is_hollow(self) -> bool:
+
+        return False
+
+    @property
+    def is_composite(self) -> bool:
+
+        return False
+
+    @property
     def area(self) -> float:
         return math.pi * (self.radius ** 2)
 
     @property
     def area_net(self) -> float:
         return self.area
-
-    @property
-    def is_circle(self) -> bool:
-        """
-        Is the section circular or not?
-        """
-
-        return True
-
-    @property
-    def is_hollow(self) -> bool:
-        """
-        Is the section hollow or not?
-        """
-
-        return False
-
-    @property
-    def min_strength_yield(self) -> float:
-        """
-        Return the minimum yield strength of the section.
-        """
-
-        return self.material.strength_yield(thickness=self.radius * 2)
-
-    @property
-    def min_strength_ultimate(self) -> float:
-        """
-        Return the minimum ultimate strength of the section.
-        """
-
-        return self.material.strength_ultimate(thickness=self.radius * 2)
 
     def __repr__(self):
         return (
