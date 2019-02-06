@@ -24,11 +24,7 @@ class CodeCheck(ABC):
     """
 
     def __init__(
-        self,
-        *,
-        beam: Beam = None,
-        section=None,
-        assessment_points: int = None,
+        self, *, beam: Beam = None, section=None, assessment_points: int = None
     ):
         """
         Constructor for a ``CodeCheck`` object.
@@ -99,21 +95,26 @@ class CodeCheck(ABC):
 
         self._assessment_points = assessment_points
 
-    @property
     @abstractmethod
-    def tension_capacity(self):
+    def tension_capacity(self, *, position: Union[List[float], float] = None):
         """
         Get the limiting tension capacity of the member being checked.
 
+        :param position: The position to calculate the capacity at. Can be a float, can
+            be a list of floats or can be None.
+
+            Note that if None is provided, a single tension capacity is returned which
+            is the minimum tension capacity of the entire object.
         :return: the limiting tension capacity of the member being checked. If the code
             includes capacity reduction factors these will be included.
         """
 
         raise NotImplementedError()
 
-    @property
     @abstractmethod
-    def tension_utilisation(self, *, load_case: int = None) -> float:
+    def tension_utilisation(
+        self, *, load_case: int = None, position: Union[List[float], float] = None
+    ) -> float:
         """
         Get the utilisation ratio of the section in tension.
 
@@ -124,6 +125,11 @@ class CodeCheck(ABC):
         true when capacity is independent of loads, many code capacity equations depend
         on the applied load.
 
+        :param position: The position to calculate the utilisation at. Can be a float,
+            can be a list of floats or can be None.
+
+            Note that if None is provided, a single tension utilisation is returned
+            which is the highest tension utilisation of the entire object.
         :param load_case: The load case to get the utilisation ratio in - if ``None``,
             return the highest utilisation ratio of any load case.
         :return: The utilisation of the section in tension.

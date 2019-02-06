@@ -41,11 +41,18 @@ class AS4100(CodeCheck):
         self.αu = αu
         self.kt = kt
 
-    def tension_capacity(self):
+    def tension_capacity(self, *, position: Union[List[float], float] = None):
 
-        return self.φNt()
+        return self.φNt(position=position)
 
-    def tension_utilisation(self, *, load_case: int=None) -> float:
+    def tension_utilisation(
+        self, *, load_case: int = None, position: Union[List[float], float] = None
+    ) -> float:
+
+        if position is not None:
+            if isinstance(position, float):
+                # convert position into float now for consistency later.
+                position = [position]
 
         raise NotImplementedError()
 
@@ -212,9 +219,7 @@ class AS4100(CodeCheck):
 
         # now we have a list of all sections to check, do the check
         N = [
-            self.s7_2_Ntu(
-                An=s.An, fu=s.min_fu, kt=self.kt, αu=self.αu
-            )
+            self.s7_2_Ntu(An=s.An, fu=s.min_fu, kt=self.kt, αu=self.αu)
             for s in sections
         ]
 
