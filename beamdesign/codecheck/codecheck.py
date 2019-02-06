@@ -36,10 +36,23 @@ class CodeCheck(ABC):
 
     @property
     def beam(self) -> Beam:
+        """
+        The ``Beam`` object that the ``CodeCheck`` object is checking.
+
+        :return: The ``Beam`` object that the ``CodeCheck`` object is checking. May be
+            ``None`` if the ``CodeCheck`` object is based on a ``Section``.
+        """
+
         return self._beam
 
     @property
     def section(self):
+        """
+
+        :return: The ``Section`` object that the ``CodeCheck`` object contains. May be
+            ``None`` if the ``CodeCheck`` object is based on a ``Beam``.
+        """
+
         return self._section
 
     @property
@@ -70,6 +83,7 @@ class CodeCheck(ABC):
         :return: The utilisation of the section in tension.
         """
 
+    @property
     @abstractmethod
     def sections(self) -> List[Section]:
         """
@@ -83,7 +97,7 @@ class CodeCheck(ABC):
         if self.beam is None:
             return [self.section]
 
-        return self.beam.sections()
+        return self.beam.sections
 
     @abstractmethod
     def get_section(

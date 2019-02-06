@@ -13,6 +13,7 @@ import toml
 from beamdesign.beam import Beam
 from beamdesign.codecheck.codecheck import CodeCheck
 from beamdesign.sections.section import Section
+from beamdesign.codecheck.AS4100.AS4100_sect_props import AS4100Section
 
 
 class AS4100(CodeCheck):
@@ -28,6 +29,13 @@ class AS4100(CodeCheck):
 
         super().__init__(beam=beam, section=section)
 
+        as4100_sects = []
+
+        for s in self.sections():
+            as4100_sects += [AS4100Section.build_AS4100_sect(section=s)]
+
+        self._as4100_sections = as4100_sects
+
         self.φ_steel = φ_steel
         self.αu = αu
         self.kt = kt
@@ -42,11 +50,11 @@ class AS4100(CodeCheck):
 
     def sections(self) -> List[Section]:
 
-        return super().sections()
+        return super().sections
 
     def as4100_sections(self) -> List["AS4100Section"]:
 
-        raise NotImplementedError
+        return self._as4100_sections
 
     def get_section(
         self, position: Union[List[float], float] = None

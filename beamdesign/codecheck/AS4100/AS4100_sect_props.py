@@ -6,6 +6,7 @@ as required by AS4100 S5, 6 & 7.
 from abc import ABC, abstractmethod
 
 from beamdesign.sections.section import Section
+from beamdesign.sections.circle import Circle
 from beamdesign.sections.hollowcircle import HollowCircle
 from beamdesign.utility.exceptions import InvalidMaterialError
 from beamdesign.const import MatType
@@ -15,6 +16,8 @@ class AS4100Section(ABC):
     """
     A class for calculating AS4100 section properties.
     """
+
+    section: Section  # type hint on self.section property
 
     def __init__(self, *, section: Section):
         """
@@ -26,7 +29,7 @@ class AS4100Section(ABC):
 
         # do some checks that the section is valid.
 
-        if self.section.material != MatType.steel:
+        if self.section.material.type != MatType.steel:
             raise InvalidMaterialError(
                 f"AS4100 is only valid for steel. "
                 + f"Provided material was {self.section.material}"
@@ -36,13 +39,50 @@ class AS4100Section(ABC):
     @abstractmethod
     def min_fy(self):
 
-        raise NotImplementedError
+        raise NotImplementedError()
 
     @property
     @abstractmethod
     def min_fu(self):
 
-        raise NotImplementedError
+        raise NotImplementedError()
+
+    @staticmethod
+    def get_fy(self, thickness: float) -> float:
+
+        raise NotImplementedError()
+
+    @staticmethod
+    def get_fu(thickness: float) -> float:
+
+        raise NotImplementedError()
+
+    @classmethod
+    def build_AS4100_sect(cls, section) -> "AS4100Section":
+
+        if isinstance(section, Circle):
+            return AS4100Circle(section=section)
+        else:
+            raise NotImplementedError()
+
+
+class AS4100Circle(AS4100Section):
+
+    section: Circle  # tyoe hint on section.
+
+    def __init__(self, *, section: Circle):
+
+        super().__init__(section=section)
+
+    @property
+    def min_fy(self):
+
+        return self.get_fy(thickness=self.section.radius * 2)
+
+    @property
+    def min_fu(self):
+
+        return self.get_fu(thickness=self.section.radius * 2)
 
 
 def s6_2_λ_e_flatplate(b, t, f_y, f_ref=250.0):

@@ -73,7 +73,7 @@
 ["AS3679.1-2016-300"]
     type = "steel"
     name = "300"
-    standard = "AS3679.1-1996"
+    standard = "AS3679.1-2016"
     E = 200e9
     strengths = [
         [0.011, 0.017, 0.040, 0.200], # note: properties above 40mm thickness not specified in the standard. Using 0.20 for consistency with AS3678 standard.
@@ -84,7 +84,7 @@
 ["AS3679.1-2016-350"]
     type = "steel"
     name = "350"
-    standard = "AS3679.1-1996"
+    standard = "AS3679.1-2016"
     E = 200e9
     strengths = [
         [0.011, 0.017, 0.040, 0.200], # note: properties above 40mm thickness not specified in the standard. Using 0.20 for consistency with AS3678 standard.
