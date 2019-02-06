@@ -5,10 +5,17 @@ as required by AS4100 S5, 6 & 7.
 
 from abc import ABC, abstractmethod
 
+from typing import List, Union
+
 from beamdesign.sections.section import Section
 from beamdesign.sections.circle import Circle
 from beamdesign.sections.hollowcircle import HollowCircle
-from beamdesign.utility.exceptions import InvalidMaterialError
+from beamdesign.materials.material import Material
+from beamdesign.utility.exceptions import (
+    InvalidMaterialError,
+    InvalidThicknessError,
+    MaterialError,
+)
 from beamdesign.const import MatType
 
 
@@ -47,18 +54,109 @@ class AS4100Section(ABC):
 
         raise NotImplementedError()
 
+    @property
+    def material(self) -> Material:
+        """
+        The material from the underlying ``Section`` object.
+        """
+
+        return self.section.material
+
+    @property
+    def E(self) -> float:
+        """
+        The Elastic Modulus of the steel.
+        """
+
+        return self.material.properties["E"]
+
+    @property
+    def _strengths(self) -> List[List[float]]:
+        """
+        A helper property to return the strengths of the underlying material object.
+        """
+
+        return self.material.properties["strengths"]
+
     @staticmethod
-    def get_fy(self, thickness: float) -> float:
+    def _get_f(
+        *,
+        thickness: float,
+        yield_or_ult: Union[bool, str],
+        strengths: List[List[float]],
+    ) -> float:
+        """
+        A static method to calculate the yield strength of a specific
 
-        raise NotImplementedError()
+        :param thickness: The thickness of the steel.
+        :param yield_or_ult: Return the yield strength or ultimate? If True or "y",
+            return yield, if False or "u" then return ultimate.
+        :param strengths: The strengths of the steel vs the thickness, in a list of
+            lists:
 
-    @staticmethod
-    def get_fu(thickness: float) -> float:
+            [
+                [t_1, ..., t_n],
+                [fy_1, ..., fy_n],
+                [fu_1, ..., fu_n],
+            ]
+        :return: The yield strength of the section.
+        """
 
-        raise NotImplementedError()
+        # do a couple of simple tests
+
+        thicknesses_list = strengths[0]
+
+        if thickness < 0:
+            raise InvalidThicknessError(
+                f"Thickness used to determine the strength should be > 0. "
+                + f"Thickness given was {thickness}"
+            )
+
+        # next check the thickness list is sorted
+        larger = thicknesses_list[1:]
+        smaller = thicknesses_list[:-1]
+
+        for l, s in zip(larger, smaller):
+
+            if l - s <= 0:
+                raise InvalidMaterialError(
+                    f"Expected that the strengths list in the material object would be "
+                    + f"sorted by thickness. Strengths list was {strengths}."
+                )
+
+        # now we know it is sorted, check if thickness is less than the largest
+        # thickness in the strengths list.
+
+        if thickness > thicknesses_list[-1]:
+            raise InvalidThicknessError(
+                f"Expected thickness to be within the strength range of the provided "
+                + f"strengths. Thickness was {thickness} and strengths were {strengths}"
+            )
+
+        # now we need to actually get the strength
+
+        if isinstance(yield_or_ult, str):
+            yield_or_ult= yield_or_ult.lower()
+
+        yield_choice = {"y": 1, "u": 2, True: 1, False: 2}
+
+        strength_index = yield_choice[yield_or_ult]
+
+        # now find the index of the next largest thickness
+        for i, t in enumerate(thicknesses_list):
+
+            if thickness <= t:
+                # since thicknesses_list is sorted we know that the first thickness
+                # where thickness is <= t is the index of the first larger thickness
+
+                return strengths[strength_index][i]
+
+        raise MaterialError(
+            f"Unknown error determining material yield or ultimate strength."
+        )
 
     @classmethod
-    def build_AS4100_sect(cls, section) -> "AS4100Section":
+    def AS4100_sect_factory(cls, section) -> "AS4100Section":
 
         if isinstance(section, Circle):
             return AS4100Circle(section=section)
@@ -77,12 +175,20 @@ class AS4100Circle(AS4100Section):
     @property
     def min_fy(self):
 
-        return self.get_fy(thickness=self.section.radius * 2)
+        return self._get_f(
+            thickness=self.section.radius * 2,
+            yield_or_ult="Y",
+            strengths=self._strengths,
+        )
 
     @property
     def min_fu(self):
 
-        return self.get_fu(thickness=self.section.radius * 2)
+        return self._get_f(
+            thickness=self.section.radius * 2,
+            yield_or_ult="U",
+            strengths=self._strengths,
+        )
 
 
 def s6_2_λ_e_flatplate(b, t, f_y, f_ref=250.0):

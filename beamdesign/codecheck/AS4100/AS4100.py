@@ -32,7 +32,7 @@ class AS4100(CodeCheck):
         as4100_sects = []
 
         for s in self.sections():
-            as4100_sects += [AS4100Section.build_AS4100_sect(section=s)]
+            as4100_sects += [AS4100Section.AS4100_sect_factory(section=s)]
 
         self._as4100_sections = as4100_sects
 
