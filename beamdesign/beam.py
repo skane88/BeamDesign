@@ -79,6 +79,7 @@ class Element:
         """
         The loads on the ``Element``. This is a property decorator to enforce read-only
         status.
+
         :return: The loads on the element as a dictionary of ``LoadCase`` objects.
         """
         return self._loads
@@ -166,7 +167,7 @@ class Element:
             position=position, min_positions=min_positions, component=component
         )
 
-    def get_load_positions(self, *, load_case: int):
+    def load_positions(self, *, load_case: int):
         """
         Returns all the stored load positions in a given load case. The load case must
         be specified because it is possible that different load cases would have
@@ -608,7 +609,7 @@ class Beam:
 
             for i, e in enumerate(elements):
 
-                element_pos = e.get_load_positions(load_case=load_case)
+                element_pos = e.load_positions(load_case=load_case)
 
                 # now convert to *real* positions
 
@@ -654,7 +655,7 @@ class Beam:
                 # position of a real world position on a zero length element is
                 # ambiguous - it can be anywhere along the element. Therefore need to
                 # return all load positions.
-                local_pos = elements[e_id].get_load_positions(load_case=load_case)
+                local_pos = elements[e_id].load_positions(load_case=load_case)
 
             val = elements[e_id].get_loads(
                 load_case=load_case, position=local_pos, component=component
