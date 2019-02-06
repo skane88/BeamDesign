@@ -91,7 +91,7 @@ class Element:
 
         :return: The no. of load cases stored on the element.
         """
-        return len(self.loads.keys())
+        return len(self.load_cases)
 
     @property
     def load_cases(self) -> List[int]:
