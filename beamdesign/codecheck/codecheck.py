@@ -9,6 +9,8 @@ from beamdesign.beam import Beam
 from beamdesign.sections.section import Section
 from beamdesign.utility.exceptions import CodeCheckError, SectionOnlyError
 
+DEFAULT_ASSESSMENT_POINTS = 20
+
 
 class CodeCheck(ABC):
     """
@@ -22,8 +24,23 @@ class CodeCheck(ABC):
     """
 
     def __init__(
-        self, *, beam: Beam = None, section=None, default_params_fp: str = None
+        self,
+        *,
+        beam: Beam = None,
+        section=None,
+        assessment_points: int = None,
     ):
+        """
+        Constructor for a ``CodeCheck`` object.
+
+        :param beam: A beam object to be checked. Can be ``None`` if a section is
+            provided instead.
+        :param section: A section object to be checked. Can be ``None`` if a beam is
+            provided instead.
+        :param assessment_points: The minimum number of points to be checked when
+            determining utilisations etc. Note that more points may actually be checked
+            due to load and element discontinuities etc.
+        """
 
         if beam is None and section is None:
             raise CodeCheckError(
@@ -33,6 +50,11 @@ class CodeCheck(ABC):
 
         self._beam = beam
         self._section = section
+
+        if assessment_points is None:
+            self._assessment_points = DEFAULT_ASSESSMENT_POINTS
+        else:
+            self._assessment_points = assessment_points
 
     @property
     def beam(self) -> Beam:
@@ -56,6 +78,28 @@ class CodeCheck(ABC):
         return self._section
 
     @property
+    def assessment_points(self) -> int:
+        """
+        The minimum number of points at which utilisation etc. will be assessed.
+
+        The actual no. of points may vary as the ``CodeCheck`` obects are expected to
+        be able to handle discontinuities at loads and starts / ends of elements etc.
+        """
+        return self._assessment_points
+
+    @assessment_points.setter
+    def assessment_points(self, assessment_points: int):
+        """
+        The minimum number of points at which utilisation etc. will be assessed.
+
+        The actual no. of points may vary as the ``CodeCheck`` obects are expected to
+        be able to handle discontinuities at loads and starts / ends of elements etc.
+        :param assessment_points: The minimum number of assessment points.
+        """
+
+        self._assessment_points = assessment_points
+
+    @property
     @abstractmethod
     def tension_capacity(self):
         """
@@ -69,7 +113,7 @@ class CodeCheck(ABC):
 
     @property
     @abstractmethod
-    def tension_utilisation(self):
+    def tension_utilisation(self, *, load_case: int = None) -> float:
         """
         Get the utilisation ratio of the section in tension.
 
@@ -80,8 +124,12 @@ class CodeCheck(ABC):
         true when capacity is independent of loads, many code capacity equations depend
         on the applied load.
 
+        :param load_case: The load case to get the utilisation ratio in - if ``None``,
+            return the highest utilisation ratio of any load case.
         :return: The utilisation of the section in tension.
         """
+
+        raise NotImplementedError()
 
     @property
     @abstractmethod

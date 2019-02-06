@@ -45,7 +45,7 @@ class AS4100(CodeCheck):
 
         return self.φNt()
 
-    def tension_utilisation(self):
+    def tension_utilisation(self, *, load_case: int=None) -> float:
 
         raise NotImplementedError()
 
