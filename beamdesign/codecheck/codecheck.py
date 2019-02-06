@@ -5,9 +5,12 @@ This will contain an Abstract Base Class that all codecheck classes should inher
 from abc import ABC, abstractmethod
 from typing import List, Union, Tuple
 
+import numpy as np
+
 from beamdesign.beam import Beam
 from beamdesign.sections.section import Section
 from beamdesign.utility.exceptions import CodeCheckError, SectionOnlyError
+from beamdesign.const import LoadComponents
 
 DEFAULT_ASSESSMENT_POINTS = 20
 
@@ -193,4 +196,71 @@ class CodeCheck(ABC):
 
         return self.beam.get_section(
             position=position, min_positions=min_positions, load_case=load_case
+        )
+
+    @abstractmethod
+    def get_loads(
+        self,
+        *,
+        load_case: int,
+        position: Union[List[float], float] = None,
+        min_positions: int = None,
+        component: Union[int, str, LoadComponents] = None,
+    ) -> np.ndarray:
+        """
+        Gets the load in a ``Beam`` in a given load case and at a given position.
+        If there are multiple loads at a position it returns all of them. Returns in the
+        form of a numpy array of the format:
+
+        [[pos, load_1]
+         [pos, load_2]
+         ...
+         [pos, load_n]
+        ]
+
+        If ``component`` is not provided, then an array of all loads at the given
+        position is returned:
+
+        [[pos, vx_1, vy_1, N_1, mx_1, my_1, T_1]
+         [pos, vx_2, vy_2, N_2, mx_2, my_2, T_2]
+         ...
+         [pos, vx_n, vy_n, N_n, mx_n, my_n, T_n]
+        ]
+
+        The values of position are 'real' positions along the beam.
+
+        :param load_case: The load case to get the loads in.
+        :param position: The position at which to return the load. Position values
+            should be entered as floats between 0.0 and ``Beam.length``
+
+            Positions can be a single position or a list of positions. If a list is
+            provided, any duplicate values will be ignored, and the order will be
+            ignored - return values will be at positions sorted ascending from 0.0 to
+            ``Beam.length``. If the specified position is at an element or load
+            discontinuity multiple values may be returned.
+
+            If ``position`` is provided, ``min_positions`` must be ``None`` to
+            avoid ambiguity.
+        :param min_positions: The minimum number of positions to return. Positions will
+            be returned such that loads are returned at equally spaced positions between
+            0.0 and ``Beam.length`` (inclusive). All stored load positions and element
+            start / end positions will also be included to ensure that discontinuities
+            are included.
+
+            If ``min_positions`` is provided,
+            ``position`` must be ``None`` to avoid ambiguity.
+        :param component: The component of load to return.
+        :return: A numpy array containing the loads at the specified position.
+        """
+
+        if self.beam is None:
+            raise SectionOnlyError(
+                "The CodeCheck object is a section only object and has no stored loads."
+            )
+
+        return self.beam.get_loads(
+            load_case=load_case,
+            position=position,
+            min_positions=min_positions,
+            component=component,
         )
