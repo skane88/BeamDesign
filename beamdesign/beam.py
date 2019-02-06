@@ -212,7 +212,6 @@ class Element:
         T: float = 0,
         length: float = 0,
         section=None,
-        material=None,
     ) -> "Element":
         """
         Creates an ``Element`` with a single ``LoadCase`` with constant load along its
