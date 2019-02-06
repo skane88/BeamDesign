@@ -93,3 +93,10 @@ class CodeCheckError(BeamDesignError):
     """
 
     pass
+
+class InvalidMaterialError(CodeCheckError):
+    """
+    Error to throw if there is an incorrect material used in a CodeCheck object.
+    """
+
+    pass

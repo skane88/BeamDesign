@@ -9,13 +9,13 @@ from pytest import mark
 from beamdesign.codecheck.AS4100.AS4100 import *
 from beamdesign.beam import Beam, Element
 from beamdesign.sections.circle import Circle
-from beamdesign.materials.material import Steel
+from beamdesign.materials.material import Material
 from beamdesign.utility.exceptions import CodeCheckError
 
 from tests.test_utils import *
 
-as3678_250 = Steel.load_steel(steel_name="AS3678-2016-250")
-as3678_300 = Steel.load_steel(steel_name="AS3678-2016-300")
+as3678_250 = Material.load_material(name="AS3678-2016-250")
+as3678_300 = Material.load_material(name="AS3678-2016-300")
 
 
 def test_AS4100():

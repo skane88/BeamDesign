@@ -44,6 +44,10 @@ class AS4100(CodeCheck):
 
         return super().sections()
 
+    def as4100_sections(self) -> List["AS4100Section"]:
+
+        raise NotImplementedError
+
     def get_section(
         self, position: Union[List[float], float] = None
     ) -> List[List[Section]]:
@@ -235,7 +239,7 @@ class AS4100(CodeCheck):
     ) -> "AS4100":
 
         config = cls.get_defaults(file_path=file_path)
-        defaults = config['defaults']
+        defaults = config["defaults"]
 
         return cls(beam=beam, section=section, **defaults)
 
@@ -258,7 +262,7 @@ class AS4100(CodeCheck):
         else:
             file_path = Path(file_path)
 
-        with file_path.open(mode="r", encoding='utf-8') as f:
+        with file_path.open(mode="r", encoding="utf-8") as f:
             vals = toml.load(f=f)
 
         return vals

@@ -3,10 +3,49 @@ This module contains functions for calculating effective section properties
 as required by AS4100 S5, 6 & 7.
 """
 
+from abc import ABC, abstractmethod
+
+from beamdesign.sections.section import Section
 from beamdesign.sections.hollowcircle import HollowCircle
+from beamdesign.utility.exceptions import InvalidMaterialError
+from beamdesign.const import MatType
 
 
-def s6_2_λ_e_flatplate(b, t, f_y, f_ref = 250.):
+class AS4100Section(ABC):
+    """
+    A class for calculating AS4100 section properties.
+    """
+
+    def __init__(self, *, section: Section):
+        """
+        Constructor for an AS4100_section() object.
+        :param section: A valid section object to create the ASA4100 section from.
+        """
+
+        self.section = section
+
+        # do some checks that the section is valid.
+
+        if self.section.material != MatType.steel:
+            raise InvalidMaterialError(
+                f"AS4100 is only valid for steel. "
+                + f"Provided material was {self.section.material}"
+            )
+
+    @property
+    @abstractmethod
+    def min_fy(self):
+
+        raise NotImplementedError
+
+    @property
+    @abstractmethod
+    def min_fu(self):
+
+        raise NotImplementedError
+
+
+def s6_2_λ_e_flatplate(b, t, f_y, f_ref=250.0):
     """
     Calculates the slenderness of a plate element to
     AS4100 S6.2
@@ -17,10 +56,10 @@ def s6_2_λ_e_flatplate(b, t, f_y, f_ref = 250.):
     f_ref: the reference yield stress, by default 250MPa
     """
 
-    return (b / t)*((f_y / f_ref)**0.5)
+    return (b / t) * ((f_y / f_ref) ** 0.5)
 
 
-def s6_2_λ_e_CHS(d_o, t, f_y, f_ref = 250.):
+def s6_2_λ_e_CHS(d_o, t, f_y, f_ref=250.0):
     """
     Calculates the slenderness of a CHS element to
     AS4100 S6.2
@@ -31,7 +70,7 @@ def s6_2_λ_e_CHS(d_o, t, f_y, f_ref = 250.):
     f_ref: the reference yield stress, by default 250MPa
     """
 
-    return (d_o / t)*(f_y / f_ref)
+    return (d_o / t) * (f_y / f_ref)
 
 
 def s6_2_b_e_flatplate(b, λ_e, λ_ey):
@@ -59,13 +98,13 @@ def s6_2_d_e_CHS(d_o, λ_e, λ_ey):
     reference CHS of similar configuration (AS4100 T6.2.4)
     """
 
-    d_e1 = d_o * (λ_ey / λ_e)**0.5
-    d_e2 = d_o * (3 * λ_ey / λ_e)**2
+    d_e1 = d_o * (λ_ey / λ_e) ** 0.5
+    d_e2 = d_o * (3 * λ_ey / λ_e) ** 2
 
     return min(d_e1, d_e2, d_o)
 
 
-def s6_2_A_e_flatplate(b, t, f_y, λ_ey, f_ref = 250.):
+def s6_2_A_e_flatplate(b, t, f_y, λ_ey, f_ref=250.0):
     """
     Calculates the compression area of a flat
     plate element to AS4100 S6.2
@@ -77,14 +116,14 @@ def s6_2_A_e_flatplate(b, t, f_y, λ_ey, f_ref = 250.):
     reference plate of similar configuration (AS4100 T6.2.4)
     f_ref: the reference yield stress, by default 250 MPa
     """
-    
-    λ_e = s6_2_λ_e_flatplate(b,t,f_y,f_ref) # slenderness of plate
-    b_e = s6_2_b_e_flatplate(b,λ_e,λ_ey) # effective width
+
+    λ_e = s6_2_λ_e_flatplate(b, t, f_y, f_ref)  # slenderness of plate
+    b_e = s6_2_b_e_flatplate(b, λ_e, λ_ey)  # effective width
 
     return b_e * t
 
 
-def s6_2_A_e_CHS(d_o, t, f_y, λ_ey, f_ref = 250.):
+def s6_2_A_e_CHS(d_o, t, f_y, λ_ey, f_ref=250.0):
     """
     Calculates the compression area of a flat
     plate element to AS4100 S6.2
@@ -96,11 +135,11 @@ def s6_2_A_e_CHS(d_o, t, f_y, λ_ey, f_ref = 250.):
     reference CHS of similar configuration (AS4100 T6.2.4)
     f_ref: the reference yield stress, by default 250 MPa
     """
-    
-    λ_e = s6_2_λ_e_CHS(d_o,t,f_y,f_ref) # effective slenderness
-    d_e = s6_2_d_e_CHS(d_o, λ_e, λ_ey) # effective diameter
-    
-    c = HollowCircle(0,0,d_e/2,d_e/2-t)
+
+    λ_e = s6_2_λ_e_CHS(d_o, t, f_y, f_ref)  # effective slenderness
+    d_e = s6_2_d_e_CHS(d_o, λ_e, λ_ey)  # effective diameter
+
+    c = HollowCircle(0, 0, d_e / 2, d_e / 2 - t)
 
     return c.area()
 
