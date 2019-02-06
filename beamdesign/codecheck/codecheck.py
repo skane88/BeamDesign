@@ -101,15 +101,25 @@ class CodeCheck(ABC):
 
     @abstractmethod
     def get_section(
-        self, position: Union[List[float], float] = None
+        self,
+        position: Union[List[float], float] = None,
+        min_positions: int = None,
+        load_case: int = None,
     ) -> List[List[Section]]:
         """
         Gets the section properties at a given position or list of positions.
 
+        The positions can either be requested directly, or as a minimum number of
+        positions along the beam. If specified as minimum positions, a load case can be
+        specified as well (to include load discontinuities etc.
+
+        :param min_positions: The minimum no. of positions to return.
         :param position: The position to return the section from. If the ``codecheck``
             object has only a section property (and not a ``Beam`` property) it returns
             ``self.section``. If ``None`` it returns all sections. If a position is
             given it returns the sections at the given positions.
+        :param load_case: he load case to consider if using min_positions. Can be
+            ``None``, in which case only the start & ends of elements are returned.
         :return: Returns a list of lists. This is to allow it to handle both the case of
             multiple positions and / or the case where a position falls on the boundary
             between elements. The list is of the form:
@@ -124,7 +134,7 @@ class CodeCheck(ABC):
         if self.beam is None:
             return [[self.section]]
 
-        if position is None:
-            return [self.sections()]
+        if position is None and min_positions is None:
+            return [self.sections]
 
         return self.beam.get_section(position=position)

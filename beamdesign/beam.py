@@ -570,7 +570,7 @@ class Beam:
         # first check for ambiguities in position / min_positions
 
         position, elements, local_positions = self.list_positions(
-            load_case, min_positions, position
+            load_case=load_case, min_positions=min_positions, position=position
         )
 
         # we now have a list of all the positions at which we intend to get the loads.
@@ -598,9 +598,9 @@ class Beam:
     def list_positions(
         self,
         *,
-        load_case: int = None,
-        min_positions: int = None,
         position: Union[List[float], float] = None,
+        min_positions: int = None,
+        load_case: int = None,
     ) -> Tuple[List[float], List[int], List[float]]:
         """
         Build a list of positions along a Beam element, and the elements and local
@@ -611,9 +611,10 @@ class Beam:
         min_positions number of positions, but will also include any element starts /
         ends and any load discontinuities in the given load case.
 
-        :param load_case: The load case to consider if using min_positions.
-        :param min_positions: The minimum no. of positions to return.
         :param position: A provided position or positions to check.
+        :param min_positions: The minimum no. of positions to return.
+        :param load_case: The load case to consider if using min_positions. Can be
+            ``None``, in which case only the start & ends of elements are returned.
         :return: Returns a tuple in the format
             (
                 [
@@ -747,61 +748,41 @@ class Beam:
 
         return position_list, element_list, local_position_list
 
-    def get_section(self, position: Union[List[float], float]) -> List[List[Section]]:
+    def get_section(
+        self,
+        position: Union[List[float], float],
+        min_positions: int = None,
+        load_case: int = None,
+    ) -> Tuple[List[float], List[Section]]:
         """
         Returns the sections from the elements that make up the ``Beam`` object.
 
-        :param position: The position at which to get the section type. A list may be
-            provided.
-        :return: Returns a list of section properties corresponding to the provided
-            positions. To handle the presence of zero length elements and positions
-            that are on element boundaries, it is returned as a list of lists:
+        :param position: A provided position or positions to check.
+        :param min_positions: The minimum no. of positions to return.
+        :param load_case: The load case to consider if using min_positions. Can be
+            ``None``, in which case only the start & ends of elements are returned.
+        :return: Returns a tuple of positions and sections:
 
-            [
-                [section_element_1, ..., section_element_n] # sections at position 1
-                ...
-                [section_element_1, ..., section_element_n] # sections at position n
-            ]
+            (
+                [pos_1, ..., pos_n]
+                [section_1, ..., section_n]
+            )
         """
 
-        # first check if position is None, if so we can simply return a list of all
-        # sections
+        # get a list of positions & elements
+        locations = self.list_positions(
+            position=position, min_positions=min_positions, load_case=load_case
+        )
 
-        if position is None:
-            return [[e.section for e in self.elements]]
+        position = locations[0]
+        element_ids = locations[1]
 
-        # else we now have to get the element at a specified position or list of
-        # positions.
+        elements = [self.elements[e].section for e in element_ids]
 
-        # first convert position to a list if required.
-        if isinstance(position, float):
-            position = [position]
-
-        # now do some error checking
-        for p in position:
-            if p < 0 or p > self.length:
-                raise PositionNotInBeamError(
-                    f"Expected the position provided to be > 0 or < the beam length."
-                    + f" Positions provided were {position},"
-                    + f" beam length is {self.length}"
-                )
-
-        ret_list = []
-
-        for p in position:
-            in_elements = self.in_elements(position=p)
-
-            int_list = []
-
-            for i in in_elements:
-                int_list += [self.elements[i].section]
-
-            ret_list += [int_list]
-
-        return ret_list
+        return (position, elements)
 
     @classmethod
-    def empty_beam(cls, length: float = 0, section: Section=None) -> "Beam":
+    def empty_beam(cls, length: float = 0, section: Section = None) -> "Beam":
         """
         Helper constructor to build an empty Beam object with an empty element object,
         which has no loads. Primarily intended for testing purposes.
