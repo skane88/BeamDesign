@@ -41,21 +41,6 @@ class AS4100(CodeCheck):
         self.αu = αu
         self.kt = kt
 
-    def tension_capacity(self, *, position: Union[List[float], float] = None):
-
-        return self.φNt(position=position)
-
-    def tension_utilisation(
-        self, *, load_case: int = None, position: Union[List[float], float] = None
-    ) -> float:
-
-        if position is not None:
-            if isinstance(position, float):
-                # convert position into float now for consistency later.
-                position = [position]
-
-        raise NotImplementedError()
-
     @property
     def sections(self) -> List[Section]:
 
@@ -70,6 +55,21 @@ class AS4100(CodeCheck):
         """
 
         return self._as4100_sections
+
+    def tension_capacity(self, *, position: Union[List[float], float] = None):
+
+        return self.φNt(position=position)
+
+    def tension_utilisation(
+        self, *, load_case: int = None, position: Union[List[float], float] = None
+    ) -> float:
+
+        if position is not None:
+            if isinstance(position, float):
+                # convert position into float now for consistency later.
+                position = [position]
+
+        raise NotImplementedError()
 
     def get_section(
         self,
