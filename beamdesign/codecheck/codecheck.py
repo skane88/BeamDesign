@@ -74,6 +74,22 @@ class CodeCheck(ABC):
         return self._section
 
     @property
+    @abstractmethod
+    def sections(self) -> List[Section]:
+        """
+        Returns all the sections from the elements that make up the ``codecheck``
+        object.
+
+        :return: A list of all the sections. If there is no beam (and only a section) a
+            list is still returned for consistency.
+        """
+
+        if self.beam is None:
+            return [self.section]
+
+        return self.beam.sections
+
+    @property
     def assessment_points(self) -> int:
         """
         The minimum number of points at which utilisation etc. will be assessed.
@@ -136,22 +152,6 @@ class CodeCheck(ABC):
         """
 
         raise NotImplementedError()
-
-    @property
-    @abstractmethod
-    def sections(self) -> List[Section]:
-        """
-        Returns all the sections from the elements that make up the ``codecheck``
-        object.
-
-        :return: A list of all the sections. If there is no beam (and only a section) a
-            list is still returned for consistency.
-        """
-
-        if self.beam is None:
-            return [self.section]
-
-        return self.beam.sections
 
     @abstractmethod
     def get_section(
