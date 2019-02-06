@@ -25,3 +25,11 @@ def test_circle():
     as4100circle = AS4100Circle(section=c)
 
     assert as4100circle
+
+def test_circle_min_fy():
+
+    assert False
+
+def test_circle_min_fu():
+
+    assert False
