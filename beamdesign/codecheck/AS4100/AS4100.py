@@ -121,8 +121,8 @@ class AS4100(CodeCheck):
                         util_func,
                         tension,
                         cap_func,
-                        x_low=-100,
-                        x_high=100,
+                        x_low=-100000,
+                        x_high=100000,
                         fallback=False,
                     )
 
