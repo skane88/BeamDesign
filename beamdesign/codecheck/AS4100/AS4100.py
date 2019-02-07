@@ -119,7 +119,7 @@ class AS4100(CodeCheck):
 
                     x, i, b = secant(
                         util_func,
-                        tension,
+                        t,
                         cap_func,
                         x_low=-100000,
                         x_high=100000,
@@ -138,7 +138,7 @@ class AS4100(CodeCheck):
         if position is None and load_case is not None:
             # if position is None, but load case is not, filter on load case.
 
-            ret_util = [ret_util(i) for i, l in enumerate(ret_loads) if l in load_case]
+            ret_util = [ret_util[i] for i, l in enumerate(ret_loads) if l in load_case]
 
         return min(ret_util)
 

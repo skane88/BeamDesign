@@ -6,10 +6,13 @@ from math import isclose, pi
 
 from pytest import mark
 
+import numpy as np
+
 from beamdesign.codecheck.AS4100.AS4100 import *
 from beamdesign.beam import Beam, Element
 from beamdesign.sections.circle import Circle
 from beamdesign.materials.material import Material
+from beamdesign.loadcase import LoadCase
 from beamdesign.utility.exceptions import (
     CodeCheckError,
     SectionOnlyError,
@@ -487,7 +490,11 @@ def test_AS4100_Ntu_multi_positions():
 
     assert isclose(expected, a.Ntu(position=[0.75, 1.00]))
 
+
 def test_AS4100_tension_utilisation():
+    """
+    Very simple test of the tension_utilisation method.
+    """
 
     load = 100000
 
@@ -502,3 +509,74 @@ def test_AS4100_tension_utilisation():
     actual = a.tension_utilisation()
 
     assert isclose(actual, expected)
+
+
+def test_AS4100_tension_utilisation2():
+    """
+    More detailed test of the tension_utilisation method. This will be tested to get
+    the maximum utilisation first, and then tested to get the utilisation at specified
+    positions and in specified load cases.
+    """
+
+    s = Circle(radius=0.02, material=as3678_250)
+    l = LoadCase(
+        loads=[
+            [0.00, 100000, 100000, 100000, 100000, 100000, 100000],
+            [0.50, 150000, 150000, 150000, 150000, 150000, 150000],
+            [0.50, 200000, 200000, 200000, 200000, 200000, 200000],
+        ]
+    )
+    e = Element(loads={1: l}, length=1.0, section=s)
+    b = Beam(elements=e)
+    a = AS4100(beam=b, φ_steel=0.9, αu=0.85, kt=1.0)
+
+    φ = 0.9
+    capacity = φ * 250e6 * pi * 0.02 ** 2
+    expected = capacity / 200000
+    actual = a.tension_utilisation()
+
+    assert isclose(actual, expected)
+
+    actual = a.tension_utilisation(load_case=1)
+
+    assert isclose(actual, expected)
+
+    loads = b.get_loads(load_case=1, min_positions=20, component="N")
+
+    positions = list(sorted(set(loads[...,0])))
+
+    for p in positions:
+
+        load = loads[loads[:,0]==p]
+        load = max(load[...,1])
+
+        expected = capacity / load
+
+        actual = a.tension_utilisation(position=p)
+
+        assert isclose(actual, expected)
+
+    for p in positions:
+        load = loads[loads[:, 0] == p]
+        load = max(load[..., 1])
+
+        expected = capacity / load
+
+        actual = a.tension_utilisation(position=p, load_case=1)
+
+        assert isclose(actual, expected)
+
+def test_AS4100_tension_utilisation3():
+    """
+    Test the tension_utilisation method when there are multiple sections along the beam.
+    """
+
+    assert False
+
+def test_AS4100_tension_utilisation4():
+    """
+    Test the tension_utilisation method when there are multiple sections AND multiple
+    load cases.
+    """
+
+    assert False

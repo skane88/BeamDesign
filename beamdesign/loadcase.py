@@ -22,12 +22,12 @@ class LoadCase:
         :param case_name: A case name.
         :param loads: The loads to set. Must be an object that can be formatted into a
             numpy array of shape (n, 7). The following format is expected:
-
-            [[pos_1, vx_1, vy_1, N_1, mx_1, my_1, T_1]
-             [pos_2, vx_2, vy_2, N_2, mx_2, my_2, T_2]
-             ...
-             [pos_n, vx_n, vy_n, N_n, mx_n, my_n, T_n]
-             ]
+            [
+                [pos_1, vx_1, vy_1, N_1, mx_1, my_1, T_1]
+                [pos_2, vx_2, vy_2, N_2, mx_2, my_2, T_2]
+                ...
+                [pos_n, vx_n, vy_n, N_n, mx_n, my_n, T_n]
+            ]
         """
 
         # set the loads using some setting logic
