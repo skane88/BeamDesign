@@ -4,7 +4,6 @@ themselves. Specific equations from the code have been split off into other file
 minimise the size of this file.
 """
 
-import itertools
 from typing import List, Union, Dict, Tuple
 from pathlib import Path
 
@@ -15,6 +14,7 @@ from beamdesign.codecheck.codecheck import CodeCheck
 from beamdesign.sections.section import Section
 from beamdesign.codecheck.AS4100.AS4100_sect_props import AS4100Section
 from beamdesign.utility.exceptions import SectionOnlyError
+from beamdesign.utility.solvers import secant
 from beamdesign.const import LoadComponents
 
 
@@ -62,15 +62,85 @@ class AS4100(CodeCheck):
         return self.φNt(position=position)
 
     def tension_utilisation(
-        self, *, load_case: int = None, position: Union[List[float], float] = None
+        self,
+        *,
+        load_case: Union[int, List[int]] = None,
+        position: Union[List[float], float] = None,
     ) -> float:
+
+        if load_case is not None:
+            if isinstance(load_case, int):
+                # convert into List now for consistency later.
+                load_case = [load_case]
+
+        load = load_case
 
         if position is not None:
             if isinstance(position, float):
-                # convert position into float now for consistency later.
+                # convert position into List now for consistency later.
                 position = [position]
 
-        raise NotImplementedError()
+        pos = position
+
+        ret_loads = []
+        ret_pos = []
+        ret_util = []
+
+        if load is None:
+            # if load is None, we need to go over all the load cases.
+            load = self.beam.load_cases
+
+        for l in load:
+
+            if pos is None:
+                pos = self.beam.list_positions(
+                    min_positions=self.assessment_points, load_case=l
+                )[0]
+
+            for p in pos:
+                # go through every position and get the capacity & load
+
+                t_cap = self.tension_capacity(position=p)
+
+                def cap_func(load):
+                    return t_cap
+
+                # next get the tension load at the position to be checked.
+                tension = self.get_loads(
+                    load_case=l, position=p, component=LoadComponents.N
+                )[...,1]
+
+                for t in tension:
+                    # handle the case where multiple loads are at a given position.
+
+                    def util_func(x, load, capacity_func):
+
+                        return x * load / capacity_func(load * x) - 1.0
+
+                    x, i, b = secant(
+                        util_func,
+                        tension,
+                        cap_func,
+                        x_low=-100,
+                        x_high=100,
+                        fallback=False,
+                    )
+
+                    ret_loads += [l]
+                    ret_pos += [p]
+                    ret_util += [x]
+
+        if load_case is None and position is not None:
+            # if load case is none but position is not, filter on position.
+
+            ret_util = [ret_util[i] for i, p in enumerate(ret_pos) if p in position]
+
+        if position is None and load_case is not None:
+            # if position is None, but load case is not, filter on load case.
+
+            ret_util = [ret_util(i) for i, l in enumerate(ret_loads) if l in load_case]
+
+        return min(ret_util)
 
     def get_section(
         self,

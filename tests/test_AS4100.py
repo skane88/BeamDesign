@@ -486,3 +486,19 @@ def test_AS4100_Ntu_multi_positions():
     expected = 0.85 * 1.0 * 410e6 * pi * 0.06 ** 2
 
     assert isclose(expected, a.Ntu(position=[0.75, 1.00]))
+
+def test_AS4100_tension_utilisation():
+
+    load = 100000
+
+    s = Circle(radius=0.02, material=as3678_250)
+    e = Element.constant_load_element(length=1.0, section=s, N=load)
+    b = Beam(elements=e)
+    a = AS4100(beam=b, φ_steel=0.9, αu=0.85, kt=1.0)
+
+    φ = 0.9
+    capacity = φ * 250e6 * pi * 0.02 ** 2
+    expected = capacity / load
+    actual = a.tension_utilisation()
+
+    assert isclose(actual, expected)
