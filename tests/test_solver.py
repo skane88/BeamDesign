@@ -25,7 +25,7 @@ def test_sign_neg(n):
     Test the sign function against negative numbers. Uses hypothesis to cover all the
     negative numbers, excludes 0.
 
-    NOTE: requires hypothesis 4.5.2 or later.
+    NOTE: requires hypothesis 4.5.2 or later due to the exclude_max option on floats().
 
     :param n: The number to test.
     """
