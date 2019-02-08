@@ -88,8 +88,6 @@ def test_secant_2(n, x_low, x_high):
     guesses
     """
 
-    print(f"n: {n}, x_low: {x_low}, x_high: {x_high}")
-
     def func(x):
         return x + n
 
