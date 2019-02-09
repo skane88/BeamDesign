@@ -3,7 +3,7 @@ This file contains a number of solvers used by the CodeCheck methods.
 """
 
 from sys import float_info
-from math import inf, nan, isclose, isnan, isinf
+from math import isclose, isnan, isinf
 
 
 def bisection(
