@@ -9,4 +9,6 @@ It is intended that this library will:
 * Have a strict distinction between code that represents real world objects such as beams / columns and the code that carries out the design checks using the engineering "useful fiction" that are design codes.
 * Allow for easy addition of other design codes.
 
+Currently working towards release 0.1 (see [project board](https://github.com/skane88/BeamDesign/projects/1) for release plans)
+
 This library is NOT intended for use by persons who do not have an appropriate structural or mechanical engineering background. Design standards have many assumptions built into them that may not be realised by those without appropriate training. Assumptions made by the designer when calculating the loads on a beam may also affect the checks required by the design codes. Use of this library by those without appropriate knowledge could lead to serious structural failure.
