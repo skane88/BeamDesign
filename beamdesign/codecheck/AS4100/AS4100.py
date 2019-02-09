@@ -108,23 +108,27 @@ class AS4100(CodeCheck):
                 # next get the tension load at the position to be checked.
                 tension = self.get_loads(
                     load_case=l, position=p, component=LoadComponents.N
-                )[...,1]
+                )[..., 1]
 
                 for t in tension:
                     # handle the case where multiple loads are at a given position.
 
-                    def util_func(x, load, capacity_func):
+                    if t <= 0.0:
+                        x = 0.0
+                    else:
 
-                        return x * load / capacity_func(load * x) - 1.0
+                        def util_func(x, load, capacity_func):
 
-                    x, i, b = secant(
-                        util_func,
-                        t,
-                        cap_func,
-                        x_low=-100000,
-                        x_high=100000,
-                        fallback=False,
-                    )
+                            return x * load / capacity_func(load * x) - 1.0
+
+                        x, i, b = secant(
+                            util_func,
+                            t,
+                            cap_func,
+                            x_low=-100_000,
+                            x_high=100_000,
+                            fallback=False,
+                        )
 
                     ret_loads += [l]
                     ret_pos += [p]
