@@ -28,6 +28,7 @@ def bisection(
     :param tol: The solution tolerance. A default value of 1e-9 is provided. Note that
         smaller values may cause trouble with convergence, possibly due to floating
         point issues.
+        NOTE: this is an absolute, not a relative, tolerance.
     :param max_its: A maximum number of iterations to perform. If convergence is not
         achieved within tol when max_its is reached, an error is raised.
 
@@ -50,7 +51,7 @@ def bisection(
             f"Guesses should not be nan: " + f"x_low={x_low}, x_high={x_high}"
         )
 
-    if isclose(x_high, x_low, abs_tol=1e-9):
+    if isclose(x_high, x_low, abs_tol=tol):
         raise ValueError(
             f"Expected guesses to be different. Current guesses: "
             + f"x_low={x_low}, x_high={x_high}"
@@ -62,7 +63,7 @@ def bisection(
 
     i = 0
 
-    while abs(x_high - x_low) > tol and x_high != x_low:
+    while abs(x_high - x_low) > tol and not isclose(x_high, x_low, abs_tol=tol):
 
         i += 1
 
@@ -70,9 +71,9 @@ def bisection(
         y_high = func(x_high, *args, **kwargs)
 
         # if y_low or y_high luck out and end on 0.0, we can report them as the roots.
-        if y_low == 0.0:
+        if isclose(y_low, 0.0, abs_tol=tol):
             return x_low, i
-        if y_high == 0.0:
+        if isclose(y_high, 0.0, abs_tol=tol):
             return x_high, i
 
         if isinf(y_low) or isinf(y_high):
@@ -158,6 +159,7 @@ def secant(
     :param tol: The solution tolerance. A default value of 1e-9 is provided. Note that
         smaller values may cause trouble with convergence, possibly due to floating
         point issues.
+        NOTE: this is an absolute, not a relative, tolerance.
     :param max_its: A maximum number of iterations to perform. If convergence is not
         achieved within tol when max_its is reached, an error is raised.
 
@@ -185,7 +187,7 @@ def secant(
             f"Guesses should not be nan: " + f"x_low={x_low}, x_high={x_high}"
         )
 
-    if isclose(x_high, x_low, abs_tol=1e-9):
+    if isclose(x_high, x_low, abs_tol=tol):
         raise ValueError(
             f"Expected guesses to be different. Current guesses: "
             + f"x_low={x_low}, x_high={x_high}"
@@ -195,7 +197,7 @@ def secant(
     x_1 = x_low
     x_2 = x_high
 
-    while abs(x_2 - x_1) > tol and x_1 != x_2:
+    while abs(x_2 - x_1) > tol and not isclose(x_1, x_2, abs_tol=tol):
 
         i += 1
 
@@ -215,7 +217,7 @@ def secant(
                 + f"d = func(x_low) = {d}."
             )
 
-        if c == d:
+        if isclose(c, d, abs_tol=tol):
             raise ValueError(
                 f"Both guesses result in the same solution to the function, probably due"
                 + f" to floating point arithmetic errors. This will result in a divide "

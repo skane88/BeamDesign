@@ -38,12 +38,17 @@ def test_secant_1(n):
     Tests against a line with a slope of 1: x + n, which implies the root is at -n
     """
 
-    assume(100_000 + n != -100_000 + n)  # eliminates a source of floating point errors
+    x_low = -100000
+    x_high = 100000
+
+    assume(not isclose(x_low + n, x_high + n, abs_tol=1e-9))
+    # eliminates a source of floating point errors - there is a guard in the actual
+    # method itself that catches this and raises a ValueError.
 
     def func(x):
         return x + n
 
-    x, i, b = secant(func=func, x_low=-100_000, x_high=100_000)
+    x, i, b = secant(func=func, x_low=x_low, x_high=x_high)
 
     assert isclose(x, -n, abs_tol=1e-9)
 
@@ -63,14 +68,20 @@ def test_secant_2(n, x_low, x_high):
     guesses
     """
 
+    assume(not isclose(x_low + n, x_high + n, abs_tol=1e-9))
+    # eliminates a source of floating point errors - there is a guard in the actual
+    # method itself that catches this and raises a ValueError.
+
     def func(x):
         return x + n
 
-    try:
-        x, i, b = secant(func=func, x_low=x_low, x_high=x_high)
+    assume(not isinf(func(x_low)))
+    assume(not isinf(func(x_high)))
+    assume(not isinf(x_high * func(x_low)))
+    assume(not isinf(x_low * func(x_high)))
+    # eliminates a source of floating point errors - there is a guard in the actual
+    # method itself that catches this and raises a ValueError.
 
-        assert isclose(x, -n, abs_tol=1e-9)
-    except ValueError:
-        # we have put ValueErrors in the solver to catch problems related to infinite
-        # arithmetic etc.
-        assert True
+    x, i, b = secant(func=func, x_low=x_low, x_high=x_high)
+
+    assert isclose(x, -n, abs_tol=1e-9)
