@@ -571,12 +571,171 @@ def test_AS4100_tension_utilisation3():
     Test the tension_utilisation method when there are multiple sections along the beam.
     """
 
-    assert False
+    s1 = Circle(radius=0.02, material=as3678_250)
+    s2 = Circle(radius=0.03, material=as3678_250)
+    l1 = LoadCase(
+        loads=[
+            [0.00, 100000, 100000, 100000, 100000, 100000, 100000],
+            [1.00, 150000, 150000, 150000, 150000, 150000, 150000],
+        ]
+    )
+    l2 = LoadCase(
+        loads=[
+            [0.00, 200000, 200000, 200000, 200000, 200000, 200000],
+            [1.00, 150000, 150000, 150000, 150000, 150000, 150000],
+        ]
+    )
+    e1 = Element(loads={1: l1}, length=0.5, section=s1)
+    e2 = Element(loads={1: l2}, length=0.5, section=s2)
+    b = Beam(elements=[e1, e2])
+    a = AS4100(beam=b, φ_steel=0.9, αu=0.85, kt=1.0)
+
+    φ = 0.9
+    c1 = φ * 250e6 * pi * 0.02 ** 2
+    c2 = φ * 240e6 * pi * 0.03 ** 2
+    expected = c1 / 200000
+    actual = a.tension_utilisation()
+
+    assert isclose(actual, expected)
+
+    actual = a.tension_utilisation(load_case=1)
+
+    assert isclose(actual, expected)
+
+    loads = b.get_loads(load_case=1, min_positions=20, component="N")
+
+    positions = list(sorted(set(loads[..., 0])))
+
+    for p in positions:
+        load = loads[loads[:, 0] == p]
+        load = max(load[..., 1])
+
+        if p<=0.5:
+            expected = c1 / load
+        else:
+            expected = c2 / load
+
+        actual = a.tension_utilisation(position=p)
+
+        assert isclose(actual, expected)
+
+    for p in positions:
+        load = loads[loads[:, 0] == p]
+        load = max(load[..., 1])
+
+        if p <= 0.5:
+            expected = c1 / load
+        else:
+            expected = c2 / load
+
+        actual = a.tension_utilisation(position=p, load_case=1)
+
+        assert isclose(actual, expected)
 
 def test_AS4100_tension_utilisation4():
     """
     Test the tension_utilisation method when there are multiple sections AND multiple
     load cases.
+    """
+
+    s1 = Circle(radius=0.02, material=as3678_250)
+    s2 = Circle(radius=0.03, material=as3678_250)
+    l1_1 = LoadCase(
+        loads=[
+            [0.00, 100000, 100000, 100000, 100000, 100000, 100000],
+            [1.00, 150000, 150000, 150000, 150000, 150000, 150000],
+        ]
+    )
+    l1_2 = LoadCase(
+        loads=[
+            [0.00, 200000, 200000, 200000, 200000, 200000, 200000],
+            [1.00, 150000, 150000, 150000, 150000, 150000, 150000],
+        ]
+    )
+
+    l2_1 = LoadCase(
+        loads=[
+            [0.00, 200000, 200000, 200000, 200000, 200000, 200000],
+            [1.00, 150000, 150000, 150000, 150000, 150000, 150000],
+        ]
+    )
+    l2_2 = LoadCase(
+        loads=[
+            [0.00, 100000, 100000, 100000, 100000, 100000, 100000],
+            [1.00, 150000, 150000, 150000, 150000, 150000, 150000],
+        ]
+    )
+
+    e1 = Element(loads={1: l1_1, 2: l2_1}, length=0.5, section=s1)
+    e2 = Element(loads={1: l1_2, 2: l2_2}, length=0.5, section=s2)
+    b = Beam(elements=[e1, e2])
+    a = AS4100(beam=b, φ_steel=0.9, αu=0.85, kt=1.0)
+
+    φ = 0.9
+    c1 = φ * 250e6 * pi * 0.02 ** 2
+    c2 = φ * 240e6 * pi * 0.03 ** 2
+
+    expected = c1 / 200000
+    actual = a.tension_utilisation()
+
+    assert isclose(actual, expected)
+
+    actual = a.tension_utilisation(load_case=1)
+
+    assert isclose(actual, expected)
+
+    loads1 = b.get_loads(load_case=1, min_positions=20, component="N")
+    loads2 = b.get_loads(load_case=2, min_positions=20, component="N")
+
+    positions = list(sorted(set(loads1[..., 0])))
+
+    for p in positions:
+        load1 = loads1[loads1[:, 0] == p]
+        load1 = max(load1[..., 1])
+
+        load2 = loads2[loads2[:, 0] == p]
+        load2 = max(load2[..., 1])
+
+        load = max(load1, load2)
+
+        if p <= 0.5:
+            expected = c1 / load
+        else:
+            expected = c2 / load
+
+        actual = a.tension_utilisation(position=p)
+
+        assert isclose(actual, expected)
+
+    for p in positions:
+        load = loads1[loads1[:, 0] == p]
+        load = max(load[..., 1])
+
+        if p <= 0.5:
+            expected = c1 / load
+        else:
+            expected = c2 / load
+
+        actual = a.tension_utilisation(position=p, load_case=1)
+
+        assert isclose(actual, expected)
+
+    for p in positions:
+        load = loads2[loads2[:, 0] == p]
+        load = max(load[..., 1])
+
+        if p <= 0.5:
+            expected = c1 / load
+        else:
+            expected = c2 / load
+
+        actual = a.tension_utilisation(position=p, load_case=2)
+
+        assert isclose(actual, expected)
+
+def test_AS4100_tension_utilisation5():
+    """
+    Test the tension utilisation method with compression loads
     """
 
     assert False
