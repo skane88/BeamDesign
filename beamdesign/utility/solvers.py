@@ -6,17 +6,6 @@ from sys import float_info
 from math import inf, nan, isclose, isnan, isinf
 
 
-def sign(num):
-    """
-    Check the sign of a number. Returns -1 if less than 0, otherwise returns 1.
-    """
-
-    if num < 0:
-        return -1
-    else:
-        return 1
-
-
 def bisection(
     func,
     *args,
@@ -102,7 +91,7 @@ def bisection(
                 + f"(x_high, y_high)=({x_high}, {y_high})"
             )
 
-        if sign(y_low) == sign(y_high):
+        if y_low * y_high > 0.0:
             raise ValueError(
                 f"Expected the guesses to bracket the root. Current guesses: "
                 + f"(x_low, y_low)=({x_low},{y_low}), "
@@ -112,7 +101,7 @@ def bisection(
         x_mid = (x_low + x_high) / 2
         y_mid = func(x_mid, *args, **kwargs)
 
-        if sign(y_low) == sign(y_mid):
+        if y_low * y_mid > 0.0:
             x_low = x_mid
         else:
             x_high = x_mid
