@@ -9,7 +9,8 @@ from pytest import mark
 import numpy as np
 
 from beamdesign.codecheck.AS4100.AS4100 import *
-from beamdesign.beam import Beam, Element
+from beamdesign.beam import Beam
+from beamdesign.element import Element
 from beamdesign.sections.circle import Circle
 from beamdesign.materials.material import Material
 from beamdesign.loadcase import LoadCase
