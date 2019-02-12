@@ -1,12 +1,13 @@
 """
-Contains tests for the Beam and Elements classes
+Contains tests for the Beam class
 """
 
 from pytest import mark
 
 import numpy as np
 
-from beamdesign.beam import Beam, Element
+from beamdesign.beam import Beam
+from beamdesign.element import Element
 from beamdesign.loadcase import LoadCase
 from beamdesign.sections.circle import Circle
 from beamdesign.materials.material import Material
@@ -18,37 +19,6 @@ from beamdesign.utility.exceptions import (
 )
 
 as3678_250 = Material.load_material(name="AS3678-2016-250")
-
-
-def test_Element_init():
-    """
-    Can the most basic ``Element`` object be instantiated.
-    """
-
-    a = Element.empty_element()
-
-    assert a
-
-
-@mark.xfail(strict=True, raises=ElementLengthError)
-def test_Element_init_length_error():
-
-    a = Element.empty_element(length=-1.0)
-
-    assert True
-
-
-@mark.parametrize("length", [None, 1.000, 3.000, 4.532, 1, 3])
-def test_Element_get_length(length):
-    """
-    Test the ``Element.length`` property against a no. of values
-    """
-
-    a = Element.empty_element()
-
-    a.length = length
-
-    assert a.length == length
 
 
 def test_Beam_init():
