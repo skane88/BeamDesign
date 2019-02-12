@@ -2,7 +2,7 @@
 File to test the AS4100 section properties methods
 """
 
-from math import isclose
+from math import isclose, pi
 
 from pytest import mark
 
@@ -63,6 +63,7 @@ def test_circle_min_fy(radius, expected):
 
     assert isclose(as4100circle.min_fy, expected)
 
+
 @mark.parametrize(
     "radius, expected",
     [
@@ -90,10 +91,32 @@ def test_circle_min_fu(radius, expected):
 
     assert isclose(as4100circle.min_fu, expected)
 
-def test_circle_Ag():
 
-    assert False
+def test_circle_Ag():
+    """
+    Test the AS4100Circle Ag method.
+    """
+
+    c = Circle(material=as3678_250, radius=0.02)
+
+    as4100circle = AS4100Circle(section=c)
+
+    actual = as4100circle.Ag
+    expected = pi * 0.02 ** 2
+
+    assert isclose(expected, actual)
+
 
 def test_circle_An():
+    """
+    Test the AS4100Circle An method.
+    """
 
-    assert False
+    c = Circle(material=as3678_250, radius=0.02)
+
+    as4100circle = AS4100Circle(section=c)
+
+    actual = as4100circle.An
+    expected = pi * 0.02 ** 2
+
+    assert isclose(expected, actual)
