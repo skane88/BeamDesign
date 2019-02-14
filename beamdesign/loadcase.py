@@ -349,55 +349,7 @@ class LoadCase:
         :return: A numpy array containing the loads at the specified position.
         """
 
-        # first check for ambiguities in position / min_positions
-
-        assert (
-            position is not None or min_positions is not None
-        ), "Expected either position or num_positions to be provided. Both were None."
-
-        assert (
-            position is None or min_positions is None
-        ), "Expected only position or num_positions. Both were provided."
-
-        # now that we have done some basic asserts, need to build a list of positions
-        # to get values at.
-
-        if position is not None:
-            # if position is not None then we can just use it.
-
-            if isinstance(position, float):
-                # if position is a float, convert to a list for consistent code below
-                position = [position]
-
-            # now convert to a numpy array for use later
-            position = np.array(position)
-            position = np.unique(position)
-
-        else:
-            # if we are here, we need to build a list of the positions.
-            # - we will start from the positions already in the loads document so that
-            # we don't miss anything.
-
-            position = self.load_positions
-
-            # now we get an array of positions
-
-            lin_pos = np.linspace(0.0, 1.0, min_positions)
-
-            # now we need to combine them
-
-            position = np.concatenate((position, lin_pos))
-
-            # now we get the unique values
-
-            position = np.unique(position)
-
-            # do an assert to confirm.
-
-            assert len(position) >= min_positions, (
-                f"Error generating number of positions. Expected {min_positions}, "
-                f"generated {len(position)} positions."
-            )
+        position = self.list_positions(min_positions, position)
 
         for i, p in enumerate(position):
 
@@ -409,6 +361,72 @@ class LoadCase:
                 ret_val = np.vstack((ret_val, val))
 
         return ret_val
+
+    def list_positions(
+        self, min_positions: int = None, position: Union[float, List[float]] = None
+    ) -> List[float]:
+        """
+        Given a minimum no. of positions or a
+
+        NOTE: if a single position is provided the return is simply the input position,
+        or a list of positions, the return is simply the input positions converted to a
+        list for use later.
+
+        NOTE 2: if both min_positions & position are None or provided an error will be
+        raised.
+
+        :param min_positions: The minimum no. of positions to generate. NOTE: this is
+        the minimum no. of positions - the function will return all intermediate load
+        positions etc. in addition to equally spaced positions.
+        :param position:
+        :return: A list of positions on the LoadCase, between 0.0 and 1.0.
+        """
+
+        # first check for ambiguities in position / min_positions
+        assert (
+            position is not None or min_positions is not None
+        ), "Expected either position or num_positions to be provided. Both were None."
+        assert (
+            position is None or min_positions is None
+        ), "Expected only position or num_positions. Both were provided."
+        # now that we have done some basic asserts, need to build a list of positions
+        # to get values at.
+        if position is not None:
+            # if position is not None then we can just use it.
+
+            if isinstance(position, float):
+                # if position is a float, convert to a list for consistent code below
+                position = [position]
+
+            # now convert to a unique and sorted list.
+            position = list(sorted(set(position)))
+
+        else:
+            # if we are here, we need to build a list of the positions.
+            # - we will start from the positions already in the loads document so that
+            # we don't miss anything.
+
+            position = set(self.load_positions)
+
+            # now we get an array of positions
+
+            lin_pos = np.linspace(0.0, 1.0, min_positions)
+
+            # now we need to combine them
+
+            position.update(lin_pos)
+
+            # now we convert to a sorted list
+
+            position = list(sorted(position))
+
+            # do an assert to confirm.
+
+            assert len(position) >= min_positions, (
+                f"Error generating number of positions. Expected {min_positions}, "
+                f"generated {len(position)} positions."
+            )
+        return position
 
     @classmethod
     def constant_load(
