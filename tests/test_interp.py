@@ -103,7 +103,6 @@ def test_multi_interp6():
 
     for i in range(actual.shape[0]):
 
-        expected = np.interp(x=x, xp=xp, fp=fp[i], left=left)
         assert np.allclose(actual[i, :], np.interp(x=x, xp=xp, fp=fp[i], left=left))
 
     actual = multi_interp(x=x, xp=xp, fp=fp, right=right)
