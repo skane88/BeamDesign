@@ -5,7 +5,6 @@ Contains tests for the shear calculation methods.
 from math import isclose
 
 import pytest
-import pandas as pd
 
 import beamdesign.codecheck.AS4100.S5_Shear as S5_Shear
 
