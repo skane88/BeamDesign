@@ -8,6 +8,7 @@ import numpy as np
 
 from beamdesign.utility.exceptions import LoadCaseError
 from beamdesign.const import LoadComponents
+from beamdesign.utility.interp import multi_interp
 
 
 class LoadCase:
@@ -37,6 +38,11 @@ class LoadCase:
 
     @property
     def loads(self):
+        """
+        The loads stored in the loadcase object.
+
+        NOTE: this is a read-only property.
+        """
         return self._loads
 
     @property
@@ -303,7 +309,7 @@ class LoadCase:
         *,
         position: [float, List[float]] = None,
         min_positions: int = None,
-        component: Union[str, LoadComponents] = None,
+        component: Union[str, LoadComponents, List[LoadComponents]] = None,
     ):
         """
         Gets the load in a load case at a given position. If there are multiple loads
@@ -349,21 +355,118 @@ class LoadCase:
         :return: A numpy array containing the loads at the specified position.
         """
 
-        position = self.list_positions(min_positions, position)
+        position = self.list_positions(
+            min_positions=min_positions, position=position
+        )
 
-        for i, p in enumerate(position):
+        if self.loads is not None:
+            # then we can do proper interpolation
 
-            val = self._get_load_single_position(position=p, component=component)
+            load_positions = self.loads[:, 0].transpose()
 
-            if i == 0:
-                ret_val = val
+            # need to handle the special case where pos matches a load position directly
+            # as there can be multiple load positions of the same value where there are
+            # load discontinuities
+            pos_direct = [p for p in position if p in load_positions]
+            pos_interp = [p for p in position if p not in load_positions]
+            pos_interp = np.array(pos_interp)
+
+            if component is None:
+
+                components = [
+                    LoadComponents.VX,
+                    LoadComponents.VY,
+                    LoadComponents.N,
+                    LoadComponents.MX,
+                    LoadComponents.MY,
+                    LoadComponents.T,
+                ]
+
+            elif isinstance(component, str):
+                components = [LoadComponents[component]]
+            elif isinstance(component, int):
+                components = [LoadComponents(component)]
+            elif isinstance(component, LoadComponents):
+                components = [component]
             else:
-                ret_val = np.vstack((ret_val, val))
+                components = component
+
+            components = [c.value for c in components]
+
+            if np.array_equal(position, np.unique(self.load_positions)):
+                # shortcut - if the positions exactly matches the load positions
+                # we can just return the loads
+                return self.loads[:, [0] + components]
+
+            loads_direct = None
+            loads_interp = None
+
+            # now get the loads that come out of the positions that match loads directly
+            if len(pos_direct) > 0:
+                # first we find all rows where position is in pos_direct
+                index_direct = np.in1d(self.loads[:, 0], pos_direct)
+
+                # then we get the loads at these positions
+                # note that we are using the np.ix_ function because combining a boolean
+                # and an integer indexing array does not work as expected.
+                loads_direct = self.loads[np.ix_(index_direct, [0] + components)]
+                loads_direct = loads_direct.reshape((-1, len([0] + components)))
+
+            if len(pos_interp) > 0:
+                loads_to_interp = self.loads[:, components].transpose()
+
+                loads_interp = multi_interp(
+                    x=pos_interp, xp=load_positions, fp=loads_to_interp
+                ).transpose()
+
+                loads_interp = np.hstack((pos_interp.reshape((-1,1)), loads_interp))
+
+            if loads_direct is not None and loads_interp is not None:
+                # add a new column with an index value to allow us to sort
+                # once we combine both arrays
+                indices = np.arange(loads_direct.shape[0]).reshape((-1, 1))
+                loads_direct = np.hstack((indices, loads_direct))
+
+                indices = np.arange(loads_interp.shape[0]).reshape((-1, 1))
+                loads_interp = np.hstack((indices, loads_interp))
+
+                ret_val = np.vstack((loads_direct, loads_interp))
+                # now sort on the secondary index
+                ret_val = ret_val[ret_val[:, 0].argsort()]
+                # next sort on the position (which is more important. Use 'mergesort'
+                # to maintain the position where there are multiple rows at the same
+                # position
+                # (ref https://stackoverflow.com/questions/2828059/sorting-arrays-in-numpy-by-column)
+                ret_val = ret_val[ret_val[:, 1].argsort(kind="mergesort")]
+                # now drop the index column
+                ret_val = ret_val[:, 1:]
+            elif loads_direct is not None:
+                # if so we can just return the direct loads
+                ret_val = loads_direct
+            else:
+                # otherwise return the interpreted loads.
+                ret_val = loads_interp
+        else:
+            # in the case where self.loads is none, we need to build a return array
+            # of Nones
+            position = np.array(position).reshape((-1, 1))
+            loads = np.empty(shape=position.shape, dtype=object)
+            ret_val = np.hstack((position, loads))
+
+
+        # for i, p in enumerate(position):
+        #
+        #    val = self._get_load_single_position(position=p, component=component)
+        #
+        #   if i == 0:
+        #        ret_val = val
+        #    else:
+        #        ret_val = np.vstack((ret_val, val))
 
         return ret_val
 
     def list_positions(
-        self, min_positions: int = None, position: Union[float, List[float]] = None
+        self, *, min_positions: int = None, position: Union[float, List[float]] = None
     ) -> List[float]:
         """
         Given a minimum no. of positions or a

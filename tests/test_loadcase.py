@@ -142,24 +142,14 @@ def test_get_load_single():
 
     position = 0.25
 
-    assert np.array_equal(
-        a.get_load(position=position, component="VX"), np.array([[position, 1]])
-    )
-    assert np.array_equal(
-        a.get_load(position=position, component="VY"), np.array([[position, 2]])
-    )
-    assert np.array_equal(
-        a.get_load(position=position, component="N"), np.array([[position, 3]])
-    )
-    assert np.array_equal(
-        a.get_load(position=position, component="MX"), np.array([[position, 4]])
-    )
-    assert np.array_equal(
-        a.get_load(position=position, component="MY"), np.array([[position, 5]])
-    )
-    assert np.array_equal(
-        a.get_load(position=position, component="T"), np.array([[position, 6]])
-    )
+    for comp in ["VX", "VY", "N", "MX", "MY", "T"]:
+
+        lc = LoadComponents[comp]
+
+        expected = np.array([[position, lc.value]])
+        actual = a.get_load(position=position, component=comp)
+
+        assert np.array_equal(expected, actual)
 
     position = 0.5
 
@@ -204,6 +194,47 @@ def test_get_load_single():
     )
 
 
+def test_get_load_multiple():
+    """
+    Test that if we input a single load position, we get out the same value at multiple
+    positions.
+    """
+
+    a = LoadCase(loads=[0.5, 1, 2, 3, 4, 5, 6])
+
+    position = [0.25, 0.75]
+
+    for comp in ["VX", "VY", "N", "MX", "MY", "T"]:
+
+        lc = LoadComponents[comp]
+
+        expected = np.array([[position[0], lc.value], [position[1], lc.value]])
+        actual = a.get_load(position=position, component=comp)
+
+        assert np.array_equal(expected, actual)
+
+    position = 0.5
+
+    assert np.array_equal(
+        a.get_load(position=position, component="VX"), np.array([[position, 1]])
+    )
+    assert np.array_equal(
+        a.get_load(position=position, component="VY"), np.array([[position, 2]])
+    )
+    assert np.array_equal(
+        a.get_load(position=position, component="N"), np.array([[position, 3]])
+    )
+    assert np.array_equal(
+        a.get_load(position=position, component="MX"), np.array([[position, 4]])
+    )
+    assert np.array_equal(
+        a.get_load(position=position, component="MY"), np.array([[position, 5]])
+    )
+    assert np.array_equal(
+        a.get_load(position=position, component="T"), np.array([[position, 6]])
+    )
+
+
 def test_get_load_components():
     """
     Test the case where components are provided directly, rather than as a string
@@ -213,10 +244,9 @@ def test_get_load_components():
 
     position = 0.25
 
-    assert np.array_equal(
-        a.get_load(position=position, component=LoadComponents["VX"]),
-        np.array([[0.25, 1]]),
-    )
+    actual = a.get_load(position=position, component=LoadComponents["VX"])
+
+    assert np.array_equal(actual, np.array([[0.25, 1]]))
     assert np.array_equal(
         a.get_load(position=position, component=LoadComponents["VY"]),
         np.array([[0.25, 2]]),
@@ -269,9 +299,10 @@ def test_get_load_multiple_positions():
 
     position = 0.25
 
-    assert np.array_equal(
-        a.get_load(position=position, component="VX"), np.array([[0.25, 1]])
-    )
+    actual = a.get_load(position=position, component="VX")
+    expected = np.array([[0.25, 1]])
+
+    assert np.array_equal(actual, expected)
     assert np.array_equal(
         a.get_load(position=position, component="VY"), np.array([[0.25, 2]])
     )
@@ -433,9 +464,10 @@ def test_get_load_multiple_positions2():
 
     position = 0.5
 
-    assert np.array_equal(
-        a.get_load(position=position, component="VX"), np.array([[0.5, 1.5], [0.5, 10]])
-    )
+    actual = a.get_load(position=position, component="VX")
+    expected = np.array([[0.5, 1.5], [0.5, 10]])
+
+    assert np.array_equal(actual, expected)
     assert np.array_equal(
         a.get_load(position=position, component="VY"), np.array([[0.5, 2.5], [0.5, 10]])
     )
