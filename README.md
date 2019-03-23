@@ -1,4 +1,7 @@
 # BeamDesign
+
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/ambv/black)
+
 A Python library intended to carry out beam / column design checks for structural engineers.
 
 Currently this is very definitely a work in progress. Initially, the library will start with a check to AS4100, the current Australian Standard for steel design. It is intended that version 0.1 will be released when a full AS4100 check is implemented. Other Australian and International standards may follow.
