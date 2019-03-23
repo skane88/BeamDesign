@@ -10,6 +10,7 @@ import beamdesign.codecheck.AS4100.S5_Shear as S5_Shear
 
 from tests.test_utils import *
 
+
 @pytest.mark.parametrize("name, data", data_Is + data_PFCs + data_Boxes)
 def test_s5_11_4_V_w_Generic(name, data):
 

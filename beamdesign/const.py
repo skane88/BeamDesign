@@ -13,6 +13,7 @@ class LoadComponents(Enum):
     MY = 5
     T = 6
 
+
 class MatType(Enum):
     steel = "steel"
     concrete = "concrete"

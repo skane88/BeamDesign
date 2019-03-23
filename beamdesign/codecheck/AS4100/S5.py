@@ -37,18 +37,20 @@ from beamdesign.sections.hollowcircle import HollowCircle
 
 # define some helpful enumerations
 class Restraints(enum.Enum):
-    FF='FF'
-    FP='FP'
-    FL='FL'
-    FU='FU'
-    PP='PP'
-    PL='PL'
-    PU='PU'
-    LL='LL'
+    FF = "FF"
+    FP = "FP"
+    FL = "FL"
+    FU = "FU"
+    PP = "PP"
+    PL = "PL"
+    PU = "PU"
+    LL = "LL"
+
 
 # section capacity methods
 
 # region
+
 
 def s5_2_M_s(*, f_y: float, Z_e: float) -> float:
     """
@@ -71,8 +73,17 @@ def s5_2_M_s(*, f_y: float, Z_e: float) -> float:
 
 # region
 
-def s5_6_1_M_o(*, l_e: float, I_y: float, J: float, I_w: float,
-               β_x: float = 0.0, E: float = 200e9, G: float = 80e9) -> float:
+
+def s5_6_1_M_o(
+    *,
+    l_e: float,
+    I_y: float,
+    J: float,
+    I_w: float,
+    β_x: float = 0.0,
+    E: float = 200e9,
+    G: float = 80e9,
+) -> float:
     """
     Calculates the reference buckling moment according to AS4100 S5.6.1.2.
     This equation is the same as the equation given for Mo in S5.6.1.1, 
@@ -91,17 +102,17 @@ def s5_6_1_M_o(*, l_e: float, I_y: float, J: float, I_w: float,
     :return: The reference buckling moment in Nm as per AS4100 S5.6.1.
     """
 
-    a = (((math.pi * math.pi) * E * I_y) / (l_e * l_e))
+    a = ((math.pi * math.pi) * E * I_y) / (l_e * l_e)
     b = G * J
-    c = (((math.pi * math.pi) * E * I_w) / (l_e * l_e))
-    d = (β_x / 2)
+    c = ((math.pi * math.pi) * E * I_w) / (l_e * l_e)
+    d = β_x / 2
 
-    return (a ** 0.5) * (
-        ((b + c + (d * d) * a) ** 0.5) + d * (a ** 0.5))
+    return (a ** 0.5) * (((b + c + (d * d) * a) ** 0.5) + d * (a ** 0.5))
 
 
-def s5_6_1_α_m(*, M_max: float, M_2: float, M_3: float, M_4: float,
-               α_m_max: float = 2.5):
+def s5_6_1_α_m(
+    *, M_max: float, M_2: float, M_3: float, M_4: float, α_m_max: float = 2.5
+):
     """
     Determines the moment modification factor α_m to AS4100 S5.6.1.
     based on the member midspan moments & maximum moment. This equation only
@@ -141,8 +152,14 @@ def s5_6_α_s(*, M_s: float, M_o: float) -> float:
     return 0.6 * ((((M_s / M_o) ** 2 + 3) ** 0.5) - (M_s / M_o))
 
 
-def s5_6_3_k_t(d_1: float, l: float, t_f: float, t_w: float, n_w: float,
-               restraint_code: str = Restraints.FF) -> float:
+def s5_6_3_k_t(
+    d_1: float,
+    l: float,
+    t_f: float,
+    t_w: float,
+    n_w: float,
+    restraint_code: str = Restraints.FF,
+) -> float:
     """
     Calculates the twist restraint factor to AS4100 S5.6.3. This applies only
     to sections which are composed of flanges and webs (I sections, PFCs, and
@@ -162,17 +179,20 @@ def s5_6_3_k_t(d_1: float, l: float, t_f: float, t_w: float, n_w: float,
 
     assert restraint_code in Restraints
 
-    if restraint_code in (Restraints.FF, Restraints.FL,
-                          Restraints.LL, Restraints.FU):
+    if restraint_code in (Restraints.FF, Restraints.FL, Restraints.LL, Restraints.FU):
         kt = 1.0
     elif restraint_code in (Restraints.FP, Restraints.PL, Restraints.PU):
         kt = 1 + ((d_1 / l) * (t_f / (2 * t_w)) ** 3) / n_w
     elif restraint_code in (Restraints.PP,):
         kt = 1 + (2 * (d_1 / l) * (t_f / (2 * t_w)) ** 3) / n_w
     else:
-        raise ValueError(f"Inappropriate restraint code provided. " +
-                         f"expected {Restraints}. " +
-                         f"Restraint code provided was " + restraint_code + ".")
+        raise ValueError(
+            f"Inappropriate restraint code provided. "
+            + f"expected {Restraints}. "
+            + f"Restraint code provided was "
+            + restraint_code
+            + "."
+        )
 
     return kt
 
@@ -202,6 +222,7 @@ def s5_6_1_Mb(*, M_s: float, α_m: float = 1.0, α_s: float = 1.0) -> float:
     """
 
     return α_m * α_s * M_s
+
 
 # end member capacity region
 

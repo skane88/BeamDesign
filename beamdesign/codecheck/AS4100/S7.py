@@ -38,21 +38,22 @@ def s7_2_N_t_yield(*, A_g: float, f_y: float) -> float:
 
 
 def s7_2_Ag(*, N_t: float, f_y: float) -> float:
-    '''
+    """
     Calculates the area required to carry the force applied without yielding.
     
     :param N_t: The applied force in N.
     :param f_y: The yield strength of a section in Pa.
     :return: Returns the area required to carry the force applied without
         yielding (in m²).
-    '''
+    """
 
     return N_t / f_y
 
 
-def s7_2_N_t_ultimate(*, A_n: float, f_u: float, k_t: float,
-                      ultimate_uncertainty: float = 0.85) -> float:
-    '''
+def s7_2_N_t_ultimate(
+    *, A_n: float, f_u: float, k_t: float, ultimate_uncertainty: float = 0.85
+) -> float:
+    """
     Calculates the ultimate fracture capacity of a section and includes the
     additional uncertainty factor from AS4100.
     
@@ -64,14 +65,15 @@ def s7_2_N_t_ultimate(*, A_n: float, f_u: float, k_t: float,
     :param ultimate_uncertainty: An uncertainty factor for ultimate strength
         behaviour, by default 0.85.
     :return: Returns the ultimate fracture capacity in N.
-    '''
+    """
 
     return A_n * f_u * k_t * ultimate_uncertainty
 
 
-def s7_2_An(*, N_t: float, f_u: float, k_t: float,
-            ultimate_uncertainty: float = 0.85) -> float:
-    '''
+def s7_2_An(
+    *, N_t: float, f_u: float, k_t: float, ultimate_uncertainty: float = 0.85
+) -> float:
+    """
     Calculates the area required to carry the force applied without fracture at
     ultimate load.
     
@@ -81,13 +83,13 @@ def s7_2_An(*, N_t: float, f_u: float, k_t: float,
         as per AS4100.
     :param ultimate_uncertainty: an uncertainty factor for ultimate
         strength behaviour, by default 0.85.
-    '''
+    """
 
     return N_t / ultimate_uncertainty / k_t / f_u
 
 
 def s7_5_a_min_thickness(*, a_e: float, safety_factor: 0.25) -> float:
-    '''
+    """
     Determines the required thickness of a connection plate in a pinned
     connection as per AS4100 S7.5a).
 
@@ -99,13 +101,13 @@ def s7_5_a_min_thickness(*, a_e: float, safety_factor: 0.25) -> float:
     :param safety_factor: The required minimum safety factor as per
         AS4100 S7.5a). By default 0.25 as per AS4100.
     :returns: The required thickness of the connection plate in m.
-    '''
+    """
 
     return a_e * safety_factor
 
 
 def s7_5_b_A_beyond(*, A_reqd: float, safety_factor: float = 1.00) -> float:
-    '''
+    """
     Determines the area required beyond a hole in a pinned connection based on
         the requirements of AS4100 S7.5.b).
 
@@ -118,13 +120,13 @@ def s7_5_b_A_beyond(*, A_reqd: float, safety_factor: float = 1.00) -> float:
     :param safety_factor: The safety factor on the member area as per AS4100
         S7.5b). By default 1.00 as per AS4100.
     :return: The area required beyond the hole in m².
-    '''
+    """
 
     return A_reqd * safety_factor
 
 
 def s7_5_c_A_perp(*, A_reqd: float, safety_factor: float = 1.33) -> float:
-    '''
+    """
     Determines the area required at a pinned connection, perpendicular to the
         member axis based on the requirements of AS4100 S7.5c.
     
@@ -133,15 +135,15 @@ def s7_5_c_A_perp(*, A_reqd: float, safety_factor: float = 1.33) -> float:
     :param safety_factor The safety factor against the member area as given in
         AS4100 S7.5c). By default 1.33 as per AS4100..
     :return: The area required perpendicular to the axis of the member, in m².
-    '''
+    """
 
     return A_reqd * safety_factor
 
 
-def s7_1_A_reqd(*, N_t: float, f_y: float, f_u: float,
-                k_t: float, φ: float = 0.9,
-                α_u: float = 0.85) -> Dict[str, float]:
-    '''
+def s7_1_A_reqd(
+    *, N_t: float, f_y: float, f_u: float, k_t: float, φ: float = 0.9, α_u: float = 0.85
+) -> Dict[str, float]:
+    """
     Calculates the area required for a member to AS4100 section 7.1
     
     :param N_t: The applied force in N.
@@ -173,24 +175,32 @@ def s7_1_A_reqd(*, N_t: float, f_y: float, f_u: float,
             'φA: The maximum area required, incorporating the AS4100 capacity
             reduction factor.
         }
-    '''
+    """
 
-    results = {'A_g': s7_2_Ag(N_t=N_t, f_y=f_y),
-               'A_n': s7_2_An(N_t=N_t, f_u=f_u, k_t=k_t,
-                              ultimate_uncertainty=α_u)}
+    results = {
+        "A_g": s7_2_Ag(N_t=N_t, f_y=f_y),
+        "A_n": s7_2_An(N_t=N_t, f_u=f_u, k_t=k_t, ultimate_uncertainty=α_u),
+    }
 
-    results['A'] = max(results.values())
+    results["A"] = max(results.values())
 
-    results['φA_g'] = results['A_g'] / φ
-    results['φA_n'] = results['A_n'] / φ
-    results['φA'] = results['A'] / φ
+    results["φA_g"] = results["A_g"] / φ
+    results["φA_n"] = results["A_n"] / φ
+    results["φA"] = results["A"] / φ
 
     return results
 
 
-def s7_1_N_t(*, A_g: float, A_n: float, f_y: float, f_u: float,
-             k_t: float, φ: float = 0.9,
-             α_u: float = 0.85) -> Dict[str, float]:
+def s7_1_N_t(
+    *,
+    A_g: float,
+    A_n: float,
+    f_y: float,
+    f_u: float,
+    k_t: float,
+    φ: float = 0.9,
+    α_u: float = 0.85
+) -> Dict[str, float]:
     """
     Calculates the tension capacity of a section according to AS4100 S7.1.
 
@@ -232,13 +242,14 @@ def s7_1_N_t(*, A_g: float, A_n: float, f_y: float, f_u: float,
         }
     """
 
-    results = {'N_ty': s7_2_N_t_yield(A_g=A_g, f_y=f_y),
-               'N_tu': s7_2_N_t_ultimate(A_n=A_n, f_u=f_u, k_t=k_t,
-                                         ultimate_uncertainty=α_u)}
-    results['N'] = min(results.values())
+    results = {
+        "N_ty": s7_2_N_t_yield(A_g=A_g, f_y=f_y),
+        "N_tu": s7_2_N_t_ultimate(A_n=A_n, f_u=f_u, k_t=k_t, ultimate_uncertainty=α_u),
+    }
+    results["N"] = min(results.values())
 
-    results['φN_ty'] = results['N_ty'] * φ
-    results['φN_tu'] = results['N_tu'] * φ
-    results['φN'] = results['N'] * φ
+    results["φN_ty"] = results["N_ty"] * φ
+    results["φN_tu"] = results["N_tu"] * φ
+    results["φN"] = results["N"] * φ
 
     return results

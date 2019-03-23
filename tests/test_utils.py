@@ -4,6 +4,7 @@ Includes some utility functions for testing.
 
 import pandas as pd
 
+
 def get_Is():
 
     df = pd.read_excel(
@@ -11,7 +12,7 @@ def get_Is():
         sheet_name="Is",
         index_col=0,
         usecols="B:AU",
-        skiprows = [0]
+        skiprows=[0],
     )
 
     return [(row.Index, row) for row in df.itertuples()]
@@ -24,7 +25,7 @@ def get_PFCs():
         sheet_name="PFCs",
         index_col=0,
         usecols="B:AV",
-        skiprows = [0]
+        skiprows=[0],
     )
 
     return [(row.Index, row) for row in df.itertuples()]
@@ -37,7 +38,7 @@ def get_CHSs():
         sheet_name="CHSs",
         index_col=0,
         usecols="B:AD",
-        skiprows = [0]
+        skiprows=[0],
     )
 
     return [(row.Index, row) for row in df.itertuples()]
@@ -50,7 +51,7 @@ def get_Welds():
         sheet_name="Is",
         index_col=0,
         usecols="B:AU",
-        skiprows = [0]
+        skiprows=[0],
     )
 
     df = df.drop(df[df["Fabrication Type"] != "Welded"].index)
@@ -65,7 +66,7 @@ def get_α_vma():
         sheet_name="Non-Uniform Shear Factor",
         index_col=0,
         usecols="B:E",
-        skiprows = [0]
+        skiprows=[0],
     )
 
     return [(row.Index, row) for row in df.itertuples()]
@@ -78,10 +79,11 @@ def get_Boxes():
         sheet_name="CustomBoxes",
         index_col=0,
         usecols="B:AH",
-        skiprows = [0]
+        skiprows=[0],
     )
 
     return [(row.Index, row) for row in df.itertuples()]
+
 
 data_Is = get_Is()
 data_PFCs = get_PFCs()

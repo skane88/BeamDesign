@@ -77,6 +77,7 @@ class InvalidPositionError(BeamError):
 
     pass
 
+
 class MaterialError(BeamDesignError):
     """
     Main exception for ``Material`` object errors.

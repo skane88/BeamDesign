@@ -53,8 +53,8 @@ def test_bisection_1(n, x_low, x_high):
         ),
         (lambda x: sin(x), -4, -3, -pi),
         (lambda x: sin(x), 3, 4, pi),
-        (lambda x: cos(x), -2, -1, -pi/2),
-        (lambda x: cos(x), 1, 2, pi/2),
+        (lambda x: cos(x), -2, -1, -pi / 2),
+        (lambda x: cos(x), 1, 2, pi / 2),
     ],
 )
 def test_bisection_2(func, x_low, x_high, root):
@@ -124,6 +124,7 @@ def test_secant_2(n, x_low, x_high):
 
     assert isclose(x, -n, abs_tol=1e-9)
 
+
 @mark.parametrize(
     "func, x_low, x_high, root",
     [
@@ -137,8 +138,8 @@ def test_secant_2(n, x_low, x_high):
         ),
         (lambda x: sin(x), -4, -3, -pi),
         (lambda x: sin(x), 3, 4, pi),
-        (lambda x: cos(x), -2, -1, -pi/2),
-        (lambda x: cos(x), 1, 2, pi/2),
+        (lambda x: cos(x), -2, -1, -pi / 2),
+        (lambda x: cos(x), 1, 2, pi / 2),
     ],
 )
 def test_secant_3(func, x_low, x_high, root):

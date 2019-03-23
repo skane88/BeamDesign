@@ -355,9 +355,7 @@ class LoadCase:
         :return: A numpy array containing the loads at the specified position.
         """
 
-        position = self.list_positions(
-            min_positions=min_positions, position=position
-        )
+        position = self.list_positions(min_positions=min_positions, position=position)
 
         if self.loads is not None:
             # then we can do proper interpolation
@@ -419,7 +417,7 @@ class LoadCase:
                     x=pos_interp, xp=load_positions, fp=loads_to_interp
                 ).transpose()
 
-                loads_interp = np.hstack((pos_interp.reshape((-1,1)), loads_interp))
+                loads_interp = np.hstack((pos_interp.reshape((-1, 1)), loads_interp))
 
             if loads_direct is not None and loads_interp is not None:
                 # add a new column with an index value to allow us to sort
@@ -452,7 +450,6 @@ class LoadCase:
             position = np.array(position).reshape((-1, 1))
             loads = np.empty(shape=position.shape, dtype=object)
             ret_val = np.hstack((position, loads))
-
 
         # for i, p in enumerate(position):
         #

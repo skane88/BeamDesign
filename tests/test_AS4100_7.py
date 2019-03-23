@@ -3301,13 +3301,7 @@ class Test_S7_Test(unittest.TestCase):
 
             with self.subTest(f"{i} Tension Capacity"):
                 results = S7.s7_1_N_t(
-                    A_g=Agi,
-                    A_n=Ani,
-                    f_y=fyi,
-                    f_u=fui,
-                    k_t=kti,
-                    φ=φi,
-                    α_u=UUi,
+                    A_g=Agi, A_n=Ani, f_y=fyi, f_u=fui, k_t=kti, φ=φi, α_u=UUi
                 )
 
                 self.assertAlmostEqual(

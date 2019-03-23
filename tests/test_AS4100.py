@@ -544,12 +544,12 @@ def test_AS4100_tension_utilisation2():
 
     loads = b.get_loads(load_case=1, min_positions=20, component="N")
 
-    positions = list(sorted(set(loads[...,0])))
+    positions = list(sorted(set(loads[..., 0])))
 
     for p in positions:
 
-        load = loads[loads[:,0]==p]
-        load = max(load[...,1])
+        load = loads[loads[:, 0] == p]
+        load = max(load[..., 1])
 
         expected = capacity / load
 
@@ -566,6 +566,7 @@ def test_AS4100_tension_utilisation2():
         actual = a.tension_utilisation(position=p, load_case=1)
 
         assert isclose(actual, expected)
+
 
 def test_AS4100_tension_utilisation3():
     """
@@ -611,7 +612,7 @@ def test_AS4100_tension_utilisation3():
         load = loads[loads[:, 0] == p]
         load = max(load[..., 1])
 
-        if p<=0.5:
+        if p <= 0.5:
             expected = c1 / load
         else:
             expected = c2 / load
@@ -632,6 +633,7 @@ def test_AS4100_tension_utilisation3():
         actual = a.tension_utilisation(position=p, load_case=1)
 
         assert isclose(actual, expected)
+
 
 def test_AS4100_tension_utilisation4():
     """
@@ -733,6 +735,7 @@ def test_AS4100_tension_utilisation4():
         actual = a.tension_utilisation(position=p, load_case=2)
 
         assert isclose(actual, expected)
+
 
 def test_AS4100_tension_utilisation5():
     """
