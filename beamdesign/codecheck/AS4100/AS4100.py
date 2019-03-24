@@ -114,12 +114,14 @@ class AS4100(CodeCheck):
                     # handle the case where multiple loads are at a given position.
 
                     if t <= 0.0:
+                        # handle compression or empty cases - can simply state
+                        # utilisation is 0.0
                         x = 0.0
                     else:
 
                         def util_func(x, load, capacity_func):
 
-                            return x * load / capacity_func(load * x) - 1.0
+                            return (x * load) / capacity_func(x * load) - 1.0
 
                         x, i, b = secant(
                             util_func,
@@ -129,6 +131,9 @@ class AS4100(CodeCheck):
                             x_high=100_000,
                             fallback=False,
                         )
+
+                        if x != 0:
+                            x = 1 / x
 
                     ret_loads += [l]
                     ret_pos += [p]
@@ -144,7 +149,7 @@ class AS4100(CodeCheck):
 
             ret_util = [ret_util[i] for i, l in enumerate(ret_loads) if l in load_case]
 
-        return min(ret_util)
+        return max(ret_util)
 
     def get_section(
         self,
