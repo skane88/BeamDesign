@@ -107,16 +107,19 @@ class AS4100(CodeCheck):
                     return t_cap
 
                 # next get the tension load at the position to be checked.
-                tension = self.get_loads(
-                    load_case=l, position=p, component=LoadComponents.N
-                )[..., 1]
+                tension = self.get_tension(load_case=l, position=p)[..., 1]
 
                 for t in tension:
                     # handle the case where multiple loads are at a given position.
 
                     if t <= 0.0:
-                        # handle compression or empty cases - can simply state
-                        # utilisation is 0.0
+                        """
+                        handle compression or empty cases - can simply state
+                        utilisation is 0.0.
+                        
+                        Note that in the case of t==0 then there is no root to the
+                        utility function defined below and it cannot be solved.
+                        """
                         x = 0.0
                     else:
 
@@ -133,7 +136,7 @@ class AS4100(CodeCheck):
                             fallback=False,
                         )
 
-                        if x != 0:
+                        if x != 0.0:
                             x = 1 / x
 
                     ret_loads += [l]

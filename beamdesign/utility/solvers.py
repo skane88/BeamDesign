@@ -219,8 +219,9 @@ def secant(
 
         if isclose(c, d, abs_tol=tol):
             raise ValueError(
-                f"Both guesses result in the same solution to the function, probably due"
-                + f" to floating point arithmetic errors. This will result in a divide "
+                f"Both guesses result in the same solution to the function. This may be"
+                + f"due to either floating point arithmetic errors or the function"
+                + f"having no root. This will result in a divide "
                 + f"by zero error. Current guesses x_low = {x_1}, x_high = {x_2}. "
                 + f"Denominator in solution is ({c} - {d} = {c - d}). Consider "
                 + f"different initial guesses"
