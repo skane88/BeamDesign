@@ -266,3 +266,61 @@ class CodeCheck(ABC):
             min_positions=min_positions,
             component=component,
         )
+
+    @abstractmethod
+    def get_tension(
+        self, *, load_case, position=None, min_positions=None
+    ) -> np.ndarray:
+        """
+        Gets the tension load on a ``CodeCheck`` object in a given load case and at a
+        given position.
+
+        If there are multiple loads at a position it returns all of them. Returns in the
+        form of a numpy array of the format:
+
+        [[pos, tension_1]
+         [pos, tension_2]
+         ...
+         [pos, tension_n]
+        ]
+
+        The values of position are 'real' positions along the underlying beam.
+
+        Always returns positive values or 0.0. If the axial load at a given position is
+        -ve (i.e. in compression) it returns 0.0.
+
+        :param load_case: The load case to get the loads in.
+        :param position: The position at which to return the load. Position values
+            should be entered as floats between 0.0 and ``Beam.length``
+
+            Positions can be a single position or a list of positions. If a list is
+            provided, any duplicate values will be ignored, and the order will be
+            ignored - return values will be at positions sorted ascending from 0.0 to
+            ``Beam.length``. If the specified position is at an element or load
+            discontinuity multiple values may be returned.
+
+            If ``position`` is provided, ``min_positions`` must be ``None`` to
+            avoid ambiguity.
+        :param min_positions: The minimum number of positions to return. Positions will
+            be returned such that loads are returned at equally spaced positions between
+            0.0 and ``Beam.length`` (inclusive). All stored load positions and element
+            start / end positions will also be included to ensure that discontinuities
+            are included.
+
+            If ``min_positions`` is provided,
+            ``position`` must be ``None`` to avoid ambiguity.
+        :return: A numpy array containing the loads at the specified position.
+        """
+
+        tension = self.beam.get_loads(
+            load_case=load_case,
+            position=position,
+            min_positions=min_positions,
+            component="N",
+        )
+
+        # replace all the tension elements that are in compression with 0.
+
+        tension[:, 1][tension[:, 1] < 0] = 0
+
+        return tension

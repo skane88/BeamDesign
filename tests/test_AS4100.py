@@ -192,6 +192,94 @@ def test_AS4100_get_section2():
     assert a.get_section(position=0.75) == ([0.75], [s3])
 
 
+# some values sto test the get_tension method against
+invals = (
+    {
+        "id": "All Positive",
+        "loads": [
+            [0.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0],
+            [0.5, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0],
+            [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0],
+        ],
+        "expected": np.array([[0.0, 1.0], [0.5, 1.0], [1.0, 1.0]]),
+    },
+    {
+        "id": "Includes Negative",
+        "loads": [
+            [0.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0],
+            [0.5, 1.0, 1.0, -1.0, 1.0, 1.0, 1.0],
+            [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0],
+        ],
+        "expected": np.array([[0.0, 1.0], [0.5, 0.0], [1.0, 1.0]]),
+    },
+)
+
+
+@mark.parametrize("invals", invals, ids=[i["id"] for i in invals])
+def test_as4100_get_tension(invals):
+
+    s1 = Circle(radius=0.02, material=as3678_250)
+
+    l1 = LoadCase(loads=invals["loads"])
+
+    e1 = Element(loads={1: l1}, length=1.0, section=s1)
+
+    b1 = Beam(elements=e1)
+
+    a = AS4100.default_AS4100(beam=b1)
+
+    orig_loads = a.get_loads(load_case=1, min_positions=3)
+
+    actual = a.get_tension(load_case=1, min_positions=3)
+
+    assert np.allclose(actual, invals["expected"])
+
+    actual = a.get_loads(load_case=1, min_positions=3)
+
+    assert np.allclose(actual, orig_loads)
+
+
+def test_as4100_get_tension2():
+    """
+    Test the case where interpolation to negative values occurs - we should still get
+    correct interpolation where a +ve axial force value occurs, but 0.0 where a
+    negative value occurs.
+    """
+
+    s1 = Circle(radius=0.02, material=as3678_250)
+
+    l1 = LoadCase(
+        loads=[
+            [0.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0],
+            [0.5, 1.0, 1.0, -1.0, 1.0, 1.0, 1.0],
+            [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0],
+        ]
+    )
+
+    e1 = Element(loads={1: l1}, length=1.0, section=s1)
+
+    b1 = Beam(elements=e1)
+
+    a = AS4100.default_AS4100(beam=b1)
+
+    actual = a.get_tension(load_case=1, min_positions=9)
+    expected = np.array(
+        [
+            [0.000, 1.0],
+            [0.125, 0.5],
+            [0.250, 0.0],
+            [0.375, 0.0],
+            [0.500, 0.0],
+            [0.625, 0.0],
+            [0.750, 0.0],
+            [0.875, 0.5],
+            [1.000, 1.0],
+        ]
+    )
+
+    assert np.allclose(actual, expected)
+
+
 @mark.parametrize("name, data", data_AllSections)
 def test_AS4100_s7_Nt(name, data):
     """

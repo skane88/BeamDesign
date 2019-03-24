@@ -7,6 +7,7 @@ minimise the size of this file.
 from typing import List, Union, Dict, Tuple
 from pathlib import Path
 
+import numpy as np
 import toml
 
 from beamdesign.beam import Beam
@@ -213,13 +214,21 @@ class AS4100(CodeCheck):
         position: Union[List[float], float] = None,
         min_positions: int = None,
         component: Union[int, str, LoadComponents] = None,
-    ):
+    ) -> np.ndarray:
 
         return super().get_loads(
             load_case=load_case,
             position=position,
             min_positions=min_positions,
             component=component,
+        )
+
+    def get_tension(
+        self, *, load_case, position=None, min_positions=None
+    ) -> np.ndarray:
+
+        return super().get_tension(
+            load_case=load_case, position=position, min_positions=min_positions
         )
 
     def Nt(self, *, position: Union[List[float], float] = None):
