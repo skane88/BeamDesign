@@ -232,7 +232,7 @@ def secant(
         if isnan(x_3) or isinf(x_3):
             raise ValueError(
                 f"Guessed solution is inf or nan. Current guesses are: "
-                + f"x_low = {x_1}, x_high={x_2}, guessed solution is {x_3}"
+                + f"(x_low = {x_1}), (x_high={x_2}), guessed solution is ({x_3})"
             )
 
         x_1 = x_2
