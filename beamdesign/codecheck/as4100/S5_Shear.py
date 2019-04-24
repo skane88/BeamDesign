@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 """
-This module calculates the capacity of a member in shear to AS4100 Section 5.
+This module calculates the capacity of a member in shear to as4100 Section 5.
 
 This section only calculates properties that are independent of loads -
 properties dependent on other loads (i.e. moment & shear capacities in S5.12)
@@ -31,7 +31,7 @@ def s5_11_4_V_w_Generic(
 ) -> float:
     """
     Determines the shear yielding capacity of a flat web section to
-    AS4100 S5.11.4.
+    as4100 S5.11.4.
 
     This method is assumed to be acceptable for determining the shear
     yielding capacity of any section except CHS sections. For example, S9.3
@@ -47,7 +47,7 @@ def s5_11_4_V_w_Generic(
         to the discontinuity at the flange welds.
     :param f_y: the yield strength of the web section in Pa.
     :param shear_to_axial: the ratio of shear yield to ordinary axial yield
-        stress. By default this is 0.6 as per AS4100, which appears to be an
+        stress. By default this is 0.6 as per as4100, which appears to be an
         approximation of the the value 1 / √3 ≈ 0.577 ≈ 0.6.
     :return: The web shear yield strength in N.
     """
@@ -61,17 +61,17 @@ def s5_11_4_V_w_CHS(
     *, A_e: float, f_y: float, shear_to_axial: float = 0.6, CHS_shear_area: float = 0.6
 ) -> float:
     """
-    Determine the shear yielding capacity of a CHS section to AS4100 S5.11.4.
+    Determine the shear yielding capacity of a CHS section to as4100 S5.11.4.
 
     :param A_e: The effective area of the section in m², allowing for holes
-        in the section as per AS4100 S5.11.4. Normally the gross area of the
+        in the section as per as4100 S5.11.4. Normally the gross area of the
         section will be acceptable as holes are not often made into standard
         sized circular members.
     :param f_y: The yield strength of the CHS section in Pa.
     :param shear_to_axial: The ratio of shear yield to ordinary axial yield
-        stress. By default this is 0.6 as per AS4100, which appears to be an
+        stress. By default this is 0.6 as per as4100, which appears to be an
         approximation of the the value 1 / √3 ≈ 0.577 ≈ 0.6.
-    :param CHS_shear_area: The proportion of the CHS active in shear. AS4100
+    :param CHS_shear_area: The proportion of the CHS active in shear. as4100
         implicitly gives this value as 0.6, based on the fact that the shear
         capacity of a CHS is 0.36 x fy x A - the 0.36 includes the reduction of
         axial yield stress to shear yield stress of 0.6, leaving a factor of 0.6
@@ -95,7 +95,7 @@ def s5_11_5_α_v(
 ) -> float:
     """
     Determines the shear buckling coefficient α_v, which reduces the shear
-    yielding load as per AS4100 section 5.11.5
+    yielding load as per as4100 section 5.11.5
 
     :param d_p: The web panel depth in m.
     :param t_w: The web thickness in m.
@@ -104,10 +104,10 @@ def s5_11_5_α_v(
         which is only valid for a web pin supported top and bottom.
         In some circumstances this value may be very unconservative (i.e.
         shear buckling of an angle leg supported on one side only) Refer to
-        "The Behaviour and Design of Steel Structures to AS4100" by Trahair
+        "The Behaviour and Design of Steel Structures to as4100" by Trahair
         et al. for more information.
     :param f_y_ref: The reference yield stress in Pa, used in the slenderness
-        limit equations. By default this is 250e6 Pa in line with AS4100.
+        limit equations. By default this is 250e6 Pa in line with as4100.
     :return: Returns the shear buckling coefficient α_v. Note that this may be
         greater than 1.0 - the user of this function should ensure that the
         final shear capacity is limited to the shear yield capacity.
@@ -128,12 +128,12 @@ def s5_11_5_α_v(
 def s5_11_3_α_vma(*, f_vm: float, f_va: float) -> float:
     """
     Determines the non-uniform shear modification factor as per
-    AS4100 S5.11.3. This applies for sections such as PFCs, Mono-symmetric
+    as4100 S5.11.3. This applies for sections such as PFCs, Mono-symmetric
     I sections, angle sections etc.
 
-    Note that AS4100 does not provide this factor a variable name but includes it in
+    Note that as4100 does not provide this factor a variable name but includes it in
     the equation - for a simpler formula name α_vma has been used here, based on the
-    general use of α as a variable in AS4100, v for shear, and m & a in the max &
+    general use of α as a variable in as4100, v for shear, and m & a in the max &
     average stress input for this equation.
 
     :param f_vm: The maximum shear stress in the section from an elastic
@@ -149,7 +149,7 @@ def s5_11_3_α_vma(*, f_vm: float, f_va: float) -> float:
 
 def s5_11_4_V_w_Weld(*, v_w: Union[List[float], float], Q: float, I: float) -> float:
     """
-    Calculates the capacity of section in shear according to AS4100 S5.11.4
+    Calculates the capacity of section in shear according to as4100 S5.11.4
     where the capacity is limited by a weld, as is the case with some welded
     I sections to AS3679.2.
 
@@ -203,7 +203,7 @@ def s5_11_4_V_w_Interface(
         to the centroid of the section as a whole, in m³.
     :param I: The moment of area / inertia of the section as a whole, in m⁴.
     :param shear_to_axial: The ratio of shear yield stress to ordinary axial
-        yield stress. By default this is 0.6 as per AS4100, which appears to be
+        yield stress. By default this is 0.6 as per as4100, which appears to be
         an approximation of the the value 1 / √3 ≈ 0.577 ≈ 0.6.
     :return: Returns the shear capacity as limited by interface shear of the
         connected components, in N.

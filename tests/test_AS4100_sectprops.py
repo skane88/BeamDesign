@@ -1,12 +1,12 @@
 """
-File to test the AS4100 section properties methods
+File to test the as4100 section properties methods
 """
 
 from math import isclose, pi
 
 from pytest import mark
 
-from beamdesign.codecheck.AS4100.AS4100_sect_props import AS4100Section, AS4100Circle
+from beamdesign.codecheck.as4100.as4100_sect_props import AS4100Section, AS4100Circle
 from beamdesign.sections.circle import Circle
 from beamdesign.materials.material import Material
 

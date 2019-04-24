@@ -1,5 +1,5 @@
 from unittest import TestCase
-import beamdesign.codecheck.AS4100.S5 as S5
+import beamdesign.codecheck.as4100.S5 as S5
 
 Restraints = S5.Restraints
 

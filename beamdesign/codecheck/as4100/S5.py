@@ -2,7 +2,7 @@
 
 """
 This module calculates the capacity of a member in bending
-to AS4100 Section 5.
+to as4100 Section 5.
 
 This does NOT include sections calculating the section capacities
 considering local buckling etc. It is assumed that all section properties
@@ -54,7 +54,7 @@ class Restraints(enum.Enum):
 
 def s5_2_M_s(*, f_y: float, Z_e: float) -> float:
     """
-    Calculates the member section capacity according to AS4100 S5.2
+    Calculates the member section capacity according to as4100 S5.2
     
     :param f_y: the section yield stress in Pa.
     :param Z_e: the effective section modulus in m³.
@@ -85,7 +85,7 @@ def s5_6_1_M_o(
     G: float = 80e9,
 ) -> float:
     """
-    Calculates the reference buckling moment according to AS4100 S5.6.1.2.
+    Calculates the reference buckling moment according to as4100 S5.6.1.2.
     This equation is the same as the equation given for Mo in S5.6.1.1, 
     however allows for non-symmetric sections through the mono-symmetry
     constant β_x. For symmetric sections, β_x = 0.0 and the equation
@@ -99,7 +99,7 @@ def s5_6_1_M_o(
     :param β_x: This is the mono-symmetry constant of the section in m.
     :param E: The elastic modulus of the section in Pa.
     :param G: The shear modulus of the section in Pa.
-    :return: The reference buckling moment in Nm as per AS4100 S5.6.1.
+    :return: The reference buckling moment in Nm as per as4100 S5.6.1.
     """
 
     a = ((math.pi * math.pi) * E * I_y) / (l_e * l_e)
@@ -114,7 +114,7 @@ def s5_6_1_α_m(
     *, M_max: float, M_2: float, M_3: float, M_4: float, α_m_max: float = 2.5
 ):
     """
-    Determines the moment modification factor α_m to AS4100 S5.6.1.
+    Determines the moment modification factor α_m to as4100 S5.6.1.
     based on the member midspan moments & maximum moment. This equation only
     applies to members that are restrained at both ends - cantilevered elements
     which are unrestrained at their free end cannot be designed with this
@@ -127,8 +127,8 @@ def s5_6_1_α_m(
     :param M_2: Moments at the quarter point in Nm.
     :param M_3: Moments at the midspan in Nm.
     :param M_4: Moments at the quarter point in Nm.
-    :param α_m_max: The maximum allowable value of α_m. AS4100 specifies 2.5.
-    :return: Returns the moment modification factor α_m to AS4100 S5.6.1.
+    :param α_m_max: The maximum allowable value of α_m. as4100 specifies 2.5.
+    :return: Returns the moment modification factor α_m to as4100 S5.6.1.
     """
 
     α_m = 1.7 * abs(M_max) / ((M_2 * M_2 + M_3 * M_3 + M_4 * M_4) ** 0.5)
@@ -138,7 +138,7 @@ def s5_6_1_α_m(
 
 def s5_6_α_s(*, M_s: float, M_o: float) -> float:
     """
-    Determines the slenderness modification factor α_s to AS4100 S5.6.1
+    Determines the slenderness modification factor α_s to as4100 S5.6.1
     and S5.6.2. Both these sections use an identical equation except for
     using different values of M_o (M_oa and M_ob).
     
@@ -146,7 +146,7 @@ def s5_6_α_s(*, M_s: float, M_o: float) -> float:
         in Nm.
     :param M_o: The reference buckling capacity about the axis being
         considered, in Nm.
-    :return: Returns the slenderness modification factor to AS4100 S5.6.1.
+    :return: Returns the slenderness modification factor to as4100 S5.6.1.
     """
 
     return 0.6 * ((((M_s / M_o) ** 2 + 3) ** 0.5) - (M_s / M_o))
@@ -161,20 +161,20 @@ def s5_6_3_k_t(
     restraint_code: str = Restraints.FF,
 ) -> float:
     """
-    Calculates the twist restraint factor to AS4100 S5.6.3. This applies only
+    Calculates the twist restraint factor to as4100 S5.6.3. This applies only
     to sections which are composed of flanges and webs (I sections, PFCs, and
     box type sections). For other sections (CHS, very complex box sections with
     multiple flanges / stiffeners) this value should be calculated by some other
     means.
 
-    :param d_1: The web depth as per AS4100 (ignoring fillets & welds) in m.
+    :param d_1: The web depth as per as4100 (ignoring fillets & welds) in m.
     :param l: The member segment length in m.
     :param t_f: Flange thickness in m.
     :param t_w: Web thickness in m.
     :param n_w: Number of webs.
-    :param restraint_code: The restraint code based on AS4100 S5 as a string.
+    :param restraint_code: The restraint code based on as4100 S5 as a string.
         Acceptable values are: 'FF', 'FL', 'LL', 'FU', 'FP', 'PL', 'PU', 'PP'.
-    :return: Returns the twist restraint factor as per AS4100 S5.6.3.
+    :return: Returns the twist restraint factor as per as4100 S5.6.3.
     """
 
     assert restraint_code in Restraints
@@ -199,13 +199,13 @@ def s5_6_3_k_t(
 
 def s5_6_3_l_e(*, k_t: float, k_l: float, k_r: float, l_act: float) -> float:
     """
-    Determine the effective length for bending to AS4100 S5.6.3.
+    Determine the effective length for bending to as4100 S5.6.3.
 
     :param k_t: Twist restraint factor.
     :param k_l: Load height factor.
     :param k_r: Lateral rotation restraint factor.
     :param l_act: Member segment length between restraints.
-    :return: The effective length as per AS4100 S5.6.3.1.
+    :return: The effective length as per as4100 S5.6.3.1.
     """
 
     return k_t * k_l * k_r * l_act
@@ -213,7 +213,7 @@ def s5_6_3_l_e(*, k_t: float, k_l: float, k_r: float, l_act: float) -> float:
 
 def s5_6_1_Mb(*, M_s: float, α_m: float = 1.0, α_s: float = 1.0) -> float:
     """
-    Determines the member buckling capacity according to AS4100 S5.6.1.
+    Determines the member buckling capacity according to as4100 S5.6.1.
 
     :param M_s: section moment capacity in Nm.
     :param α_m: moment modification factor.

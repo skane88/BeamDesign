@@ -1,5 +1,5 @@
 import unittest
-import beamdesign.codecheck.AS4100.S7 as S7
+import beamdesign.codecheck.as4100.S7 as S7
 
 
 class Test_S7_Test(unittest.TestCase):

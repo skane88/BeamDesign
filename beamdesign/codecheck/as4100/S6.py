@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 
 """
-This module calculates the compression capacity of a steel member to AS4100.
+This module calculates the compression capacity of a steel member to as4100.
 
 This DOES NOT include section property calculations for effective areas based on
-local buckling of sections. AS4100 uses an effective area method which is
+local buckling of sections. as4100 uses an effective area method which is
 similar for bending or compression. Also, the section properties are
 conceptually independent of the other compression checks. Therefore these
 formulas have been moved to their own module.
@@ -38,7 +38,7 @@ from typing import Dict, Union
 
 def s6_2_A_e(*, A_n: float, k_f: float) -> float:
     """
-    Calculates the generic effective compression area to AS4100 S6.2.
+    Calculates the generic effective compression area to as4100 S6.2.
     Relies on k_f having already been calculated.
     
     :param A_n: The net area of the section in m².
@@ -51,7 +51,7 @@ def s6_2_A_e(*, A_n: float, k_f: float) -> float:
 
 def s6_2_N_s(*, A_e: float, f_y: float) -> float:
     """
-    Calculate the section capacity to AS4100 S6.2
+    Calculate the section capacity to as4100 S6.2
 
     :param A_e: The effective area, reduced for holes & local buckling. In m².
     :param f_y: The yield strength in Pa
@@ -70,7 +70,7 @@ def s6_2_N_s(*, A_e: float, f_y: float) -> float:
 
 def s6_3_2_l_e(*, l: float, k_e: float = 1.0) -> float:
     """
-    Calculate the effective length according to AS4100 S6.3.2
+    Calculate the effective length according to as4100 S6.3.2
     
     :param l: The actual member length in m.
     :param k_e: The effective length factor, by default 1.0.
@@ -187,9 +187,9 @@ def s6_3_3_λ_n(
 ) -> float:
     """
     Calculate the member modified effective slenderness (λ_n) according
-    to AS4100 S6.3.3.
+    to as4100 S6.3.3.
     
-    :param k_f: The form factor as per AS4100 S6.2
+    :param k_f: The form factor as per as4100 S6.2
     :param l_e: The effective length of the section about the axis under
         consideration, in m.
     :param r: The radius of gyration about the axis under consideration in m.
@@ -205,19 +205,19 @@ def s6_3_3_α_c(
     *, λ_n: float, α_b: float = 1.0
 ) -> Dict[str, Union[Dict[str, float], float]]:
     """
-    Calculate the buckling coefficient α_c according to AS4100 S6.3.3.
+    Calculate the buckling coefficient α_c according to as4100 S6.3.3.
 
-    :param k_f: The form factor as per AS4100 S6.2
+    :param k_f: The form factor as per as4100 S6.2
     :param l_e: The effective length of the section about the axis under
         consideration, in m.
     :param r: The radius of gyration about the axis under consideration, in m.
     :param f_y: The yield stress of the section under consideration, in Pa.
     :param f_ref: The reference yield stress in Pa. By default 250e6 Pa.
     :param α_b: the member section constant for the given value of k_f
-        (see AS4100 T6.3.3(1) & (2)). Conservatively can be taken to be 1.0.
+        (see as4100 T6.3.3(1) & (2)). Conservatively can be taken to be 1.0.
         By default this is 1.0
     :return: Returns the member buckling coefficient α_c.
-        Also, this method returns all intermediate values from AS4100 S6.3.3.
+        Also, this method returns all intermediate values from as4100 S6.3.3.
         as a dictionary to allow querying of intermediate results. for only
         the slenderness factor call results['α_c'].
         Intermediate results reported are: α_a, λ, η, ξ
@@ -248,20 +248,20 @@ def s6_3_3_N_c(
     α_b: float = 1.0
 ) -> Dict[str, float]:
     """
-    Calculates the member buckling capacity according to AS4100 S6.3.3
+    Calculates the member buckling capacity according to as4100 S6.3.3
     Note that this is not reduced down to the section capacity, so if
     the member is short the buckling capacity reported could be larger than
     the section capacity.
     
     :param A_n: The net area of the section in m².
-    :param k_f: The form factor as per AS4100 S6.2.
+    :param k_f: The form factor as per as4100 S6.2.
     :param l_e: The effective length of the section about the axis considered.
         Value in m.
     :param r: The radius of gyration about the axis considered, in m.
     :param f_y: The yield stress of the section in Pa.
     :param f_ref: The reference yield stress in Pa. By default 250e6 Pa.
     :param α_b: The member section constant for the given value of k_f (see
-        AS4100 T6.3.3(1) & (2)). Conservatively can be taken to be 1.0.
+        as4100 T6.3.3(1) & (2)). Conservatively can be taken to be 1.0.
         By default 1.0.
     :return: Returns a dictionary of results containing the capacity N_c in N
         and intermediate values. Returned intermediate values are:
@@ -378,15 +378,15 @@ def f_oc_double_symmetric(
 ):
     """
     Calculates the flexural-torsional buckling stress for a doubly symmetric
-    section as per AS4600, as required by AS4100 S6.3.3.
+    section as per AS4600, as required by as4100 S6.3.3.
 
     Calculated as per AS4600 S3.4.3
 
     Ignores the flexural-buckling stress as this is calculated from direct
-    AS4100 formulas.
+    as4100 formulas.
 
     :param A_n: The net area of the section. In m².
-        NOTE: AS4600 uses the full area for this calculation, but AS4100 uses
+        NOTE: AS4600 uses the full area for this calculation, but as4100 uses
         the net area generally in torsional calculations.
         Using net area should be slightly conservative in some cases.
     :param l_ex: The effective length of the member in m.
@@ -437,7 +437,7 @@ def f_oc_double_symmetric(
     buckling stress f_oz.
 
     The euler buckling stress in the y-axis is assumed to be taken care
-    of by the AS4100 member capacity checks for the y-axis and is ignored.
+    of by the as4100 member capacity checks for the y-axis and is ignored.
     Therefore, only checks of f_oz and f_oxz are done here.
     """
 
@@ -476,10 +476,10 @@ def f_oc_single_symmetric(
 ):
     """
     Calculates the flexural-torsional buckling stress for a singly symmetric
-    section as per AS4600, as required by AS4100 S6.3.3.
+    section as per AS4600, as required by as4100 S6.3.3.
 
     Calculated as per AS4600 S3.4.3, although it ignores the
-    flexural-buckling stress as this is calculated from direct AS4100 formulas.
+    flexural-buckling stress as this is calculated from direct as4100 formulas.
 
     Note that according to AS4600, the "x" axis for singly symmetric sections
     is actually the axis of symmetry. For most practical monosymmetric
@@ -490,10 +490,10 @@ def f_oc_single_symmetric(
     very wide flanges the stronger axis is actually the axis of symmetry
     (x axis is the symmetry axis) - in this case it is presumed that minor
     axis flexural buckling is more likely to govern and will be covered by
-    other clauses in AS4100 S6.3, although this has not been tested yet.
+    other clauses in as4100 S6.3, although this has not been tested yet.
 
     :param A_n: The net area of the section. In m².
-        NOTE: AS4600 uses the full area for this calculation, but AS4100 uses
+        NOTE: AS4600 uses the full area for this calculation, but as4100 uses
         the net area generally in torsional calculations.
         Using net area should be slightly conservative in some cases.
     :param l_ex: The effective length of the member in m.
@@ -592,13 +592,13 @@ def f_oc_point_symmetric(
 ):
     """
     Calculates the flexural-torsional buckling stress for a point
-    symmetric section as per AS4600, as required by AS4100 S6.3.3.
+    symmetric section as per AS4600, as required by as4100 S6.3.3.
 
     Calculated as per AS4600 S3.4.4, but ignores the flexural buckling
-    stresses as these are calculated directly using AS4100 equations.
+    stresses as these are calculated directly using as4100 equations.
 
     :param A_n: The net area of the section. In m².
-        NOTE: AS4600 uses the full area for this calculation, but AS4100 uses
+        NOTE: AS4600 uses the full area for this calculation, but as4100 uses
         the net area generally in torsional calculations.
         Using net area should be slightly conservative in some cases.
     :param l_ez: The effective length of the member in m.
@@ -642,12 +642,12 @@ def f_oc_unsymmetric(
 ):
     """
     Calculate the buckling stress for a non-symmetric section using AS4600
-    as required by AS4100 S6.3.3.
+    as required by as4100 S6.3.3.
     Calculated according to AS4600 S3.4.5.
     Uses Sympy to solve the cubic equation.
     
     :param A_n: The net area of the section. In m².
-        NOTE: AS4600 uses the full area for this calculation, but AS4100 uses
+        NOTE: AS4600 uses the full area for this calculation, but as4100 uses
         the net area generally in torsional calculations.
         Using net area should be slightly conservative in some cases.
     :param l_ex: The effective length of the member in m.
@@ -753,21 +753,21 @@ def s6_3_3_N_c_torsion(
 ):
     """
     This calculates the torsional buckling capacity to AS4600
-    as required by AS4100 S6.3.3 for singly, point and non-symmetric
+    as required by as4100 S6.3.3 for singly, point and non-symmetric
     shapes.
     Currently ignores flexural buckling checks and simply checks torsional
-    buckling as required by AS4100. Flexural buckling is checked as per
-    AS4100 equations.
+    buckling as required by as4100. Flexural buckling is checked as per
+    as4100 equations.
 
     This method also does not reduce the capacity to the section capacity. As
     such it could report a larger buckling capacity than the section capacity
     for short members. The user should check for this possibility.
 
     :param A_n: The net area of the section. In m².
-        NOTE: AS4600 uses the full area for this calculation, but AS4100 uses
+        NOTE: AS4600 uses the full area for this calculation, but as4100 uses
         the net area generally in torsional calculations.
         Using net area should be slightly conservative in some cases.
-    :param k_f: The section form factor as per AS4100.
+    :param k_f: The section form factor as per as4100.
     :param l_ex: The effective length of the member in m.
     :param l_ey: The effective length of the member in m.
     :param l_ez: The effective length of the member in m.
@@ -783,7 +783,7 @@ def s6_3_3_N_c_torsion(
     :param sym: a Symmetry class object describing the section's axes of
         symmetry.
     :param uncertainty_factor: an additional uncertainty factor as required
-        by AS4100 S6.3.3. Default is 0.85.
+        by as4100 S6.3.3. Default is 0.85.
     :return: Returns the torsional buckling capacity N_cz in N.
         Also returns a dictionary with a number of intermediate results for
         future reference.
@@ -795,7 +795,7 @@ def s6_3_3_N_c_torsion(
 
     if sym.symmetry == "Double":
         """
-        Note: AS4100 does not require torsion tests for doubly symmetric
+        Note: as4100 does not require torsion tests for doubly symmetric
         shapes. this is potentially conservative, although it is expected
         that in most cases torsional buckling does not govern for doubly
         symmetric sections.
@@ -919,16 +919,16 @@ def s6_1_1_Nc(
 ):
     """
     This method is intended to provide a "one stop shop" method for the
-    AS4100 S6 checks.
+    as4100 S6 checks.
 
-    All calculations within the scope of AS4100 S6 are
+    All calculations within the scope of as4100 S6 are
     intended to be included, with the exception of those that relate to
     section properties (including k_f, which is considered to be a section
     property, not a compression property) or member properties (i.e. length,
     effective length factors).
 
     :param A_n: The net area of the section. In m².
-    :param k_f: The section form factor as per AS4100.
+    :param k_f: The section form factor as per as4100.
     :param l: The length of the member in m.
     :param k_ex: The effective length factor.
     :param k_ey: The effective length factor.
@@ -947,7 +947,7 @@ def s6_1_1_Nc(
     :param f_ref: The reference yield stress in Pa. Default is 250e6 Pa.
     :param α_b: The residual stress factor. Default is 1.0.
     :param uncertainty_factor: an additional uncertainty factor as required
-        by AS4100 S6.3.3 for torsional buckling. Default is 0.85.
+        by as4100 S6.3.3 for torsional buckling. Default is 0.85.
     :param φ: The capacity reduction factor. Default is 0.9.
     :param calc_buckling: if False buckling results are not calculated.
     :param calc_torsion: if False torsional values are not calculated.

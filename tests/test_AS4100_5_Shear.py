@@ -6,7 +6,7 @@ from math import isclose
 
 import pytest
 
-import beamdesign.codecheck.AS4100.S5_Shear as S5_Shear
+import beamdesign.codecheck.as4100.S5_Shear as S5_Shear
 
 from tests.test_utils import *
 

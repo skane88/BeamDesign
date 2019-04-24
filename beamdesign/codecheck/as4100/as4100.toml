@@ -1,13 +1,13 @@
-# this is a TOML formatted document containing the default values for an AS4100 object.
+# this is a TOML formatted document containing the default values for an as4100 object.
 # for the TOML file format, see https://github.com/toml-lang/toml
 
 # NOTE: keys must be ASCII characters or else be in quotes "" (i.e. for greek variable names).
 
-[defaults] # this section contains the default values to use in an AS4100 object.
+[defaults] # this section contains the default values to use in an as4100 object.
 
     # capacity reduction factors
     "φ_steel" = 0.90
 
-    # AS4100.S7 tension parameters
+    # as4100.S7 tension parameters
     kt = 1.00
     "αu" = 0.85

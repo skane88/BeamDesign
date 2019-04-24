@@ -1,5 +1,5 @@
 """
-This file is intended to contain a class for AS4100 checks, and also the actual checks
+This file is intended to contain a class for as4100 checks, and also the actual checks
 themselves. Specific equations from the code have been split off into other files to
 minimise the size of this file.
 """
@@ -13,7 +13,7 @@ import toml
 from beamdesign.beam import Beam
 from beamdesign.codecheck.codecheck import CodeCheck
 from beamdesign.sections.section import Section
-from beamdesign.codecheck.AS4100.AS4100_sect_props import AS4100Section
+from beamdesign.codecheck.as4100.as4100_sect_props import AS4100Section
 from beamdesign.utility.exceptions import SectionOnlyError
 from beamdesign.utility.solvers import secant
 from beamdesign.const import LoadComponents
@@ -51,7 +51,7 @@ class AS4100(CodeCheck):
     @property
     def as4100_sections(self) -> List["AS4100Section"]:
         """
-        Returns a list of all the AS4100Sections that make up the AS4100 object. These
+        Returns a list of all the AS4100Sections that make up the as4100 object. These
         are wrapper classes over the top of the underlying beam element sections, such
         that self.sections[n] is the basis for self.as4100_sections[n].
         """
@@ -173,7 +173,7 @@ class AS4100(CodeCheck):
         load_case: int = None,
     ) -> Tuple[List[float], List[AS4100Section]]:
         """
-        Gets the AS4100 section properties at a given position or list of positions.
+        Gets the as4100 section properties at a given position or list of positions.
 
         The positions can either be requested directly, or as a minimum number of
         positions along the beam. If specified as minimum positions, a load case can be
@@ -189,7 +189,7 @@ class AS4100(CodeCheck):
             given it returns the sections at the given positions.
         :param load_case: he load case to consider if using min_positions. Can be
             ``None``, in which case only the start & ends of elements are returned.
-        :return: Returns a tuple of positions and AS4100 sections:
+        :return: Returns a tuple of positions and as4100 sections:
 
             (
                 [pos_1, ..., pos_n]
@@ -236,13 +236,13 @@ class AS4100(CodeCheck):
 
     def Nt(self, *, position: Union[List[float], float] = None):
         """
-        Calculates the tension capacity of the AS4100 object.
+        Calculates the tension capacity of the as4100 object.
 
         :param position: The position to calculate the capacity at. Can be a float, can
             be a list of floats or can be None.
 
             Note that if None is provided, a single tension capacity is returned which
-            is the minimum tension capacity of the entire AS4100 object.
+            is the minimum tension capacity of the entire as4100 object.
         :return: The calculated tension capacity (minimum of Nty and Ntu).
         """
 
@@ -250,13 +250,13 @@ class AS4100(CodeCheck):
 
     def φNt(self, *, position: Union[List[float], float] = None):
         """
-        Calculates the tension capacity of the AS4100 object.
+        Calculates the tension capacity of the as4100 object.
 
         :param position: The position to calculate the capacity at. Can be a float, can
             be a list of floats or can be None.
 
             Note that if None is provided, a single tension capacity is returned which
-            is the minimum tension capacity of the entire AS4100 object.
+            is the minimum tension capacity of the entire as4100 object.
         :return: The calculated tension capacity (minimum of Nty and Ntu) multiplied by
             the capacity reduction factor.
         """
@@ -265,13 +265,13 @@ class AS4100(CodeCheck):
 
     def Nty(self, *, position: Union[List[float], float] = None) -> float:
         """
-        Calculates the tension yield capacity of the AS4100 object.
+        Calculates the tension yield capacity of the as4100 object.
 
         :param position: The position to calculate the capacity at. Can be a float, can
             be a list of floats or can be None.
 
             Note that if None is provided, a single tension capacity is returned which
-            is the minimum tension capacity of the entire AS4100 object.
+            is the minimum tension capacity of the entire as4100 object.
         :return: The calculated yield tension capacity.
         """
 
@@ -291,13 +291,13 @@ class AS4100(CodeCheck):
 
     def φNty(self, *, position: Union[List[float], float] = None):
         """
-        Calculates the tension yield capacity of the AS4100 object.
+        Calculates the tension yield capacity of the as4100 object.
 
         :param position: The position to calculate the capacity at. Can be a float, can
             be a list of floats or can be None.
 
             Note that if None is provided, a single tension capacity is returned which
-            is the minimum tension capacity of the entire AS4100 object.
+            is the minimum tension capacity of the entire as4100 object.
         :return: The calculated yield tension capacity, multiplied by the capacity
             reduction factor.
         """
@@ -306,13 +306,13 @@ class AS4100(CodeCheck):
 
     def Ntu(self, *, position: Union[List[float], float] = None):
         """
-        Calculates the tension yield capacity of the AS4100 object.
+        Calculates the tension yield capacity of the as4100 object.
 
         :param position: The position to calculate the capacity at. Can be a float, can
             be a list of floats or can be None.
 
             Note that if None is provided, a single tension capacity is returned which
-            is the minimum tension capacity of the entire AS4100 object.
+            is the minimum tension capacity of the entire as4100 object.
         :return: The calculated ultimate capacity.
         """
 
@@ -335,13 +335,13 @@ class AS4100(CodeCheck):
 
     def φNtu(self, *, position: Union[List[float], float] = None):
         """
-        Calculates the tension yield capacity of the AS4100 object.
+        Calculates the tension yield capacity of the as4100 object.
 
         :param position: The position to calculate the capacity at. Can be a float, can
             be a list of floats or can be None.
 
             Note that if None is provided, a single tension capacity is returned which
-            is the minimum tension capacity of the entire AS4100 object.
+            is the minimum tension capacity of the entire as4100 object.
         :return: The calculated ultimate tension capacity, multiplied by the capacity
             reduction factor.
         """
@@ -353,11 +353,11 @@ class AS4100(CodeCheck):
         *, Ag: float, An: float, fy: float, fu: float, kt: float, αu: float
     ) -> float:
         """
-        Calculates the tension capacity of a section according to AS4100 S7.1.
+        Calculates the tension capacity of a section according to as4100 S7.1.
 
         :param Ag: Gross area of a section in m².
         :param An: Net area of the section in m², allowing for holes as required
-            by AS4100.
+            by as4100.
         :param fy: The yield strength of the section in Pa. If different components
             have different yield strengths the minimum strength of the section
             should be used. Where a section has a significantly different strength
@@ -366,10 +366,10 @@ class AS4100(CodeCheck):
             detailed analysis (FEA modelling etc.) may be required.
         :param fu: The ultimate strength of the section in Pa.
         :param kt: The connection efficiency factor / eccentric connection factor
-            as per AS4100.
-        :param αu: A factor for the uncertainty in ultimate strength as per AS4100 S7.2.
-            Note that AS4100 does not provide a variable name for this value so αu is
-            used, consistent with other uses of α in AS4100. AS4100 provides a value of
+            as per as4100.
+        :param αu: A factor for the uncertainty in ultimate strength as per as4100 S7.2.
+            Note that as4100 does not provide a variable name for this value so αu is
+            used, consistent with other uses of α in as4100. as4100 provides a value of
             0.85 for this factor.
         :return:
         """
@@ -395,16 +395,16 @@ class AS4100(CodeCheck):
     def s7_2_Ntu(*, An: float, fu: float, kt: float, αu: float) -> float:
         """
         Calculates the ultimate fracture capacity of a section and includes the
-        additional uncertainty factor from AS4100.
+        additional uncertainty factor from as4100.
 
         :param An: Net area of the section in m², allowing for holes as required
-            by AS4100.
+            by as4100.
         :param fu: The ultimate strength of the section in Pa.
         :param kt: The connection efficiency factor / eccentric connection factor
-            as per AS4100.
-        :param αu: A factor for the uncertainty in ultimate strength as per AS4100 S7.2.
-            Note that AS4100 does not provide a variable name for this value so αu is
-            used, consistent with other uses of α in AS4100. AS4100 provides a value of
+            as per as4100.
+        :param αu: A factor for the uncertainty in ultimate strength as per as4100 S7.2.
+            Note that as4100 does not provide a variable name for this value so αu is
+            used, consistent with other uses of α in as4100. as4100 provides a value of
             0.85 for this factor.
         :return: Returns the ultimate fracture capacity in N.
         """
@@ -414,7 +414,7 @@ class AS4100(CodeCheck):
     @classmethod
     def default_AS4100(
         cls, beam: Beam = None, section: Section = None, file_path: str = None
-    ) -> "AS4100":
+    ) -> "as4100":
 
         config = cls.get_defaults(file_path=file_path)
         defaults = config["defaults"]
@@ -424,7 +424,7 @@ class AS4100(CodeCheck):
     @classmethod
     def get_defaults(cls, *, file_path: str = None) -> Dict[str, any]:
         """
-        This class method loads a JSON file containing default values for AS4100 objects
+        This class method loads a JSON file containing default values for as4100 objects
         that is stored in the specified location.
         If not specified, the default values stored in the package are loaded.
 
@@ -435,7 +435,7 @@ class AS4100(CodeCheck):
 
         if file_path is None:
             mod_file = Path(__file__)
-            file_path = mod_file.parent / "AS4100.toml"
+            file_path = mod_file.parent / "as4100.toml"
 
         else:
             file_path = Path(file_path)

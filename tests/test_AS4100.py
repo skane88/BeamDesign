@@ -1,5 +1,5 @@
 """
-Tests for the AS4100 class
+Tests for the as4100 class
 """
 
 from math import isclose, pi
@@ -8,7 +8,7 @@ from pytest import mark
 
 import numpy as np
 
-from beamdesign.codecheck.AS4100.AS4100 import *
+from beamdesign.codecheck.as4100.as4100 import *
 from beamdesign.beam import Beam
 from beamdesign.element import Element
 from beamdesign.sections.circle import Circle
@@ -28,7 +28,7 @@ as3678_300 = Material.load_material(name="AS3678-2016-300")
 
 def test_AS4100():
     """
-    Test whether an AS4100 object can even be instantiated
+    Test whether an as4100 object can even be instantiated
     """
 
     kwargs = {"φ_steel": 0.9, "αu": 0.85, "kt": 1.0}
@@ -48,7 +48,7 @@ def test_AS4100():
 
 def test_AS4100_default():
     """
-    Can the classmethod default_AS4100 create an AS4100 object?
+    Can the classmethod default_AS4100 create an as4100 object?
     """
 
     s = Circle(radius=0.02, material=as3678_250)
@@ -283,7 +283,7 @@ def test_as4100_get_tension2():
 @mark.parametrize("name, data", data_AllSections)
 def test_AS4100_s7_Nt(name, data):
     """
-    Test the AS4100 s7_Nty, Ntu and Nt methods.
+    Test the as4100 s7_Nty, Ntu and Nt methods.
     """
 
     Ag = data.Ag
